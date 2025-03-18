@@ -14,7 +14,7 @@
 
 <!--DEPENDENCIAS-->
 ## Dependências
-´´´bash
+```bash
 # Instalar dependências do projeto
 npm install
 
