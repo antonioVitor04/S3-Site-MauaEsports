@@ -26,7 +26,7 @@ npm install react-icons
 
 # Iniciar o projeto
 npm run dev
-
+```
 <!--FUNCIONALIDADES-->
 
 
