@@ -1,4 +1,13 @@
+@font-face {
+  font-family: Blinker;
+  src: url(../src/fonts/Blinker-Regular.ttf);
+}
+
 @import "tailwindcss";
 @theme {
   --color-white: oklch(100% 0 0);
+  --color-azul-escuro: oklch(18.1% 0.19 212.7);
+  --color-azul-claro: oklch(22.4% 0.29 210.3);
+
+  --font-blinker: Blinker, "sans-serif";
 }
