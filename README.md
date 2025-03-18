@@ -24,6 +24,9 @@ npm install tailwindcss @tailwindcss/vite
 # Instalar React Icons
 npm install react-icons
 
+#Instalar React Styled-components
+npm install styled-components
+
 # Iniciar o projeto
 npm run dev
 ```
