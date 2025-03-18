@@ -12,6 +12,20 @@
 ## Status
 > ⏳ Em Desenvolvimento.
 
+<!--DEPENDENCIAS-->
+## Dependências
+´´´bash
+# Instalar dependências do projeto
+npm install
+
+# Instalar Tailwind CSS com Vite
+npm install tailwindcss @tailwindcss/vite
+
+# Instalar React Icons
+npm install react-icons
+
+# Iniciar o projeto
+npm run dev
 
 <!--FUNCIONALIDADES-->
 
