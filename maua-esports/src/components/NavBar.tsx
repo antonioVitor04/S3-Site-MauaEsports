@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { IoLogoSteam, IoMdArrowDropdown } from "react-icons/io";
-import LoginBtn from "./LoginBtn";
+import { Link } from "react-router-dom"; // Para navegação
+import { IoMdArrowDropdown, IoMdClose } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { useAuth } from "../contexts/AuthContexts"; // Importando o hook useAuth para acessar o contexto
 import LogoutBtn from "./LogoutBtn";
-import { IoMdClose } from "react-icons/io";
+import LoginBtn from "./LoginBtn";
 
 const NavBar = () => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false); // Controla o estado do menu hambúrguer
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Controla o estado do dropdown
   const [isScrolled, setIsScrolled] = useState(false); // Verifica se a página foi rolada
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // monitora o estado pra ver se usuario esta logado
+
+  // Consumindo o estado de login e as funções do contexto de autenticação
+  const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,12 +25,7 @@ const NavBar = () => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); // Controla o dropdown
   const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen); // Controla o menu hambúrguer
-  const fazerLogin = () => {
-    setIsLoggedIn(true); // Altera o estado de login
-  };
-  const fazerLogout = () => {
-    setIsLoggedIn(false);
-  };
+
   return (
     <nav
       className={`py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out ${
@@ -66,7 +64,7 @@ const NavBar = () => {
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
-          Sobre
+          <Link to="/">Sobre</Link>
         </li>
         <li
           className={`relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] ${
@@ -88,22 +86,20 @@ const NavBar = () => {
           {/* Dropdown com animação de fade e slide */}
           <ul
             className={`absolute bg-azul-claro shadow-lg mt-2 py-2 rounded-lg 
-      transition-all duration-300 ease-out 
-      ${
-        isDropdownOpen
-          ? "opacity-100 translate-y-0 block" // se dropdown estiver aberto ele mostra e define display
-          : "opacity-0 translate-y-[-20px] hidden" // se estiver fechado display none
-      }
-    `}
+            transition-all duration-300 ease-out ${
+              isDropdownOpen
+                ? "opacity-100 translate-y-0 block"
+                : "opacity-0 translate-y-[-20px] hidden"
+            }`}
           >
             <li className="px-4 py-2 border-b-2">
               <span className="inline-block transform hover:scale-110 transition-transform duration-300 cursor-pointer">
-                Membros
+                <Link to="/membros">Membros</Link>
               </span>
             </li>
             <li className="px-4 py-2">
               <span className="inline-block transform hover:scale-110 transition-transform duration-300 cursor-pointer">
-                Staff
+                <Link to="/staff">Staff</Link>
               </span>
             </li>
           </ul>
@@ -114,27 +110,27 @@ const NavBar = () => {
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
-          Campeonatos
+          <Link to="/campeonatos">Campeonatos</Link>
         </li>
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
-          Novidades
+          <Link to="/novidades">Novidades</Link>
         </li>
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
             isLoggedIn
               ? isHamburgerOpen
-                ? "block border-b border-white" // Se o menu hambúrguer estiver aberto e usuario logado, aplica a borda
-                : "block" // Se o usuário estiver logado, mas o menu hambúrguer não está aberto ele aparece sem a borda (dispositivos maiores)
-              : "hidden" // Se o usuário não estiver logado, o item fica escondido
+                ? "block border-b border-white"
+                : "block"
+              : "hidden"
           }`}
         >
-          Horas PAEs
+          <Link to="/horas-paes">Horas PAEs</Link>
         </li>
-        {/* Exibindo o botão de login, que agora pode chamar a função de login */}
+        {/* Exibindo o botão de login, que chama a função de login */}
         <li className="px-4 py-2 cursor-pointer">
           {!isLoggedIn ? (
             <LoginBtn fazerLogin={fazerLogin} />
