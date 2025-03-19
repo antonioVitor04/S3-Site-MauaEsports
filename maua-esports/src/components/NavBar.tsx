@@ -29,9 +29,7 @@ const NavBar = () => {
   return (
     <nav
       className={`py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out ${
-        isScrolled
-          ? "bg-azul-escuro bg-opacity-70"
-          : "bg-azul-escuro lg:bg-transparent"
+        isScrolled ? "bg-preto bg-opacity-70" : "bg-preto lg:bg-transparent"
       }`}
     >
       {/* Logo */}
@@ -55,25 +53,25 @@ const NavBar = () => {
       <ul
         className={`gap-6 items-center lg:flex ${
           isHamburgerOpen
-            ? "mx-0 bg-azul-escuro flex flex-col w-full absolute top-full left-0 justify-center items-center"
+            ? "mx-0 bg-preto flex flex-col w-full absolute top-full left-0 justify-center items-center"
             : "lg:block hidden mx-25"
         }`}
       >
         <li
-          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
+          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] hover:bg-gray-500/20 hover:rounded-md${
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
           <Link to="/">Sobre</Link>
         </li>
         <li
-          className={`relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] ${
+          className={`relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] hover:bg-gray-500/20 hover:rounded-md${
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
           <button
             onClick={toggleDropdown}
-            className="focus:outline-none flex items-center gap-1 cursor-pointer"
+            className="focus:outline-none flex items-center gap-1 cursor-pointer "
           >
             Times{" "}
             <IoMdArrowDropdown
@@ -85,7 +83,7 @@ const NavBar = () => {
 
           {/* Dropdown com animação de fade e slide */}
           <ul
-            className={`absolute bg-azul-claro shadow-lg mt-2 py-2 rounded-lg 
+            className={`absolute bg-preto shadow-lg mt-2 py-2 rounded-lg 
             transition-all duration-300 ease-out ${
               isDropdownOpen
                 ? "opacity-100 translate-y-0 block"
@@ -94,7 +92,7 @@ const NavBar = () => {
           >
             <li className="px-4 py-2 border-b-2">
               <span className="inline-block transform hover:scale-110 transition-transform duration-300 cursor-pointer">
-                <Link to="/membros">Membros</Link>
+                <Link to="/times">Membros</Link>
               </span>
             </li>
             <li className="px-4 py-2">
@@ -106,14 +104,14 @@ const NavBar = () => {
         </li>
 
         <li
-          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
+          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] hover:bg-gray-500/20 hover:rounded-md${
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
           <Link to="/campeonatos">Campeonatos</Link>
         </li>
         <li
-          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
+          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] hover:bg-gray-500/20 hover:rounded-md${
             isHamburgerOpen ? "border-b border-white" : ""
           }`}
         >
