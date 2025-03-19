@@ -29,9 +29,7 @@ const NavBar = () => {
   return (
     <nav
       className={`py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out ${
-        isScrolled
-          ? "bg-azul-escuro bg-opacity-70"
-          : "bg-azul-escuro lg:bg-transparent"
+        isScrolled ? "bg-preto opacity-80" : "bg-preto lg:bg-transparent"
       }`}
     >
       {/* Logo */}
@@ -55,7 +53,7 @@ const NavBar = () => {
       <ul
         className={`gap-6 items-center lg:flex ${
           isHamburgerOpen
-            ? "mx-0 bg-azul-escuro flex flex-col w-full absolute top-full left-0 justify-center items-center"
+            ? "mx-0 bg-preto flex flex-col w-full absolute top-full left-0 justify-center items-center"
             : "lg:block hidden mx-25"
         }`}
       >
@@ -85,7 +83,7 @@ const NavBar = () => {
 
           {/* Dropdown com animação de fade e slide */}
           <ul
-            className={`absolute bg-azul-claro shadow-lg mt-2 py-2 rounded-lg 
+            className={`absolute bg-preto shadow-lg mt-2 py-2 rounded-lg 
             transition-all duration-300 ease-out ${
               isDropdownOpen
                 ? "opacity-100 translate-y-0 block"

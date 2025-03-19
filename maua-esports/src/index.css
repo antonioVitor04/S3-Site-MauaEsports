@@ -8,6 +8,6 @@
   --color-white: oklch(100% 0 0);
   --color-azul-escuro: oklch(18.1% 0.19 212.7);
   --color-azul-claro: oklch(22.4% 0.29 210.3);
-
+  --color-preto: oklch(0% 0 0);
   --font-blinker: Blinker, "sans-serif";
 }
