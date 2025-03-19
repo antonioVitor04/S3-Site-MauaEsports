@@ -5,9 +5,33 @@
 
 @import "tailwindcss";
 @theme {
-  --color-white: oklch(100% 0 0);
+  --color-branco: oklch(100% 0 0);
   --color-azul-escuro: oklch(18.1% 0.19 212.7);
   --color-azul-claro: oklch(22.4% 0.29 210.3);
   --color-preto: oklch(0% 0 0);
   --font-blinker: Blinker, "sans-serif";
+}
+/* oculta a barra de scroll da area de membros/staff/times */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none; /* Para o Internet Explorer */
+  scrollbar-width: none; /* Para o Firefox */
+}
+/* Definição da animação */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aplicando a animação */
+.animation {
+  animation: fadeInUp 1s ease-out forwards;
 }
