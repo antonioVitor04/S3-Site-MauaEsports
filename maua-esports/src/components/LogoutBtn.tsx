@@ -1,17 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import { CgLogIn } from "react-icons/cg";
+import { CgLogOut } from "react-icons/cg";
 
 
-// Definindo o tipo das props que o componente LoginBtn vai receber
-interface LoginBtnProps {
-  fazerLogin: () => void; // Tipando a função fazerLogin como uma função que não recebe parâmetros e não retorna nada
+// Definindo o tipo das props que o componente LogoutBtn vai receber
+interface LogoutBtnProps {
+  fazerLogout: () => void; // Tipando a função fazerLogout como uma função que não recebe parâmetros e não retorna nada
 }
 
-const LoginBtn: React.FC<LoginBtnProps> = ({ fazerLogin }) => {
+const LogoutBtn: React.FC<LogoutBtnProps> = ({ fazerLogout }) => {
   return (
     <StyledWrapper>
-      <button onClick={fazerLogin}>Login <CgLogIn />
+      <button onClick={fazerLogout}>Logout <CgLogOut />
       </button>
     </StyledWrapper>
   );
@@ -39,7 +39,7 @@ const StyledWrapper = styled.div`
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    right: 0;
     height: 100%;
     width: 0;
     border-radius: 15px;
@@ -59,4 +59,4 @@ const StyledWrapper = styled.div`
   }
 `;
 
-export default LoginBtn;
+export default LogoutBtn;
