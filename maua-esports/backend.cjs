@@ -90,7 +90,6 @@ app.post('/login', async (req, res) => {
     //aqui vamos gerar o token e devolver para o cliente
     const token = jwt.sign(
         { login: login },
-        //depois vamos mudar para uma chave secreta de verdade
         "chave-secreta",
         { expiresIn: "1h" }
     )
