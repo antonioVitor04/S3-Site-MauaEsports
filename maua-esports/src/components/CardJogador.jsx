@@ -8,7 +8,7 @@ const CardJogador = () => {
   return (
     <div
       className="relative w-[300px] h-[450px] bg-slate-300 shadow-lg flex flex-col items-center 
-             rounded-tl-3xl rounded-tr-sm rounded-bl-sm rounded-br-3xl hover:scale-110 transition-transform duration-300 cursor-pointer
+               hover:scale-110 transition-transform duration-300 cursor-pointer
              animation"
       style={{
         clipPath:
@@ -16,7 +16,7 @@ const CardJogador = () => {
       }}
     >
       {/* Título do card */}
-      <h1 className="text-xl font-bold font-blinker bg-sky-400 rounded-bl-2xl  px-2 py-1 inline-block absolute top-0 right-0 z-10">
+      <h1 className="text-xl font-bold font-blinker bg-sky-400 rounded-bl-2xl  px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
         Título
       </h1>
 

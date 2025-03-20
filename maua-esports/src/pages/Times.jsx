@@ -13,20 +13,20 @@ const Times = () => {
       {/* Seção 2 */}
       <div className="bg-slate-400 w-full min-h-screen flex justify-center items-center absolute overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">
-          <Link to="/membros">
+          <Link to="/times/membros">
             <CardTime />
           </Link>
 
-          <Link to="/membros">
+          <Link to="/times/membros">
             <CardTime />
           </Link>
-          <Link to="/membros">
+          <Link to="/times/membros">
             <CardTime />
           </Link>
-          <Link to="/membros">
+          <Link to="/times/membros">
             <CardTime />
           </Link>
-          <Link to="/membros">
+          <Link to="/times/membros">
             <CardTime />
           </Link>
         </div>
