@@ -8,7 +8,11 @@
   --color-branco: oklch(100% 0 0);
   --color-azul-escuro: oklch(18.1% 0.19 212.7);
   --color-azul-claro: oklch(76.89% 0.22 233.14);
-
+  --color-navbar: oklch(10.39% 0.0194 248.34);
+  --color-fundo: oklch(17.63% 0.014 258.36);
+  --color-hover: oklch(29.16% 0.0202 260.62);
+  --color-borda: oklch(38.37% 0.0179 254.74);
+  --color-vermelho-claro: oklch(71.66% 0.1758 18.47);
   --color-preto: oklch(0% 0 0);
   --font-blinker: Blinker, "sans-serif";
 }
