@@ -16,7 +16,8 @@ const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Controla a abertura do dropdown de times
   const [isScrolled, setIsScrolled] = useState(false); // Verifica se a página foi rolada
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Controla a abertura do dropdown do perfil
-  const [isHovered, setIsHovered] = useState(false);
+  const [isPenHovered, setPenIsHovered] = useState(false);
+  const [isClockHovered, setClockIsHovered] = useState(false);
 
   // Consumindo o contexto de autenticação
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
@@ -196,8 +197,8 @@ const NavBar = () => {
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
                 <div
                   className="relative w-12 h-12 group"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
+                  onMouseEnter={() => setPenIsHovered(true)}
+                  onMouseLeave={() => setPenIsHovered(false)}
                 >
                   <div className="w-full h-full rounded-full overflow-hidden">
                     <HiUserCircle className="w-full h-full transform hover:scale-110 transition-transform duration-300 cursor-pointer hover:bg-hover hover:border-2 hover:border-borda hover:rounded-full" />
@@ -208,7 +209,7 @@ const NavBar = () => {
                     <FaPen
                       className="w-4 h-4 text-azul-claro"
                       style={{
-                        animation: isHovered ? "shake 0.7s ease-in-out" : "none", // Aplica a animação apenas no hover
+                        animation: isPenHovered ? "shake 0.7s ease-in-out" : "none", // Aplica a animação apenas no hover
                       }}
                     />
                   </div>
@@ -226,9 +227,14 @@ const NavBar = () => {
 
               {/* Opções do menu */}
               <div className="flex-grow">
-                <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover">
+                <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                onMouseEnter={() => setClockIsHovered(true)}
+                onMouseLeave={() => setClockIsHovered(false)}>
                   <div className="w-10 h-10 flex items-center justify-center">
-                    <FaRegClock className="text-2xl text-azul-claro" />{" "}
+                    <FaRegClock className="text-2xl text-azul-claro"
+                    style={{
+                        animation: isClockHovered ? "rodar 0.7s ease-in-out " : "none", // Aplica a animação apenas no hover
+                      }} />
                     {/* Ícone de relógio */}
                   </div>
                   <div className="flex flex-col flex-grow items-start overflow-hidden">
