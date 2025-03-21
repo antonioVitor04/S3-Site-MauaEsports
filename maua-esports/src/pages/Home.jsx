@@ -1,7 +1,7 @@
 const Home = () => {
   return (
-    <div className="w-screen h-screen bg-slate-400">
-      <div className="h-[2000px]">
+    <div className="w-screen h-screen bg-fundo">
+      <div className="h-[2000px] bg-fundo">
         {/* Aqui está a altura extra para garantir que há rolagem */}
       </div>
     </div>
