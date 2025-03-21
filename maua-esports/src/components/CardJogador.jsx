@@ -2,12 +2,14 @@ import { FaInstagram } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { IoLogoTwitch } from "react-icons/io";
 import Foto from "../assets/images/Foto.svg";
-import Jogo from "../assets/images/Jogo.svg";
+import Jogo from "../assets/images/logovalorant.svg";
+import { MdDelete } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 
 const CardJogador = () => {
   return (
     <div
-      className="relative w-[300px] h-[450px] bg-slate-300 shadow-lg flex flex-col items-center 
+      className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center 
                hover:scale-110 transition-transform duration-300 cursor-pointer
              animation"
       style={{
@@ -16,7 +18,7 @@ const CardJogador = () => {
       }}
     >
       {/* Título do card */}
-      <h1 className="text-xl font-bold font-blinker bg-sky-400 rounded-bl-2xl  px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
+      <h1 className="text-xl font-bold font-blinker bg-azul-claro rounded-bl-2xl  px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
         Título
       </h1>
 
@@ -35,25 +37,36 @@ const CardJogador = () => {
       <div className="justify-center items-center">
         {/* Nome e ícone do jogo */}
         <div className="flex mt-3 space-x-2 font-blinker justify-between w-full">
-          <h1 className="text-lg font-semibold ml-5">Nome do Jogador</h1>
-          <img src={Jogo} alt="Jogo" className="w-6 h-6 mr-5" />
+          <h1 className="text-lg font-semibold ml-5 text-fonte-clara">
+            Nome do Jogador
+          </h1>
+          <img src={Jogo} alt="Jogo" className="w-6 h-6 mr-5 text-azul-claro" />
         </div>
 
         {/* Descrição do jogador */}
-        <div className="w-full">
-          <p className="text-sm text-left mt-2 px-5 font-blinker  max-w-full">
+        <div className="w-full border-b-2 py-2 border-borda">
+          <p className="text-sm text-left mt-2 px-5 font-blinker  max-w-full text-fonte-escura">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque,
-            quae, voluptate id ad iste nulla ipsa odio vel, molestias voluptas
-            consequuntur commodi inventore saepe reiciendis voluptatibus soluta
-            amet numquam possimus!
+            quae, voluptate id t amet consectetur adipisicing elit. Atque,
           </p>
         </div>
 
-        {/* Social Media */}
-        <div className="flex space-x-4 my-4 px-5 text-xl justify-start w-full">
-          <FaInstagram className="cursor-pointer hover:bg-gray-500/10 hover:rounded-md hover:scale-120 transition-transform duration-300" />
-          <RiTwitterXFill className="cursor-pointer  hover:scale-120 transition-transform duration-300" />
-          <IoLogoTwitch className="cursor-pointer  hover:scale-120 transition-transform duration-300" />
+        {/* Social Media e botoes de manipulacao */}
+        <div className="flex items-center space-x-4 my-4 px-5 text-xl w-full text-fonte-escura">
+          <FaInstagram className="cursor-pointer  hover:scale-110 transition-transform duration-300" />
+          <RiTwitterXFill className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+          <IoLogoTwitch className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+
+          {/* Botões alinhados à direita */}
+          <div className="flex space-x-2 ml-auto mr-3 gap-2">
+            <button className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-azul-claro hover:scale-110 transition-transform duration-300">
+              <MdEdit className="w-6 h-6" />
+            </button>
+            <button className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-vermelho-claro hover:scale-110 transition-transform duration-300">
+              <MdDelete className="w-6 h-6" />
+            </button>
+            {/* Placeholder para o segundo botão */}
+          </div>
         </div>
       </div>
     </div>

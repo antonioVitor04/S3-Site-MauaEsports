@@ -211,7 +211,7 @@ const NavBar = () => {
               <div className="flex-grow">
                 <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover">
                   <div className="w-10 h-10 flex items-center justify-center">
-                    <FaRegClock className="text-2xl text-azul-claro" />{" "}
+                    <FaRegClock className="text-2xl text-azul-claro" />
                     {/* Ícone de relógio */}
                   </div>
                   <div className="flex flex-col flex-grow items-start overflow-hidden">
