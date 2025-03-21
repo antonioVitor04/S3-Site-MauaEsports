@@ -220,9 +220,6 @@ const NavBar = () => {
                     24.01402-8@maua.br
                   </p>
                 </div>
-                <button className="bg-hover rounded-md px-2 py-1 font-bold text-sm cursor-pointer">
-                  Editar
-                </button>
               </div>
 
               {/* Opções do menu */}
