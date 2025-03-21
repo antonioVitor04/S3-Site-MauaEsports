@@ -8,6 +8,7 @@ import { RiTeamFill } from "react-icons/ri"; // Ícone de times
 import { FaUserTie, FaRegClock } from "react-icons/fa"; // Ícones de usuário e relógio
 import { HiUserCircle } from "react-icons/hi2"; // Ícone de perfil do usuário
 import logo from "../assets/images/Logo.svg"; // Logo da aplicação
+import { FaPen } from "react-icons/fa";
 
 const NavBar = () => {
   // Estados para controlar o menu hambúrguer, dropdowns e scroll
@@ -15,6 +16,7 @@ const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Controla a abertura do dropdown de times
   const [isScrolled, setIsScrolled] = useState(false); // Verifica se a página foi rolada
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Controla a abertura do dropdown do perfil
+  const [isHovered, setIsHovered] = useState(false);
 
   // Consumindo o contexto de autenticação
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
@@ -192,9 +194,24 @@ const NavBar = () => {
             <div className="bg-fundo w-70 h-90 border-2 border-borda shadow-azul-claro shadow-sm rounded-lg flex flex-col">
               {/* Cabeçalho com ícone, nome e email */}
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
-                <div className="w-12 h-12">
-                  <HiUserCircle className="w-full h-full" />{" "}
-                  {/* Ícone do perfil */}
+                <div
+                  className="relative w-12 h-12 group"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <div className="w-full h-full rounded-full overflow-hidden">
+                    <HiUserCircle className="w-full h-full transform hover:scale-110 transition-transform duration-300 cursor-pointer hover:bg-hover hover:border-2 hover:border-borda hover:rounded-full" />
+                  </div>
+
+                  {/* Ícone que aparece na frente */}
+                  <div className="absolute bottom-0 right-0 rounded-full p-1 shadow-sm transition-opacity duration-300">
+                    <FaPen
+                      className="w-4 h-4 text-azul-claro"
+                      style={{
+                        animation: isHovered ? "shake 0.7s ease-in-out" : "none", // Aplica a animação apenas no hover
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col flex-grow items-start overflow-hidden">
                   <h1 className="font-bold">Usuário</h1>

@@ -197,7 +197,7 @@ app.get('/parceiros-puxar', async (req, res) => {
     }
 });
 
-app.listen(3002, () => {
+app.listen(300, () => {
     try {
         conectarAoMongoDB()
         console.log("up and running")
