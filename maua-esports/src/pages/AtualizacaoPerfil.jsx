@@ -9,7 +9,10 @@ const AtualizacaoPerfil = () => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState(null);
-  const [croppedImage, setCroppedImage] = useState(null);
+  const [croppedImage, setCroppedImage] = useState(() => {
+    // Recupera a imagem salva no localStorage ao inicializar o componente
+    return localStorage.getItem("croppedImage") || null;
+  });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -51,6 +54,9 @@ const AtualizacaoPerfil = () => {
 
         const croppedImageUrl = canvas.toDataURL("image/jpeg");
         setCroppedImage(croppedImageUrl);
+
+        // Salvar a imagem cortada no localStorage
+        localStorage.setItem("croppedImage", croppedImageUrl);
       };
     }
   };

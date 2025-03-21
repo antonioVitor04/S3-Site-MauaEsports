@@ -1,42 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Para navegação entre páginas
-import { IoMdArrowDropdown, IoMdClose } from "react-icons/io"; // Ícones de dropdown e fechar
-import { GiHamburgerMenu } from "react-icons/gi"; // Ícone do menu hambúrguer
-import { useAuth } from "../contexts/AuthContexts"; // Hook para autenticação
-import { CgLogIn, CgLogOut } from "react-icons/cg"; // Ícones de login e logout
-import { RiTeamFill } from "react-icons/ri"; // Ícone de times
-import { FaUserTie, FaRegClock } from "react-icons/fa"; // Ícones de usuário e relógio
-import { HiUserCircle } from "react-icons/hi2"; // Ícone de perfil do usuário
-import logo from "../assets/images/Logo.svg"; // Logo da aplicação
-import AtualizacaoPerfil from "../pages/AtualizacaoPerfil.jsx";
+import { Link } from "react-router-dom";
+import { IoMdArrowDropdown, IoMdClose } from "react-icons/io";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { useAuth } from "../contexts/AuthContexts";
+import { CgLogIn, CgLogOut } from "react-icons/cg";
+import { RiTeamFill } from "react-icons/ri";
+import { FaUserTie, FaRegClock } from "react-icons/fa";
+import { HiUserCircle } from "react-icons/hi2";
+import logo from "../assets/images/Logo.svg";
+import AtualizacaoPerfil from "../pages/AtualizacaoPerfil";
 
 const NavBar = () => {
-  // Estados para controlar o menu hambúrguer, dropdowns e scroll
-  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false); // Controla a abertura do menu hambúrguer
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Controla a abertura do dropdown de times
-  const [isScrolled, setIsScrolled] = useState(false); // Verifica se a página foi rolada
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Controla a abertura do dropdown do perfil
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isPenHovered, setPenIsHovered] = useState(false);
   const [isClockHovered, setClockIsHovered] = useState(false);
-
-  // Consumindo o contexto de autenticação
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
+
+  // Efeito para recuperar a imagem cortada do localStorage ao carregar a NavBar
+  useEffect(() => {
+    const savedImage = localStorage.getItem("croppedImage");
+    if (savedImage) {
+      setCroppedImage(savedImage); // Define a imagem cortada no estado
+    }
+  }, []);
+
+  // const [croppedImage, setCroppedImage] = useState(() => {
+  //   // Recupera a imagem salva no localStorage ao inicializar o componente
+  //   return localStorage.getItem("croppedImage") || null;
+  // });
+
+  // Monitora mudanças no localStorage para atualizar a imagem automaticamente
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedImage = localStorage.getItem("croppedImage");
+      setCroppedImage(savedImage);
+    };
+
+    // Adiciona um listener para o evento 'storage'
+    window.addEventListener("storage", handleStorageChange);
+
+    // Remove o listener ao desmontar o componente
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   // Efeito para detectar scroll da página
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50); // Atualiza o estado se o scroll for maior que 50px
+      setIsScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener("scroll", handleScroll); // Adiciona o listener de scroll
-    return () => window.removeEventListener("scroll", handleScroll); // Remove o listener ao desmontar
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Funções para alternar estados
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); // Alterna o dropdown de times
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleProfileDropdown = () =>
-    setIsProfileDropdownOpen(!isProfileDropdownOpen); // Alterna o dropdown do perfil
-  const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen); // Alterna o menu hambúrguer
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen);
 
   return (
     <nav
@@ -66,9 +92,9 @@ const NavBar = () => {
         onClick={toggleHamburgerMenu}
       >
         {isHamburgerOpen ? (
-          <IoMdClose className="text-2xl" /> // Ícone de fechar
+          <IoMdClose className="text-2xl" />
         ) : (
-          <GiHamburgerMenu className="text-2xl" /> // Ícone do menu hambúrguer
+          <GiHamburgerMenu className="text-2xl" />
         )}
       </button>
 
@@ -107,7 +133,7 @@ const NavBar = () => {
             <IoMdArrowDropdown
               className={`transition-transform duration-300 ${
                 isDropdownOpen ? "rotate-180" : "rotate-0"
-              }`} // Animação de rotação do ícone
+              }`}
             />
           </button>
 
@@ -177,7 +203,15 @@ const NavBar = () => {
             onClick={toggleProfileDropdown}
             className="flex justify-center items-center border-2 rounded-full border-borda w-10 h-10 cursor-pointer"
           >
-            <HiUserCircle className="w-full h-full" /> {/* Ícone do perfil */}
+            {croppedImage ? ( // Exibe a imagem cortada se existir
+              <img
+                src={croppedImage}
+                alt="Foto de Perfil"
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <HiUserCircle className="w-full h-full" /> // Exibe o ícone padrão se não houver imagem cortada
+            )}
           </button>
 
           {/* Dropdown do perfil */}
@@ -195,9 +229,7 @@ const NavBar = () => {
             <div className="bg-fundo w-70 h-90 border-2 border-borda shadow-azul-claro shadow-sm rounded-lg flex flex-col">
               {/* Cabeçalho com ícone, nome e email */}
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
-
-              <AtualizacaoPerfil />
-
+                <AtualizacaoPerfil />
                 <div className="flex flex-col flex-grow items-start overflow-hidden">
                   <h1 className="font-bold">Usuário</h1>
                   <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
@@ -208,15 +240,20 @@ const NavBar = () => {
 
               {/* Opções do menu */}
               <div className="flex-grow">
-                <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
-                onMouseEnter={() => setClockIsHovered(true)}
-                onMouseLeave={() => setClockIsHovered(false)}>
+                <div
+                  className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                  onMouseEnter={() => setClockIsHovered(true)}
+                  onMouseLeave={() => setClockIsHovered(false)}
+                >
                   <div className="w-10 h-10 flex items-center justify-center">
-                    <FaRegClock className="text-2xl text-azul-claro"
-                    style={{
-                        animation: isClockHovered ? "rodar 0.7s ease-in-out " : "none", // Aplica a animação apenas no hover
-                      }} />
-                    {/* Ícone de relógio */}
+                    <FaRegClock
+                      className="text-2xl text-azul-claro"
+                      style={{
+                        animation: isClockHovered
+                          ? "rodar 0.7s ease-in-out "
+                          : "none",
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col flex-grow items-start overflow-hidden">
                     <h1 className="font-bold">Horas PAEs</h1>
@@ -232,7 +269,7 @@ const NavBar = () => {
                 className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover"
                 onClick={fazerLogout}
               >
-                <CgLogOut className="text-2xl" /> {/* Ícone de logout */}
+                <CgLogOut className="text-2xl" />
                 <span>Sair da conta</span>
               </button>
             </div>
@@ -247,7 +284,7 @@ const NavBar = () => {
               className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Login <CgLogIn /> {/* Ícone de login */}
+                Login <CgLogIn />
               </span>
             </button>
           )}
