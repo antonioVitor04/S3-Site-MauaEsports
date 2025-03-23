@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import { HiUserCircle } from "react-icons/hi";
@@ -101,8 +102,14 @@ const AtualizacaoPerfil = () => {
 
       {image && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg relative" style={{ zIndex: 100 }}>
-            <div className="relative" style={{ width: "300px", height: "300px", zIndex: 1 }}>
+          <div
+            className="bg-white p-4 rounded-lg relative"
+            style={{ zIndex: 100 }}
+          >
+            <div
+              className="relative"
+              style={{ width: "300px", height: "300px", zIndex: 1 }}
+            >
               <Cropper
                 image={image}
                 crop={crop}
