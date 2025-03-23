@@ -8,6 +8,7 @@ import { RiTeamFill } from "react-icons/ri"; // Ícone de times
 import { FaUserTie, FaRegClock } from "react-icons/fa"; // Ícones de usuário e relógio
 import { HiUserCircle } from "react-icons/hi2"; // Ícone de perfil do usuário
 import logo from "../assets/images/Logo.svg"; // Logo da aplicação
+import AtualizacaoPerfil from "../pages/AtualizacaoPerfil.jsx";
 
 const NavBar = () => {
   // Estados para controlar o menu hambúrguer, dropdowns e scroll
@@ -15,6 +16,8 @@ const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Controla a abertura do dropdown de times
   const [isScrolled, setIsScrolled] = useState(false); // Verifica se a página foi rolada
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Controla a abertura do dropdown do perfil
+  const [isPenHovered, setPenIsHovered] = useState(false);
+  const [isClockHovered, setClockIsHovered] = useState(false);
 
   // Consumindo o contexto de autenticação
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
@@ -37,9 +40,12 @@ const NavBar = () => {
 
   return (
     <nav
-      className={`py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out ${
-        isScrolled ? "bg-navbar bg-opacity-70" : "bg-navbar lg:bg-transparent"
-      }`}
+      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out
+    ${
+      isScrolled ? "bg-navbar lg:bg-navbar" : "bg-transparent lg:bg-transparent"
+    } // Fundo condicional baseado no scroll
+    md:bg-navbar 
+  `}
     >
       {/* Borda animada que aparece ao rolar a página */}
       <div className="absolute bottom-0 left-0 w-full h-[2px] bg-transparent">
@@ -73,7 +79,7 @@ const NavBar = () => {
       <ul
         className={`gap-6 items-center lg:flex ${
           isHamburgerOpen
-            ? "mx-0 bg-preto flex flex-col w-full absolute top-full left-0 justify-center items-center"
+            ? "mx-0 bg-navbar flex flex-col w-full absolute top-full left-0 justify-center items-center"
             : "lg:block hidden mx-14"
         }`}
       >
@@ -192,26 +198,32 @@ const NavBar = () => {
             <div className="bg-fundo w-70 h-90 border-2 border-borda shadow-azul-claro shadow-sm rounded-lg flex flex-col">
               {/* Cabeçalho com ícone, nome e email */}
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
-                <div className="w-12 h-12">
-                  <HiUserCircle className="w-full h-full" />{" "}
-                  {/* Ícone do perfil */}
-                </div>
+                <AtualizacaoPerfil />
+
                 <div className="flex flex-col flex-grow items-start overflow-hidden">
                   <h1 className="font-bold">Usuário</h1>
                   <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
                     24.01402-8@maua.br
                   </p>
                 </div>
-                <button className="bg-hover rounded-md px-2 py-1 font-bold text-sm cursor-pointer">
-                  Editar
-                </button>
               </div>
 
               {/* Opções do menu */}
               <div className="flex-grow">
-                <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover">
+                <div
+                  className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                  onMouseEnter={() => setClockIsHovered(true)}
+                  onMouseLeave={() => setClockIsHovered(false)}
+                >
                   <div className="w-10 h-10 flex items-center justify-center">
-                    <FaRegClock className="text-2xl text-azul-claro" />
+                    <FaRegClock
+                      className="text-2xl text-azul-claro"
+                      style={{
+                        animation: isClockHovered
+                          ? "rodar 0.7s ease-in-out "
+                          : "none", // Aplica a animação apenas no hover
+                      }}
+                    />
                     {/* Ícone de relógio */}
                   </div>
                   <div className="flex flex-col flex-grow items-start overflow-hidden">

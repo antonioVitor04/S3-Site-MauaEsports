@@ -2,7 +2,7 @@
   font-family: Blinker;
   src: url(../src/fonts/Blinker-Regular.ttf);
 }
-
+@tailwind utilities;
 @import "tailwindcss";
 @theme {
   --color-branco: oklch(100% 0 0);
@@ -42,3 +42,31 @@
 .animation {
   animation: fadeInUp 1s ease-out forwards;
 }
+
+@keyframes shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  75% {
+    transform: rotate(-20deg);
+  }
+}
+
+@keyframes rodar {
+
+  
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg); /* Uma volta completa */
+  }
+
+}
+
