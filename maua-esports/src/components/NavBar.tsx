@@ -66,9 +66,12 @@ const NavBar = () => {
 
   return (
     <nav
-      className={`py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out ${
-        isScrolled ? "bg-navbar bg-opacity-70" : "bg-navbar lg:bg-transparent"
-      }`}
+      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out
+    ${
+      isScrolled ? "bg-navbar lg:bg-navbar" : "bg-transparent lg:bg-transparent"
+    } // Fundo condicional baseado no scroll
+    md:bg-navbar 
+  `}
     >
       {/* Borda animada que aparece ao rolar a página */}
       <div className="absolute bottom-0 left-0 w-full h-[2px] bg-transparent">
@@ -102,7 +105,7 @@ const NavBar = () => {
       <ul
         className={`gap-6 items-center lg:flex ${
           isHamburgerOpen
-            ? "mx-0 bg-preto flex flex-col w-full absolute top-full left-0 justify-center items-center"
+            ? "mx-0 bg-navbar flex flex-col w-full absolute top-full left-0 justify-center items-center"
             : "lg:block hidden mx-14"
         }`}
       >
@@ -251,9 +254,10 @@ const NavBar = () => {
                       style={{
                         animation: isClockHovered
                           ? "rodar 0.7s ease-in-out "
-                          : "none",
+                          : "none", // Aplica a animação apenas no hover
                       }}
                     />
+                    {/* Ícone de relógio */}
                   </div>
                   <div className="flex flex-col flex-grow items-start overflow-hidden">
                     <h1 className="font-bold">Horas PAEs</h1>

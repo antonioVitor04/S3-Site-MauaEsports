@@ -1,7 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import { HiUserCircle } from "react-icons/hi2";
 import { FaPen } from "react-icons/fa";
+import { MdDone } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 
 const AtualizacaoPerfil = () => {
   const [isPenHovered, setPenIsHovered] = useState(false);
@@ -57,6 +60,8 @@ const AtualizacaoPerfil = () => {
 
         // Salvar a imagem cortada no localStorage
         localStorage.setItem("croppedImage", croppedImageUrl);
+
+        setImage(null);
       };
     }
   };
@@ -101,8 +106,14 @@ const AtualizacaoPerfil = () => {
 
       {image && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg relative" style={{ zIndex: 100 }}>
-            <div className="relative" style={{ width: "300px", height: "300px", zIndex: 1 }}>
+          <div
+            className="bg-white p-4 rounded-lg relative lg:mr-10"
+            style={{ zIndex: 100 }}
+          >
+            <div
+              className="relative"
+              style={{ width: "300px", height: "300px", zIndex: 1 }}
+            >
               <Cropper
                 image={image}
                 crop={crop}
@@ -116,15 +127,15 @@ const AtualizacaoPerfil = () => {
             <div className="mt-4 flex justify-end" style={{ zIndex: 101 }}>
               <button
                 onClick={handleCrop}
-                className="bg-azul-claro text-white px-4 py-2 rounded-md"
+                className="w-8 h-8 flex items-center justify-center p-1 bg-emerald-300 rounded-full text-branco cursor-pointer hover:bg-green-600 hover:scale-110 transition-transform duration-300 mx-3"
               >
-                Cortar e Salvar
+                <MdDone/>
               </button>
               <button
                 onClick={() => setImage(null)}
-                className="ml-2 bg-gray-500 text-white px-4 py-2 rounded-md"
+                className="w-8 h-8 flex items-center justify-center p-1 bg-vermelho-claro rounded-full text-branco cursor-pointer hover:bg-red-500 hover:scale-110 transition-transform duration-300 mx-4"
               >
-                Cancelar
+                <MdCancel/>
               </button>
             </div>
           </div>
