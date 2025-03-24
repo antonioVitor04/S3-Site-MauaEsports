@@ -1,30 +1,35 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { FaInstagram } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { IoLogoTwitch } from "react-icons/io";
 import { RiCloseFill } from "react-icons/ri";
-import { IoMdAddCircleOutline } from "react-icons/io";
 import PropTypes from "prop-types";
 import SalvarBtn from "./SalvarBtn";
 import CancelarBtn from "./CancelarBtn";
+import DeletarBtn from "./DeletarBtn";
 import JogoValorant from "../assets/images/logovalorant.svg";
 import JogoCS2 from "../assets/images/logocs2.svg";
 import FotoPadrao from "../assets/images/Foto.svg";
 
-const ModalAdicionarMembro = ({ onClose, onSave }) => {
+const ModalEditarJogador = ({ 
+  jogador, 
+  onSave, 
+  onDelete, 
+  onClose 
+}) => {
   const [formData, setFormData] = useState({
-    foto: null,
-    nome: "",
-    titulo: "",
-    descricao: "",
-    jogo: "valorant-inclusivo",
-    instagram: "",
-    twitter: "",
-    twitch: "",
+    foto: jogador.foto || null,
+    nome: jogador.nome || "",
+    titulo: jogador.titulo || "",
+    descricao: jogador.descricao || "",
+    instagram: jogador.instagram || "",
+    twitter: jogador.twitter || "",
+    twitch: jogador.twitch || "",
   });
 
-  const [previewFoto, setPreviewFoto] = useState(FotoPadrao);
+  const [previewFoto, setPreviewFoto] = useState(
+    jogador.fotoUrl || FotoPadrao
+  );
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -32,7 +37,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewFoto(reader.result);
-        setFormData({ ...formData, foto: reader.result });
+        setFormData({ ...formData, foto: file });
       };
       reader.readAsDataURL(file);
     }
@@ -42,6 +47,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const validarLinks = () => {
     const { instagram, twitter, twitch } = formData;
 
@@ -59,41 +65,27 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
       validarLink(twitch, "Twitch")
     );
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (
-      !formData.foto ||
-      !formData.nome ||
-      !formData.titulo ||
-      !formData.descricao
-    ) {
+    if (!formData.nome || !formData.titulo || !formData.descricao) {
       alert("Preencha todos os campos obrigatórios!");
       return;
     }
-    // Verifica os links das redes sociais
-    if (!validarLinks()) {
-      return;
-    }
+    if (!validarLinks()) return;
     onSave(formData);
   };
 
-  const getJogoIcone = () => {
-    switch (formData.jogo) {
-      case "valorant-masculino":
-      case "valorant-feminino":
-      case "valorant-inclusivo":
-        return JogoValorant;
-      case "cs2":
-        return JogoCS2;
-      default:
-        return JogoValorant;
+  const handleDelete = () => {
+    if (window.confirm("Tem certeza que deseja excluir este jogador?")) {
+      onDelete();
     }
   };
 
   return (
-    <div className="my-2 fixed inset-0 z-50 flex items-center justify-center bg-fundo/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/60">
       <div
-        className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg  w-96 relative"
+        className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg w-96 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -104,14 +96,14 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
         </button>
 
         <h2 className="text-xl text-branco font-bold mb-4">
-          Adicionar Novo Membro
+          Editar Jogador
         </h2>
 
         <form onSubmit={handleSubmit}>
           {/* Upload de Foto */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Foto (Obrigatório)
+              Foto
             </label>
             <div className="relative w-24 h-24 mx-auto">
               <img
@@ -120,14 +112,13 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
                 className="w-full h-full rounded-full object-cover"
               />
               <label className="absolute inset-0 flex items-center justify-center bg-azul-claro bg-opacity-50 rounded-full cursor-pointer">
-                <IoMdAddCircleOutline className="text-preto text-2xl" />
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
-                  required
                 />
+                <span className="text-preto text-2xl">✏️</span>
               </label>
             </div>
           </div>
@@ -177,32 +168,6 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
             ></textarea>
           </div>
 
-          {/* Jogo */}
-          <div className="mb-4">
-            <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Jogo
-            </label>
-            <select
-              name="jogo"
-              value={formData.jogo}
-              onChange={handleChange}
-              className="w-full border border-borda text-fonte-escura p-2 rounded"
-            >
-              <option value="valorant-inclusivo">Valorant Inclusivo</option>
-              <option value="valorant-masculino">Valorant Masculino</option>
-              <option value="valorant-feminino">Valorant Feminino</option>
-              <option value="cs2">CS2</option>
-            </select>
-            <div className="mt-2 flex items-center">
-              <span className="text-sm text-fonte-escura mr-2">Ícone:</span>
-              <img
-                src={getJogoIcone()}
-                alt="Ícone do Jogo"
-                className="w-6 h-6"
-              />
-            </div>
-          </div>
-
           {/* Redes Sociais */}
           <div className="mb-4">
             <h3 className="text-sm text-fonte-escura font-semibold mb-2">
@@ -213,55 +178,52 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
               <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <FaInstagram className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
-                <input
-                  type="text"
-                  name="instagram"
-                  placeholder="Instagram URL"
-                  value={formData.instagram}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
-                />
-              </div>
+              <input
+                type="text"
+                name="instagram"
+                placeholder="Instagram URL"
+                value={formData.instagram}
+                onChange={handleChange}
+                className="w-full border border-borda rounded-r-md p-2 outline-none text-fonte-escura"
+              />
             </div>
 
             <div className="flex items-center mb-2">
               <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <RiTwitterXFill className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
-                <input
-                  type="text"
-                  name="twitter"
-                  placeholder="Twitter URL"
-                  value={formData.twitter}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
-                />
-              </div>
+              <input
+                type="text"
+                name="twitter"
+                placeholder="Twitter URL"
+                value={formData.twitter}
+                onChange={handleChange}
+                className="w-full border border-borda rounded-r-md p-2 outline-none text-fonte-escura"
+              />
             </div>
 
             <div className="flex items-center">
               <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <IoLogoTwitch className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
-                <input
-                  type="text"
-                  name="twitch"
-                  placeholder="Twitch URL"
-                  value={formData.twitch}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
-                />
-              </div>
+              <input
+                type="text"
+                name="twitch"
+                placeholder="Twitch URL"
+                value={formData.twitch}
+                onChange={handleChange}
+                className="w-full border border-borda rounded-r-md p-2 outline-none text-fonte-escura"
+              />
             </div>
           </div>
 
           {/* Botões */}
-          <div className="flex justify-end space-x-2 mt-6">
-            <SalvarBtn onClick={handleSubmit} />
-            <CancelarBtn onClick={onClose} />
+          <div className="flex justify-between mt-6">
+            <DeletarBtn onClick={handleDelete} />
+            <div className="flex space-x-2">
+              <CancelarBtn onClick={onClose} />
+              <SalvarBtn type="submit" />
+            </div>
           </div>
         </form>
       </div>
@@ -269,11 +231,20 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
   );
 };
 
-ModalAdicionarMembro.propTypes = {
-  onClose: PropTypes.func.isRequired,
+ModalEditarJogador.propTypes = {
+  jogador: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    nome: PropTypes.string.isRequired,
+    titulo: PropTypes.string.isRequired,
+    descricao: PropTypes.string.isRequired,
+    fotoUrl: PropTypes.string,
+    instagram: PropTypes.string,
+    twitter: PropTypes.string,
+    twitch: PropTypes.string
+  }).isRequired,
   onSave: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired
 };
 
-
-export default ModalAdicionarMembro;
-
+export default ModalEditarJogador;

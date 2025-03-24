@@ -1,11 +1,10 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { RiImageEditFill, RiTwitterXFill } from "react-icons/ri";
-import SalvarBtn from "./SalvarBtn";
-import CancelarBtn from "./CancelarBtn";
 import { IoLogoTwitch } from "react-icons/io";
 import { FaInstagram } from "react-icons/fa";
+import SalvarBtn from "./SalvarBtn";
+import CancelarBtn from "./CancelarBtn";
 
 const EditarJogador = ({
   jogadorId,
@@ -16,6 +15,8 @@ const EditarJogador = ({
   instagramInicial,
   twitterInicial,
   twitchInicial,
+  timeInicial,
+  timesDisponiveis,
   onSave,
   onClose,
 }) => {
@@ -26,49 +27,57 @@ const EditarJogador = ({
   const [instagram, setInstagram] = useState(instagramInicial || "");
   const [twitter, setTwitter] = useState(twitterInicial || "");
   const [twitch, setTwitch] = useState(twitchInicial || "");
+  const [time, setTime] = useState(timeInicial || "");
+  const [erro, setErro] = useState("");
 
-  // Função para validar links
   const validarLink = (link) => {
-    return link.startsWith("https://");
+    return !link || link.startsWith("https://");
   };
 
-  // Função para validar o tipo de imagem
   const validarImagem = (arquivo) => {
     const tiposPermitidos = ["image/jpeg", "image/jpg", "image/png"];
-    return tiposPermitidos.includes(arquivo.type);
+    return tiposPermitidos.includes(arquivo?.type);
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
     if (file) {
       if (!validarImagem(file)) {
-        alert("Formato de imagem inválido. Use apenas JPG, JPEG ou PNG.");
+        setErro("Formato de imagem inválido. Use apenas JPG, JPEG ou PNG.");
         return;
       }
+      setErro("");
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFoto(reader.result); // Salva a imagem para envio
+        setFoto(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSave = () => {
-    // Valida os links das redes sociais
-    if (instagram && !validarLink(instagram)) {
-      alert("O link do Instagram deve começar com https://");
-      return;
-    }
-    if (twitter && !validarLink(twitter)) {
-      alert("O link do Twitter deve começar com https://");
-      return;
-    }
-    if (twitch && !validarLink(twitch)) {
-      alert("O link do Twitch deve começar com https://");
+    // Validações
+    if (!nome || !titulo || !descricao || !time) {
+      setErro("Preencha todos os campos obrigatórios!");
       return;
     }
 
-    // Se tudo estiver válido, salva as alterações
+    if (instagram && !validarLink(instagram)) {
+      setErro("O link do Instagram deve começar com https://");
+      return;
+    }
+
+    if (twitter && !validarLink(twitter)) {
+      setErro("O link do Twitter deve começar com https://");
+      return;
+    }
+
+    if (twitch && !validarLink(twitch)) {
+      setErro("O link do Twitch deve começar com https://");
+      return;
+    }
+
+    setErro("");
     onSave({
       nome,
       titulo,
@@ -77,127 +86,134 @@ const EditarJogador = ({
       instagram,
       twitter,
       twitch,
+      time
     });
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/50"
-      style={{ animation: "fadeInUp 0.5s ease-out" }}
-    >
-      <div className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg w-96 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl text-branco font-bold mb-4">Editar Jogador</h2>
 
-        <label className="block text-sm text-fonte-escura font-semibold">
-          Foto:
-        </label>
-        <div className="relative w-24 h-24 mb-3">
-          <img
-            src={foto}
-            alt="Foto do jogador"
-            className="w-full h-full rounded-full object-cover"
-          />
-          <label
-            htmlFor={`file-input-${jogadorId}`}
-            className="absolute inset-0 flex items-center justify-center bg-azul-claro bg-opacity-50 rounded-full cursor-pointer"
-          >
-            <RiImageEditFill className="text-white text-xl" />
-          </label>
-          <input
-            id={`file-input-${jogadorId}`}
-            type="file"
-            accept="image/jpeg, image/jpg, image/png"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+        {erro && (
+          <div className="mb-4 p-2 bg-vermelho-claro/20 text-vermelho-claro rounded">
+            {erro}
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {/* Foto */}
+          <div>
+            <label className="block text-sm text-fonte-escura font-semibold mb-2">
+              Foto:
+            </label>
+            <div className="relative w-24 h-24 mx-auto">
+              <img
+                src={foto}
+                alt="Foto do jogador"
+                className="w-full h-full rounded-full object-cover border-2 border-borda"
+              />
+              <label
+                htmlFor={`file-input-${jogadorId}`}
+                className="absolute inset-0 flex items-center justify-center bg-azul-claro bg-opacity-50 rounded-full cursor-pointer"
+              >
+                <RiImageEditFill className="text-white text-xl" />
+              </label>
+              <input
+                id={`file-input-${jogadorId}`}
+                type="file"
+                accept="image/jpeg, image/jpg, image/png"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+          </div>
+
+          {/* Campos de texto */}
+          {[
+            { label: "Nome", value: nome, onChange: setNome, required: true },
+            { label: "Título", value: titulo, onChange: setTitulo, required: true },
+            { 
+              label: "Descrição", 
+              value: descricao, 
+              onChange: setDescricao, 
+              required: true,
+              textarea: true 
+            }
+          ].map((field) => (
+            <div key={field.label}>
+              <label className="block text-sm text-fonte-escura font-semibold mb-1">
+                {field.label} {field.required && <span className="text-vermelho-claro">*</span>}
+              </label>
+              {field.textarea ? (
+                <textarea
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="w-full border border-borda rounded p-2 text-fonte-escura bg-fundo focus:border-azul-claro focus:outline-none"
+                  rows="3"
+                  required={field.required}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="w-full border border-borda rounded p-2 text-fonte-escura bg-fundo focus:border-azul-claro focus:outline-none"
+                  required={field.required}
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Time */}
+          <div>
+            <label className="block text-sm text-fonte-escura font-semibold mb-1">
+              Time <span className="text-vermelho-claro">*</span>
+            </label>
+            <select
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full border border-borda rounded p-2 text-fonte-escura bg-fundo focus:border-azul-claro focus:outline-none"
+              required
+            >
+              <option value="">Selecione um time</option>
+              {timesDisponiveis?.map((time) => (
+                <option key={time._id} value={time._id}>
+                  {time.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Redes Sociais */}
+          {[
+            { icon: <FaInstagram className="text-2xl" />, label: "Instagram", value: instagram, onChange: setInstagram },
+            { icon: <RiTwitterXFill className="text-2xl" />, label: "Twitter", value: twitter, onChange: setTwitter },
+            { icon: <IoLogoTwitch className="text-2xl" />, label: "Twitch", value: twitch, onChange: setTwitch }
+          ].map((social) => (
+            <div key={social.label}>
+              <label className="block text-sm text-fonte-escura font-semibold mb-1">
+                {social.label}
+              </label>
+              <div className="flex items-center">
+                <div className="bg-fonte-escura rounded-l-md px-3 py-2 flex items-center justify-center">
+                  {social.icon}
+                </div>
+                <input
+                  type="text"
+                  value={social.value}
+                  onChange={(e) => social.onChange(e.target.value)}
+                  placeholder={`https://${social.label.toLowerCase()}.com/usuario`}
+                  className="w-full border border-borda border-l-0 rounded-r-md p-2 text-fonte-escura bg-fundo focus:outline-none"
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
-        <label className="block text-sm text-fonte-escura font-semibold">
-          Nome:
-        </label>
-        <input
-          type="text"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          className="w-full border border-borda text-fonte-escura p-2 rounded mb-2"
-        />
-
-        <label className="block text-sm text-fonte-escura font-semibold">
-          Título:
-        </label>
-        <input
-          type="text"
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          className="w-full border border-borda text-fonte-escura p-2 rounded mb-2"
-        />
-
-        <label className="block text-sm text-fonte-escura font-semibold">
-          Descrição:
-        </label>
-        <textarea
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          className="w-full border p-2 rounded border-borda text-fonte-escura mb-2"
-        />
-
-        <div className="flex items-center">
-          {/* Logo do insta na esquerda */}
-          <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
-            <FaInstagram className="text-2xl text-preto" />
-          </div>
-
-          {/* Campo de entrada  */}
-          <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-3">
-            <input
-              type="text"
-              value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
-              placeholder="https://instagram.com/usuario"
-              className="w-full p-2 outline-none text-fonte-escura"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          {/* Logo do twitter na esquerda */}
-          <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
-            <RiTwitterXFill className="text-2xl text-preto" />
-          </div>
-
-          {/* Campo de entrada  */}
-          <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-3">
-            <input
-              type="text"
-              value={twitter}
-              onChange={(e) => setTwitter(e.target.value)}
-              placeholder="https://x.com/usuario"
-              className="w-full p-2 outline-none text-fonte-escura"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          {/* Logo do Twitch na esquerda */}
-          <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
-            <IoLogoTwitch className="text-2xl text-preto" />
-          </div>
-
-          {/* Campo de entrada  */}
-          <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-3">
-            <input
-              type="text"
-              value={twitch}
-              onChange={(e) => setTwitch(e.target.value)}
-              placeholder="https://twitch.tv/usuario"
-              className="w-full p-2 outline-none text-fonte-escura"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end space-x-2">
-          <SalvarBtn onClick={handleSave} />
+        <div className="flex justify-end space-x-3 mt-6">
           <CancelarBtn onClick={onClose} />
+          <SalvarBtn onClick={handleSave} />
         </div>
       </div>
     </div>
@@ -213,8 +229,24 @@ EditarJogador.propTypes = {
   instagramInicial: PropTypes.string,
   twitterInicial: PropTypes.string,
   twitchInicial: PropTypes.string,
+  timeInicial: PropTypes.string,
+  timesDisponiveis: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      nome: PropTypes.string.isRequired,
+    })
+  ),
   onSave: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+};
+
+EditarJogador.defaultProps = {
+  fotoInicial: "",
+  instagramInicial: "",
+  twitterInicial: "",
+  twitchInicial: "",
+  timeInicial: "",
+  timesDisponiveis: [],
 };
 
 export default EditarJogador;

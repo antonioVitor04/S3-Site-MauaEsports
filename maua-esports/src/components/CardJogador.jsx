@@ -25,45 +25,28 @@ const CardJogador = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleEdit = async (updatedData) => {
-    try {
-      // Padrão pronto para migração:
-      // await api.put(`/jogadores/${jogadorId}`, updatedData);
+  const handleEdit = (updatedData) => {
+    onEdit(jogadorId, updatedData);
+    setIsModalOpen(false);
 
-      // Enquanto não tem backend:
-      onEdit(jogadorId, updatedData);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Erro ao salvar jogador:", error);
-      alert("Erro ao salvar alterações");
-    }
   };
 
-  const handleDelete = async (e) => {
+  const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-    try {
-      // Padrão pronto para migração:
-      // await api.delete(`/jogadores/${jogadorId}`);
-
-      // Enquanto não tem backend:
+    const isConfirmed = window.confirm("Tem certeza que deseja deletar este jogador?");
+    if (isConfirmed) {
       onDelete(jogadorId);
-    } catch (error) {
-      console.error("Erro ao deletar jogador:", error);
-      alert("Erro ao deletar jogador");
     }
   };
 
   return (
     <>
       <div
-        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center 
-             hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
+        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
         style={{
-          clipPath:
-            "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
-          animation: "fadeInUp 0.5s ease-out",
+          clipPath: "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
+          animation: "fadeInUp 0.5s ease-out"
         }}
       >
         {/* Cabeçalho com título */}
@@ -78,7 +61,7 @@ const CardJogador = ({
             alt={`Foto de ${nome}`}
             className="w-full h-full object-cover absolute top-0 left-0"
             style={{
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)",
+              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)"
             }}
           />
         </div>
@@ -122,11 +105,9 @@ const CardJogador = ({
 
             <div className="flex space-x-2 ml-auto mr-3 gap-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
-              <DeletarBtn
-                tipo="jogador"
-                onDelete={handleDelete}
-                id={jogadorId}
-              />
+
+              <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete}  tipo="jogador" />
+
             </div>
           </div>
         </div>
