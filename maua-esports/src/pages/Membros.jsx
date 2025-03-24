@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import CardJogador from "../components/CardJogador";
 import { jogadoresData } from "../data/jogadoresData";
 import { useParams } from "react-router-dom";
+import AdicionarMembro from "../components/AdicionarMembro";
 
 const Membros = () => {
   const { timeId } = useParams(); // Captura o ID do time da URL
@@ -43,6 +44,16 @@ const Membros = () => {
     //   console.error("Erro ao atualizar jogador:", error);
     // }
   };
+  const handleAdicionarMembro = (novoMembro) => {
+    setJogadores([
+      ...jogadores,
+      {
+        id: Date.now().toString(),
+        ...novoMembro,
+        timeId: 1, // Ou o timeId apropriado
+      },
+    ]);
+  };
 
   return (
     <div className="w-full min-h-screen bg-fundo">
@@ -71,6 +82,7 @@ const Membros = () => {
               onEdit={handleEditJogador}
             />
           ))}
+          <AdicionarMembro onAdicionarMembro={handleAdicionarMembro} />
         </div>
       </div>
     </div>

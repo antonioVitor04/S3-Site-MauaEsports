@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { FaInstagram } from "react-icons/fa";

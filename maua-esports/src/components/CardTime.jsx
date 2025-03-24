@@ -4,6 +4,7 @@ import EditarBtn from "./EditarBtn";
 import DeletarBtn from "./DeletarBtn";
 import PropTypes from "prop-types";
 import EditarTimes from "./EditarTimes";
+
 const CardTime = ({ timeId, nome, foto, jogo, onDelete, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
