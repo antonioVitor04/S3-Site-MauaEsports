@@ -2,19 +2,21 @@ import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const DeletarBtn = ({ onDelete, jogadorId, timeId, onClick }) => {
+const DeletarBtn = ({ tipo, onDelete, id }) => {
   const [isTrashHovered, setTrashIsHovered] = useState(false);
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(jogadorId); // Chama a função de deletar com o id do jogador
-    }
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    const confirmar = window.confirm(
-      "Tem certeza que deseja deletar este jogador?"
-    );
-    if (confirmar) {
-      onDelete(jogadorId); // Chama a função de deletar apenas se o usuário confirmar
+    const mensagem =
+      tipo === "time"
+        ? "Tem certeza que deseja deletar este time?"
+        : "Tem certeza que deseja deletar este jogador?";
+
+    const confirmado = window.confirm(mensagem);
+    if (confirmado) {
+      onDelete(id); // Chama a função passada pelo componente pai
     }
   };
 
@@ -22,7 +24,7 @@ const DeletarBtn = ({ onDelete, jogadorId, timeId, onClick }) => {
     <button
       onMouseEnter={() => setTrashIsHovered(true)}
       onMouseLeave={() => setTrashIsHovered(false)}
-      onClick={handleDelete}
+      onClick={handleClick}
       className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-vermelho-claro hover:scale-110 transition-transform duration-300"
     >
       <FaTrash
@@ -36,8 +38,9 @@ const DeletarBtn = ({ onDelete, jogadorId, timeId, onClick }) => {
 };
 
 DeletarBtn.propTypes = {
+  tipo: PropTypes.oneOf(["time", "jogador"]).isRequired,
   onDelete: PropTypes.func.isRequired,
-  jogadorId: PropTypes.string.isRequired,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
 export default DeletarBtn;

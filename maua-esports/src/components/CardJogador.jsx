@@ -23,18 +23,35 @@ const CardJogador = ({
   onEdit,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleDelete = () => {
-    // Mostra um diálogo de confirmação
-    const isConfirmed = window.confirm(
-      "Tem certeza de que deseja deletar este jogador?"
-    );
-    if (isConfirmed) {
-      onDelete(jogadorId); // Chama a função de deletação com o id do jogador
+
+  const handleEdit = async (updatedData) => {
+    try {
+      // Padrão pronto para migração:
+      // await api.put(`/jogadores/${jogadorId}`, updatedData);
+
+      // Enquanto não tem backend:
+      onEdit(jogadorId, updatedData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao salvar jogador:", error);
+      alert("Erro ao salvar alterações");
     }
   };
-  const handleEdit = (updatedData) => {
-    onEdit(jogadorId, updatedData);
-    setIsModalOpen(false);
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      // Padrão pronto para migração:
+      // await api.delete(`/jogadores/${jogadorId}`);
+
+      // Enquanto não tem backend:
+      onDelete(jogadorId);
+    } catch (error) {
+      console.error("Erro ao deletar jogador:", error);
+      alert("Erro ao deletar jogador");
+    }
   };
 
   return (
@@ -104,7 +121,11 @@ const CardJogador = ({
 
             <div className="flex space-x-2 ml-auto mr-3 gap-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
-              <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete} />
+              <DeletarBtn
+                tipo="jogador"
+                onDelete={handleDelete}
+                id={jogadorId}
+              />
             </div>
           </div>
         </div>

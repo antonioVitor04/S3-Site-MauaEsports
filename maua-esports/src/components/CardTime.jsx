@@ -4,7 +4,6 @@ import EditarBtn from "./EditarBtn";
 import DeletarBtn from "./DeletarBtn";
 import PropTypes from "prop-types";
 import EditarTimes from "./EditarTimes";
-
 const CardTime = ({ timeId, nome, foto, jogo, onDelete, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
@@ -19,23 +18,34 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onSave }) => {
     setIsEditing(false);
   };
 
-  const handleSave = (updatedData) => {
-    onSave({
-      id: timeId,
-      ...updatedData,
-    });
-    setIsEditing(false);
+  const handleSave = (updatedTime) => {
+    // Lógica atual enquanto não tem backend
+    setTimes(
+      times.map((time) => (time.id === updatedTime.id ? updatedTime : time))
+    );
+
+    // Quando tiver backend, substitua por:
+    // try {
+    //   const response = await api.put(`/times/${updatedTime.id}`, updatedTime);
+    //   setTimes(times.map(time =>
+    //     time.id === updatedTime.id ? response.data : time
+    //   ));
+    // } catch (error) {
+    //   console.error("Erro ao atualizar time:", error);
+    // }
   };
 
-  const handleDelete = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const isConfirmed = window.confirm(
-      "Tem certeza de que deseja deletar este time?"
-    );
-    if (isConfirmed) {
-      onDelete(timeId);
-    }
+  const handleDelete = (timeId) => {
+    // Lógica atual
+    setTimes(times.filter((time) => time.id !== timeId));
+
+    // Quando tiver backend:
+    // try {
+    //   await api.delete(`/times/${timeId}`);
+    //   setTimes(times.filter(time => time.id !== timeId));
+    // } catch (error) {
+    //   console.error("Erro ao deletar time:", error);
+    // }
   };
 
   const handleCardClick = () => {
@@ -83,12 +93,16 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onSave }) => {
         <div className="w-full h-[30%] flex flex-col justify-between p-4">
           <div className="flex justify-between items-center">
             <h1 className="text-lg text-branco font-semibold">{nome}</h1>
-            <img src={jogo} alt="Logo do jogo" className="w-6 h-6" />
+            <img
+              src={jogo}
+              alt="Logo do jogo"
+              className="w-6 h-6 text-azul-claro"
+            />
           </div>
 
           <div className="flex justify-center space-x-4">
             <EditarBtn onClick={handleEditClick} />
-            <DeletarBtn onClick={handleDelete} />
+            <DeletarBtn tipo="time" onDelete={handleDelete} id={timeId} />
           </div>
         </div>
       </div>
