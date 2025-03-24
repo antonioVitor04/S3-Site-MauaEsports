@@ -23,29 +23,28 @@ const CardJogador = ({
   onEdit,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleDelete = () => {
-    // Mostra um diálogo de confirmação
-    const isConfirmed = window.confirm(
-      "Tem certeza de que deseja deletar este jogador?"
-    );
-    if (isConfirmed) {
-      onDelete(jogadorId); // Chama a função de deletação com o id do jogador
-    }
-  };
+
   const handleEdit = (updatedData) => {
     onEdit(jogadorId, updatedData);
     setIsModalOpen(false);
   };
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isConfirmed = window.confirm("Tem certeza que deseja deletar este jogador?");
+    if (isConfirmed) {
+      onDelete(jogadorId);
+    }
+  };
+
   return (
     <>
       <div
-        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center 
-             hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
+        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
         style={{
-          clipPath:
-            "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
-          animation: "fadeInUp 0.5s ease-out",
+          clipPath: "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
+          animation: "fadeInUp 0.5s ease-out"
         }}
       >
         {/* Cabeçalho com título */}
@@ -60,7 +59,7 @@ const CardJogador = ({
             alt={`Foto de ${nome}`}
             className="w-full h-full object-cover absolute top-0 left-0"
             style={{
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)",
+              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)"
             }}
           />
         </div>
@@ -104,7 +103,7 @@ const CardJogador = ({
 
             <div className="flex space-x-2 ml-auto mr-3 gap-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
-              <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete} />
+              <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete}  tipo="jogador" />
             </div>
           </div>
         </div>

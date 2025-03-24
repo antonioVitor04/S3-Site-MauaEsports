@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import CardTime from "../components/CardTime";
-import EditarTime from "../components/EditarTime";
-import NovoTime from "../components/NovoTime";
+import EditarTime from "../components/ModalEditarTime";
+import NovoTime from "../components/ModalNovoTime";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -61,7 +61,10 @@ const Times = () => {
   }, []);
 
   const handleDeleteTime = async (timeId) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o time?`)) return;
+    const time = times.find(t => t.id === timeId);
+    if (!window.confirm(`Tem certeza que deseja excluir o time "${time.nome}"?`)) {
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/times/${timeId}`, {
@@ -123,6 +126,10 @@ const Times = () => {
 
   const handleCreateTime = async (novoTime) => {
     try {
+      const idExistente = times.some(time => time.id === parseInt(novoTime.id));
+      if (idExistente) {
+        throw new Error("Já existe um time com este ID. Por favor, use um ID diferente.");
+      }
       const formData = new FormData();
       formData.append("id", novoTime.id);
       formData.append("nome", novoTime.nome);
@@ -136,7 +143,8 @@ const Times = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Falha ao criar time");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao criar time");
       }
 
       const data = await response.json();
@@ -150,7 +158,11 @@ const Times = () => {
 
   const handleEditClick = (timeId) => {
     const time = times.find((t) => t.id === timeId);
-    setTimeEditando(time);
+    setTimeEditando({
+      ...time,
+      foto: time.fotoUrl, // Usamos a URL completa para o preview
+      jogo: time.jogoUrl
+    });
   };
 
   if (carregando) {

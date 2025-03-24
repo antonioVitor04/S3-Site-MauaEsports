@@ -12,9 +12,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
   const handleDeleteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm(`Tem certeza que deseja excluir o time ${nome}?`)) {
-      onDelete(timeId);
-    }
+    onDelete(timeId); // Removida a confirmação daqui
   };
 
   const handleEditClick = (e) => {

@@ -263,6 +263,8 @@ app.put('/jogadores/:id', (req, res) => {
 });
 
 
+
+
 app.delete('/jogadores/:id', async (req, res) => {
     try {
         const jogadorRemovido = await Jogador.findByIdAndDelete(req.params.id);
@@ -279,7 +281,51 @@ app.delete('/jogadores/:id', async (req, res) => {
         res.status(500).json({ message: 'Erro ao remover jogador', error });
     }
 });
+// Rota para buscar time por ID numérico
+app.get('/times/:id', async (req, res) => {
+    try {
+        const timeId = parseInt(req.params.id);
+        const time = await Time.findOne({ id: timeId })
+            .select('-foto.data -jogo.data -__v')
+            .lean();
 
+        if (!time) {
+            return res.status(404).json({ success: false, message: 'Time não encontrado' });
+        }
+
+        res.status(200).json(time);
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Erro ao buscar time' });
+    }
+});
+
+// Rota para buscar jogadores por time ID
+app.get('/times/:id/jogadores', async (req, res) => {
+    try {
+        const timeId = parseInt(req.params.id);
+        
+        // DEBUG: Verifique no console do servidor
+        console.log(`Buscando jogadores para time ID: ${timeId}`);
+        
+        const jogadores = await Jogador.find({ time: timeId })
+            .select('-foto.data -__v')
+            .lean();
+
+        // Adiciona URL da foto para cada jogador
+        const jogadoresComImagens = jogadores.map(jogador => ({
+            ...jogador,
+            fotoUrl: `/jogadores/${jogador._id}/imagem`
+        }));
+
+        res.status(200).json(jogadoresComImagens);
+    } catch (error) {
+        console.error('Erro ao buscar jogadores:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro ao buscar jogadores do time' 
+        });
+    }
+});
 // Rota para obter a foto do time
 app.get('/times/:id/foto', async (req, res) => {
     try {
