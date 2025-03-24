@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Cropper from "react-easy-crop";
-import { HiUserCircle } from "react-icons/hi";
+import { HiUserCircle } from "react-icons/hi2";
 import { FaPen } from "react-icons/fa";
 
 const AtualizacaoPerfil = () => {

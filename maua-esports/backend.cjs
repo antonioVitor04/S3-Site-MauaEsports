@@ -50,7 +50,6 @@ const parceiroSchema = new mongoose.Schema({
 });
 
 const Parceiro = mongoose.model('Parceiro', parceiroSchema);
-
 app.post('/signup', async (req, res) => {
     try {
 
@@ -197,7 +196,7 @@ app.get('/parceiros-puxar', async (req, res) => {
     }
 });
 
-app.listen(300, () => {
+app.listen(3005, () => {
     try {
         conectarAoMongoDB()
         console.log("up and running")
