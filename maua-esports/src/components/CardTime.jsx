@@ -38,6 +38,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
           }}
         >
+
           {/* Área da imagem */}
           <div
             className="w-full h-[70%] relative overflow-hidden"

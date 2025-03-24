@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { FaInstagram } from "react-icons/fa";
@@ -27,6 +28,7 @@ const CardJogador = ({
   const handleEdit = (updatedData) => {
     onEdit(jogadorId, updatedData);
     setIsModalOpen(false);
+
   };
 
   const handleDelete = (e) => {
@@ -103,7 +105,9 @@ const CardJogador = ({
 
             <div className="flex space-x-2 ml-auto mr-3 gap-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
+
               <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete}  tipo="jogador" />
+
             </div>
           </div>
         </div>

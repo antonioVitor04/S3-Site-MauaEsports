@@ -2,6 +2,7 @@ import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import PropTypes from "prop-types";
 
+
 const DeletarBtn = ({ onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -10,6 +11,7 @@ const DeletarBtn = ({ onClick }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
+
       className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-vermelho-claro hover:scale-110 transition-transform duration-300"
     >
       <FaTrash

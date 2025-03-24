@@ -274,4 +274,6 @@ ModalAdicionarMembro.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
+
 export default ModalAdicionarMembro;
+
