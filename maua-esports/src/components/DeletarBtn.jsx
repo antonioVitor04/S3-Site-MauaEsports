@@ -2,13 +2,14 @@ import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const DeletarBtn = ({ onDelete, jogadorId }) => {
+const DeletarBtn = ({ onDelete, jogadorId, timeId, onClick }) => {
   const [isTrashHovered, setTrashIsHovered] = useState(false);
 
   const handleDelete = () => {
     if (onDelete) {
       onDelete(jogadorId); // Chama a função de deletar com o id do jogador
     }
+
     const confirmar = window.confirm(
       "Tem certeza que deseja deletar este jogador?"
     );

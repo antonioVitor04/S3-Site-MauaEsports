@@ -1,75 +1,53 @@
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { useState } from "react";
 import CardJogador from "../components/CardJogador";
-import Jogo from "../assets/images/Foto.svg"; // Importando a imagem
+import { jogadoresData } from "../data/jogadoresData";
+import { useParams } from "react-router-dom";
 
 const Membros = () => {
-  const [membros, setMembros] = useState([
-    {
-      id: uuidv4(),
-      nome: "Aspas",
-      titulo: "Jogador",
-      descricao:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae commodi distinctio hic, ea repellendus modi voluptatem",
-      foto: Jogo,
-      instagram: "https://www.instagram.com/aspaszin/", // Link completo
-      twitter: "https://x.com/aspaszin", // Adicionado para consistência
-      twitch: "https://twitch.tv/aspaszin", // Adicionado para consistência
-    },
-    {
-      id: uuidv4(),
-      nome: "TenZ",
-      titulo: "Jogador",
-      descricao:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae commodi distinctio hic, ea repellendus modi voluptatem",
-      foto: Jogo,
-      instagram: null, // Adicionado para consistência
-      twitter: null, // Adicionado para consistência
-      twitch: null, // Adicionado para consistência
-    },
-    // Adicione mais membros conforme necessário
-  ]);
+  const { timeId } = useParams(); // Captura o ID do time da URL
+  const [jogadores, setJogadores] = useState([]);
 
-  // Função para deletar um jogador
-  const handleDelete = (jogadorId) => {
-    setMembros(membros.filter((membro) => membro.id !== jogadorId));
+  // Filtra os jogadores quando o timeId muda
+  React.useEffect(() => {
+    const jogadoresDoTime = jogadoresData.filter(j => j.timeId === parseInt(timeId));
+    setJogadores(jogadoresDoTime);
+  }, [timeId]);
+
+  const handleDeleteJogador = (jogadorId) => {
+    setJogadores(jogadores.filter(j => j.id !== jogadorId));
   };
 
-  // Função para editar um jogador
-  const handleEdit = (jogadorId, novosDados) => {
-    console.log("Novos dados:", novosDados); // Depuração
-    setMembros(
-      membros.map((membro) =>
-        membro.id === jogadorId ? { ...membro, ...novosDados } : membro
-      )
-    );
+  const handleEditJogador = (jogadorId, updatedData) => {
+    setJogadores(jogadores.map(j => 
+      j.id === jogadorId ? { ...j, ...updatedData } : j
+    ));
   };
 
   return (
-    <div className="w-full">
-      {/* Seção 1: Cabeçalho */}
+    <div className="w-full min-h-screen bg-fundo">
+      {/* Cabeçalho mantendo o mesmo estilo */}
       <div className="flex w-full bg-preto h-60 justify-center items-center">
-        <h1 className="font-blinker text-azul-claro font-bold text-3xl">
-          Membros
+        <h1 className="font-blinker text-branco font-bold text-3xl">
+          Membros do Time
         </h1>
       </div>
 
-      {/* Seção 2: Lista de membros */}
-      <div className="bg-fundo w-full min-h-screen flex justify-center items-center relative overflow-auto scrollbar-hidden">
+      {/* Área dos cards - mantendo seu layout atual */}
+      <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">
-          {membros.map((membro) => (
+          {jogadores.map(jogador => (
             <CardJogador
-              key={membro.id}
-              jogadorId={membro.id}
-              nomeInicial={membro.nome}
-              tituloInicial={membro.titulo}
-              descricaoInicial={membro.descricao}
-              fotoInicial={membro.foto}
-              instagramInicial={membro.instagram}
-              twitterInicial={membro.twitter}
-              twitchInicial={membro.twitch}
-              onDelete={handleDelete}
-              onEdit={handleEdit} // Passando a função de edição
+              key={jogador.id}
+              jogadorId={jogador.id}
+              nome={jogador.nome}
+              titulo={jogador.titulo}
+              descricao={jogador.descricao}
+              foto={jogador.foto}
+              instagram={jogador.instagram}
+              twitter={jogador.twitter}
+              twitch={jogador.twitch}
+              onDelete={handleDeleteJogador}
+              onEdit={handleEditJogador}
             />
           ))}
         </div>
