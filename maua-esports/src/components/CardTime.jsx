@@ -43,6 +43,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
             <span className="text-branco font-bold text-md">{timeId}</span>
           </div>
 
+
           {/* Área da imagem */}
           <div
             className="w-full h-[70%] relative overflow-hidden"
