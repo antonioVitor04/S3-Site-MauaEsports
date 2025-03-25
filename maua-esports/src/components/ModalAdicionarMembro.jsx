@@ -91,27 +91,26 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
   };
 
   return (
-    <div className="my-2 fixed inset-0 z-50 flex items-center justify-center bg-fundo/60">
+    <div className="my-2 fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
       <div
-        className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg  w-96 relative"
+        className="bg-fundo  p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-fonte-escura hover:text-vermelho-claro"
-        >
-          <RiCloseFill size={24} />
-        </button>
-
-        <h2 className="text-xl text-branco font-bold mb-4">
-          Adicionar Novo Membro
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-branco">Editar Jogador</h2>
+          <button
+            onClick={onClose}
+            className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
+          >
+            <RiCloseFill size={24} />
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           {/* Upload de Foto */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Foto (Obrigatório)
+              Foto <span className="text-vermelho-claro">*</span>
             </label>
             <div className="relative w-24 h-24 mx-auto">
               <img
@@ -135,14 +134,14 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
           {/* Nome */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Nome (Obrigatório)
+              Nome <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"
               name="nome"
               value={formData.nome}
               onChange={handleChange}
-              className="w-full border border-borda text-fonte-escura p-2 rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               required
             />
           </div>
@@ -150,14 +149,14 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
           {/* Título */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Título (Obrigatório)
+              Título <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"
               name="titulo"
               value={formData.titulo}
               onChange={handleChange}
-              className="w-full border border-borda text-fonte-escura p-2 rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               required
             />
           </div>
@@ -165,42 +164,16 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
           {/* Descrição */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Descrição (Obrigatório)
+              Descrição <span className="text-vermelho-claro">*</span>
             </label>
             <textarea
               name="descricao"
               value={formData.descricao}
               onChange={handleChange}
-              className="w-full border border-borda text-fonte-escura p-2 rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               rows="3"
               required
             ></textarea>
-          </div>
-
-          {/* Jogo */}
-          <div className="mb-4">
-            <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Jogo
-            </label>
-            <select
-              name="jogo"
-              value={formData.jogo}
-              onChange={handleChange}
-              className="w-full border border-borda text-fonte-escura p-2 rounded"
-            >
-              <option value="valorant-inclusivo">Valorant Inclusivo</option>
-              <option value="valorant-masculino">Valorant Masculino</option>
-              <option value="valorant-feminino">Valorant Feminino</option>
-              <option value="cs2">CS2</option>
-            </select>
-            <div className="mt-2 flex items-center">
-              <span className="text-sm text-fonte-escura mr-2">Ícone:</span>
-              <img
-                src={getJogoIcone()}
-                alt="Ícone do Jogo"
-                className="w-6 h-6"
-              />
-            </div>
           </div>
 
           {/* Redes Sociais */}
@@ -209,18 +182,18 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
               Redes Sociais
             </h3>
 
-            <div className="flex items-center mb-2">
-              <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
+            <div className="flex items-center mb-2 ">
+              <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center ">
                 <FaInstagram className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
+              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2 ">
                 <input
                   type="text"
                   name="instagram"
                   placeholder="Instagram URL"
                   value={formData.instagram}
                   onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
+                  className="w-full p-2 outline-none text-branco bg-preto "
                 />
               </div>
             </div>
@@ -236,7 +209,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
                   placeholder="Twitter URL"
                   value={formData.twitter}
                   onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
+                  className="w-full p-2 outline-none text-branco bg-preto focus:border-azul-claro focus:outline-none"
                 />
               </div>
             </div>
@@ -252,7 +225,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
                   placeholder="Twitch URL"
                   value={formData.twitch}
                   onChange={handleChange}
-                  className="w-full p-2 outline-none text-fonte-escura"
+                  className="w-full p-2 outline-none text-branco bg-preto focus:border-azul-claro focus:outline-none"
                 />
               </div>
             </div>
@@ -274,6 +247,4 @@ ModalAdicionarMembro.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-
 export default ModalAdicionarMembro;
-

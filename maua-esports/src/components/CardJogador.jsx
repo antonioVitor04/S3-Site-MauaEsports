@@ -92,7 +92,7 @@ const CardJogador = ({
               hasSocialMedia ? "justify-between" : "justify-center"
             }`}
           >
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 ml-4">
               {instagram && (
                 <a href={instagram} target="_blank" rel="noopener noreferrer">
                   <FaInstagram className="cursor-pointer hover:scale-110 transition-transform duration-300" />
@@ -110,7 +110,7 @@ const CardJogador = ({
               )}
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mr-4">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
               <DeletarBtn
                 jogadorId={jogadorId}

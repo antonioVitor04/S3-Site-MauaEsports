@@ -5,6 +5,7 @@ import { IoLogoTwitch } from "react-icons/io";
 import { FaInstagram } from "react-icons/fa";
 import SalvarBtn from "./SalvarBtn";
 import CancelarBtn from "./CancelarBtn";
+import { RiCloseFill } from "react-icons/ri";
 
 const EditarJogador = ({
   jogador: {
@@ -102,8 +103,16 @@ const EditarJogador = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
-      <div className="bg-fundo border-2 border-borda p-6 rounded-lg shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl text-branco font-bold mb-4">Editar Jogador</h2>
+      <div className="bg-fundo shadow-sm inset-0 shadow-azul-claro p-6 rounded-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-branco">Editar Jogador</h2>
+          <button
+            onClick={onClose}
+            className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
+          >
+            <RiCloseFill size={24} />
+          </button>
+        </div>
 
         {erro && (
           <div className="mb-4 p-2 bg-vermelho-claro/20 text-vermelho-claro rounded">
@@ -174,7 +183,7 @@ const EditarJogador = ({
                     name={field.name}
                     value={field.value}
                     onChange={handleChange}
-                    className="w-full border border-borda rounded p-2 text-fonte-escura bg-fundo focus:border-azul-claro focus:outline-none"
+                    className="w-full border border-borda rounded p-2 text-branco bg-preto focus:border-azul-claro focus:outline-none"
                     rows="3"
                     required={field.required}
                   />
@@ -184,7 +193,7 @@ const EditarJogador = ({
                     name={field.name}
                     value={field.value}
                     onChange={handleChange}
-                    className="w-full border border-borda rounded p-2 text-fonte-escura bg-fundo focus:border-azul-claro focus:outline-none"
+                    className="w-full border border-borda rounded p-2 text-branco bg-preto focus:border-azul-claro focus:outline-none"
                     required={field.required}
                   />
                 )}
@@ -226,14 +235,14 @@ const EditarJogador = ({
                     value={social.value}
                     onChange={handleChange}
                     placeholder={`https://${social.label.toLowerCase()}.com/usuario`}
-                    className="w-full border border-borda border-l-0 rounded-r-md p-2 text-fonte-escura bg-fundo focus:outline-none"
+                    className="w-full border border-borda border-l-0 rounded-r-md p-2 focus:border-azul-claro text-branco bg-preto focus:outline-none"
                   />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="flex justify-end space-x-3 mt-6 ">
             <SalvarBtn type="submit" />
             <CancelarBtn onClick={onClose} />
           </div>
