@@ -1,11 +1,16 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { RiImageEditFill, RiTwitterXFill } from "react-icons/ri";
+import {
+  RiImageAddLine,
+  RiImageEditLine,
+  RiCloseFill,
+  RiTwitterXFill,
+} from "react-icons/ri";
 import { IoLogoTwitch } from "react-icons/io";
 import { FaInstagram } from "react-icons/fa";
 import SalvarBtn from "./SalvarBtn";
 import CancelarBtn from "./CancelarBtn";
-import { RiCloseFill } from "react-icons/ri";
 
 const EditarJogador = ({
   jogador: {
@@ -42,8 +47,13 @@ const EditarJogador = ({
     const file = e.target.files[0];
     if (file) {
       const tiposPermitidos = ["image/jpeg", "image/jpg", "image/png"];
-      if (!tiposPermitidos.includes(file?.type)) {
+      if (!tiposPermitidos.includes(file.type)) {
         setErro("Formato de imagem inválido. Use apenas JPG, JPEG ou PNG.");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setErro("A imagem deve ter no máximo 5MB");
         return;
       }
 
@@ -69,10 +79,17 @@ const EditarJogador = ({
     });
   };
 
+  const handleRemoveFoto = () => {
+    setFotoPreview("");
+    setFormData({
+      ...formData,
+      foto: null,
+    });
+  };
+
   const handleSave = (e) => {
     e.preventDefault();
 
-    // Validações
     if (!formData.nome || !formData.titulo || !formData.descricao) {
       setErro("Preencha todos os campos obrigatórios!");
       return;
@@ -95,15 +112,15 @@ const EditarJogador = ({
 
     setErro("");
     onSave({
+      id: jogadorId, // Now using jogadorId
       ...formData,
-      // Se não houve alteração na foto, mantém a URL original
       foto: formData.foto || fotoInicial,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
-      <div className="bg-fundo shadow-sm inset-0 shadow-azul-claro p-6 rounded-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-fundo shadow-sm shadow-azul-claro p-6 rounded-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Editar Jogador</h2>
           <button
@@ -122,31 +139,59 @@ const EditarJogador = ({
 
         <form onSubmit={handleSave}>
           <div className="space-y-4">
-            {/* Foto */}
-            <div>
+            {/* Foto com o novo estilo */}
+            <div className="mb-4">
               <label className="block text-sm text-fonte-escura font-semibold mb-2">
-                Foto:
+                Foto do Jogador <span className="text-vermelho-claro">*</span>
               </label>
-              <div className="relative w-24 h-24 mx-auto">
-                <img
-                  src={fotoPreview}
-                  alt="Foto do jogador"
-                  className="w-full h-full rounded-full object-cover border-2 border-borda"
-                />
-                <label
-                  htmlFor={`file-input-${jogadorId}`}
-                  className="absolute inset-0 flex items-center justify-center bg-azul-claro bg-opacity-50 rounded-full cursor-pointer"
-                >
-                  <RiImageEditFill className="text-white text-xl" />
-                </label>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  {fotoPreview ? (
+                    <>
+                      <RiImageEditLine className="w-8 h-8 text-azul-claro mb-2" />
+                      <p className="text-sm text-fonte-escura">
+                        Alterar imagem
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <RiImageAddLine className="w-8 h-8 text-azul-claro mb-2" />
+                      <p className="text-sm text-fonte-escura">
+                        Clique para enviar
+                      </p>
+                    </>
+                  )}
+                  <p className="text-xs text-fonte-escura/50 mt-1">
+                    PNG, JPG ou JPEG (Max. 5MB)
+                  </p>
+                </div>
                 <input
-                  id={`file-input-${jogadorId}`}
                   type="file"
-                  accept="image/jpeg, image/jpg, image/png"
+                  accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
+                  required={!fotoInicial && !fotoPreview}
                 />
-              </div>
+              </label>
+              {fotoPreview && (
+                <div className="mt-4 flex justify-center">
+                  <div className="relative w-24 h-24">
+                    <img
+                      src={fotoPreview}
+                      alt="Preview da foto"
+                      className="w-full h-full rounded-full object-cover border border-cinza-escuro"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveFoto}
+                      className="absolute -top-2 -right-2 bg-vermelho-claro text-branco rounded-full w-6 h-6 flex items-center justify-center hover:bg-vermelho-escuro transition-colors"
+                      title="Remover imagem"
+                    >
+                      <RiCloseFill className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Campos de texto */}
@@ -242,7 +287,7 @@ const EditarJogador = ({
             ))}
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6 ">
+          <div className="flex justify-end space-x-3 mt-6">
             <SalvarBtn type="submit" />
             <CancelarBtn onClick={onClose} />
           </div>

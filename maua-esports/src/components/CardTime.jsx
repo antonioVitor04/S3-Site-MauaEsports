@@ -43,7 +43,6 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
             <span className="text-branco font-bold text-md">{timeId}</span>
           </div>
 
-
           {/* Área da imagem */}
           <div
             className="w-full h-[70%] relative overflow-hidden"
@@ -72,9 +71,9 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               {jogoError ? (
                 <div className="w-6 h-6 bg-cinza-escuro"></div>
               ) : (
-                <img 
-                  src={jogo} 
-                  alt="Logo do jogo" 
+                <img
+                  src={jogo}
+                  alt="Logo do jogo"
                   className="w-6 h-6"
                   onError={() => setJogoError(true)}
                 />
@@ -83,7 +82,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
 
             <div className="flex justify-center space-x-4">
               <EditarBtn onClick={handleEditClick} />
-              <DeletarBtn onClick={handleDeleteClick} />
+              <DeletarBtn onDelete={handleDeleteClick} />
             </div>
           </div>
         </div>

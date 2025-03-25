@@ -1,24 +1,19 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { FaInstagram } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { IoLogoTwitch } from "react-icons/io";
-import { RiCloseFill } from "react-icons/ri";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { RiCloseFill, RiImageAddLine, RiImageEditLine } from "react-icons/ri";
 import PropTypes from "prop-types";
 import SalvarBtn from "./SalvarBtn";
 import CancelarBtn from "./CancelarBtn";
-import JogoValorant from "../assets/images/logovalorant.svg";
-import JogoCS2 from "../assets/images/logocs2.svg";
 import FotoPadrao from "../assets/images/Foto.svg";
 
-const ModalAdicionarMembro = ({ onClose, onSave }) => {
+const ModalAdicionarMembro = ({ onClose, onSave, timeId }) => {
   const [formData, setFormData] = useState({
     foto: null,
     nome: "",
     titulo: "",
     descricao: "",
-    jogo: "valorant-inclusivo",
     instagram: "",
     twitter: "",
     twitch: "",
@@ -42,6 +37,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const validarLinks = () => {
     const { instagram, twitter, twitch } = formData;
 
@@ -59,8 +55,11 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
       validarLink(twitch, "Twitch")
     );
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validação dos campos obrigatórios
     if (
       !formData.foto ||
       !formData.nome ||
@@ -70,34 +69,35 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
       alert("Preencha todos os campos obrigatórios!");
       return;
     }
-    // Verifica os links das redes sociais
+
+    // Validação dos links
     if (!validarLinks()) {
       return;
     }
-    onSave(formData);
-  };
 
-  const getJogoIcone = () => {
-    switch (formData.jogo) {
-      case "valorant-masculino":
-      case "valorant-feminino":
-      case "valorant-inclusivo":
-        return JogoValorant;
-      case "cs2":
-        return JogoCS2;
-      default:
-        return JogoValorant;
-    }
+    // Cria objeto com os dados formatados
+    const novoJogador = {
+      nome: formData.nome.trim(),
+      titulo: formData.titulo.trim(),
+      descricao: formData.descricao.trim(),
+      foto: formData.foto, // Já é um data URL
+      insta: formData.instagram?.trim() || null,
+      twitter: formData.twitter?.trim() || null,
+      twitch: formData.twitch?.trim() || null,
+      time: timeId,
+    };
+
+    onSave(novoJogador);
   };
 
   return (
     <div className="my-2 fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
       <div
-        className="bg-fundo  p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative"
+        className="bg-fundo p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-branco">Editar Jogador</h2>
+          <h2 className="text-xl font-bold text-branco">Adicionar Jogador</h2>
           <button
             onClick={onClose}
             className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
@@ -107,31 +107,61 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Upload de Foto */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Foto <span className="text-vermelho-claro">*</span>
+              Foto do Jogador <span className="text-vermelho-claro">*</span>
             </label>
-            <div className="relative w-24 h-24 mx-auto">
-              <img
-                src={previewFoto}
-                alt="Preview"
-                className="w-full h-full rounded-full object-cover"
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                {previewFoto !== FotoPadrao ? (
+                  <>
+                    <RiImageEditLine className="w-8 h-8 text-azul-claro mb-2" />
+                    <p className="text-sm text-fonte-escura">Alterar imagem</p>
+                  </>
+                ) : (
+                  <>
+                    <RiImageAddLine className="w-8 h-8 text-azul-claro mb-2" />
+                    <p className="text-sm text-fonte-escura">
+                      Clique para enviar
+                    </p>
+                  </>
+                )}
+                <p className="text-xs text-fonte-escura/50 mt-1">
+                  PNG, JPG ou JPEG (Max. 5MB)
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                required
               />
-              <label className="absolute inset-0 flex items-center justify-center bg-azul-claro bg-opacity-50 rounded-full cursor-pointer">
-                <IoMdAddCircleOutline className="text-preto text-2xl" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  required
-                />
-              </label>
-            </div>
+            </label>
+            {previewFoto !== FotoPadrao && (
+              <div className="mt-4 flex justify-center">
+                <div className="relative w-24 h-24">
+                  <img
+                    src={previewFoto}
+                    alt="Preview da foto"
+                    className="w-full h-full rounded-full object-cover border border-cinza-escuro"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewFoto(FotoPadrao);
+                      setFormData({ ...formData, foto: null });
+                    }}
+                    className="absolute -top-2 -right-2 bg-vermelho-claro text-branco rounded-full w-6 h-6 flex items-center justify-center hover:bg-vermelho-escuro transition-colors"
+                    title="Remover imagem"
+                  >
+                    <RiCloseFill className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Nome */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
               Nome <span className="text-vermelho-claro">*</span>
@@ -146,7 +176,6 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
             />
           </div>
 
-          {/* Título */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
               Título <span className="text-vermelho-claro">*</span>
@@ -161,7 +190,6 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
             />
           </div>
 
-          {/* Descrição */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
               Descrição <span className="text-vermelho-claro">*</span>
@@ -176,64 +204,56 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
             ></textarea>
           </div>
 
-          {/* Redes Sociais */}
           <div className="mb-4">
             <h3 className="text-sm text-fonte-escura font-semibold mb-2">
               Redes Sociais
             </h3>
 
-            <div className="flex items-center mb-2 ">
-              <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center ">
+            <div className="flex items-center mb-2">
+              <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <FaInstagram className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2 ">
-                <input
-                  type="text"
-                  name="instagram"
-                  placeholder="Instagram URL"
-                  value={formData.instagram}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-branco bg-preto "
-                />
-              </div>
+              <input
+                type="text"
+                name="instagram"
+                placeholder="Instagram URL"
+                value={formData.instagram}
+                onChange={handleChange}
+                className="w-full border border-borda border-l-0 text-branco bg-preto p-2 rounded-r-md focus:outline-none"
+              />
             </div>
 
             <div className="flex items-center mb-2">
               <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <RiTwitterXFill className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
-                <input
-                  type="text"
-                  name="twitter"
-                  placeholder="Twitter URL"
-                  value={formData.twitter}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-branco bg-preto focus:border-azul-claro focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                name="twitter"
+                placeholder="Twitter URL"
+                value={formData.twitter}
+                onChange={handleChange}
+                className="w-full border border-borda border-l-0 text-branco bg-preto p-2 rounded-r-md focus:outline-none"
+              />
             </div>
 
             <div className="flex items-center">
               <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
                 <IoLogoTwitch className="text-2xl text-preto" />
               </div>
-              <div className="border border-borda rounded-r-md overflow-hidden flex-1 my-2">
-                <input
-                  type="text"
-                  name="twitch"
-                  placeholder="Twitch URL"
-                  value={formData.twitch}
-                  onChange={handleChange}
-                  className="w-full p-2 outline-none text-branco bg-preto focus:border-azul-claro focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                name="twitch"
+                placeholder="Twitch URL"
+                value={formData.twitch}
+                onChange={handleChange}
+                className="w-full border border-borda border-l-0 text-branco bg-preto p-2 rounded-r-md focus:outline-none"
+              />
             </div>
           </div>
 
-          {/* Botões */}
           <div className="flex justify-end space-x-2 mt-6">
-            <SalvarBtn onClick={handleSubmit} />
+            <SalvarBtn type="submit" onClick={handleSubmit} />
             <CancelarBtn onClick={onClose} />
           </div>
         </form>
@@ -245,6 +265,7 @@ const ModalAdicionarMembro = ({ onClose, onSave }) => {
 ModalAdicionarMembro.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  timeId: PropTypes.string.isRequired,
 };
 
 export default ModalAdicionarMembro;

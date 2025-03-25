@@ -58,13 +58,8 @@ const ModalNovoTime = ({ onSave, onClose }) => {
   };
 
   return (
-<<<<<<< HEAD
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
       <div className="bg-fundo p-6 rounded-lg max-w-md w-full border shadow-sm shadow-azul-claro">
-=======
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border border-azul-claro max-h-[90vh] overflow-y-auto">
->>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Criar Novo Time</h2>
           <button
@@ -124,11 +119,7 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* Foto do Time */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-<<<<<<< HEAD
-              Foto do Time <span className="text-vermelho-claro">*</span>
-=======
               Foto do Time
->>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
             </label>
             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -165,11 +156,7 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* Logo do Jogo - Estilo melhorado */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-<<<<<<< HEAD
-              Logo do Jogo <span className="text-vermelho-claro">*</span>
-=======
               Logo do Jogo
->>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
             </label>
             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">

@@ -1,5 +1,3 @@
-// mongodb+srv://antonionapoli394:<password>@o-semeador-site.s0mxq.mongodb.net/?retryWrites=true&w=majority&appName=O-Semeador-site
-
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -72,9 +70,10 @@ const jogadorSchema = mongoose.Schema({
     contentType: String,
     nomeOriginal: String,
   },
-  insta: { type: String, required: false, unique: true },
-  twitter: { type: String, required: false, unique: true },
-  twitch: { type: String, required: false, unique: true },
+  insta: { type: String, unique: true, sparse: true },
+  twitter: { type: String, unique: true, sparse: true },
+  twitch: { type: String, unique: true, sparse: true },
+
   time: {
     type: Number, // Mudado para Number
     ref: "Time",
@@ -325,12 +324,35 @@ app.get("/times/:id", async (req, res) => {
         .json({ success: false, message: "Time não encontrado" });
     }
 
-    res.status(200).json(time);
+    // Adiciona a URL da logo ao objeto do time
+    const timeComLogo = {
+      ...time,
+      logoUrl: `${req.protocol}://${req.get("host")}/times/${timeId}/logo`,
+    };
+
+    res.status(200).json(timeComLogo);
   } catch (error) {
+    console.error("Erro ao buscar time:", error);
     res.status(500).json({ success: false, message: "Erro ao buscar time" });
   }
 });
+// Rota para servir a logo do time
+app.get("/times/:id/logo", async (req, res) => {
+  try {
+    const timeId = parseInt(req.params.id);
+    const time = await Time.findOne({ id: timeId });
 
+    if (!time || !time.jogo || !time.jogo.data) {
+      return res.status(404).send("Logo não encontrada");
+    }
+
+    res.set("Content-Type", time.jogo.contentType);
+    res.send(time.jogo.data);
+  } catch (error) {
+    console.error("Erro ao buscar logo do time:", error);
+    res.status(500).send("Erro ao buscar logo");
+  }
+});
 // Rota para buscar jogadores por time ID
 app.get("/times/:id/jogadores", async (req, res) => {
   try {

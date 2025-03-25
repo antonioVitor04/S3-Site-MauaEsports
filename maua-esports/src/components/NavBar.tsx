@@ -68,7 +68,7 @@ const NavBar = () => {
       className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out
     ${
       isScrolled
-        ? "bg-navbar lg:bg-navbar/60"
+        ? "bg-navbar lg:bg-navbar/97"
         : "bg-transparent lg:bg-transparent"
     } // Fundo condicional baseado no scroll
     md:bg-navbar 
