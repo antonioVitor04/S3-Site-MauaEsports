@@ -12,7 +12,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
   const handleDeleteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onDelete(timeId); // Removida a confirmação daqui
+    onDelete(timeId);
   };
 
   const handleEditClick = (e) => {
@@ -38,6 +38,11 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
           }}
         >
+          {/* ID do Time - Posicionado no canto inferior direito */}
+          <div className="absolute up-1 right-1 bg-black bg-opacity-90 rounded-full w-8 h-8 flex items-center justify-center z-10 my-2 mx-2">
+            <span className="text-branco font-bold text-md">{timeId}</span>
+          </div>
+
           {/* Área da imagem */}
           <div
             className="w-full h-[70%] relative overflow-hidden"
