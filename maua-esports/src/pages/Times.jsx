@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import CardTime from "../components/CardTime";
 import EditarTime from "../components/ModalEditarTime";
 import NovoTime from "../components/ModalNovoTime";
+import AdicionarTime from "../components/AdicionarTime";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -11,7 +12,6 @@ const Times = () => {
   const [carregando, setCarregando] = useState(true);
   const [erroCarregamento, setErroCarregamento] = useState(null);
   const [timeEditando, setTimeEditando] = useState(null);
-  const [mostrarFormNovoTime, setMostrarFormNovoTime] = useState(false);
 
   const carregarTimes = async () => {
     try {
@@ -143,9 +143,9 @@ const Times = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao criar time");
-      }
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Falha ao criar time");
+    }
 
       const data = await response.json();
       setTimes([...times, data].sort((a, b) => a.id - b.id));
@@ -207,21 +207,16 @@ const Times = () => {
         <h1 className="font-blinker text-branco font-bold text-3xl">
           Escolha seu time!
         </h1>
-        <button
-          onClick={() => setMostrarFormNovoTime(true)}
-          className="absolute right-10 bg-azul-claro text-branco px-4 py-2 rounded hover:bg-azul-escuro transition-colors"
-        >
-          Novo Time
-        </button>
       </div>
-
+  
       <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">
+          
           {times.length > 0 ? (
             times.map((time) => (
               <CardTime
                 key={time._id}
-                timeId={time.id} // Note que aqui usamos time.id (não _id)
+                timeId={time.id}
                 nome={time.nome}
                 foto={`${API_BASE_URL}/times/${time.id}/foto`}
                 jogo={`${API_BASE_URL}/times/${time.id}/jogo`}
@@ -232,29 +227,17 @@ const Times = () => {
           ) : (
             <div className="text-center p-8 text-branco">
               <p className="text-xl mb-4">Nenhum time encontrado</p>
-              <button
-                onClick={() => setMostrarFormNovoTime(true)}
-                className="bg-azul-claro text-branco px-6 py-2 rounded hover:bg-azul-escuro transition-colors"
-              >
-                Criar Novo Time
-              </button>
             </div>
           )}
+          <AdicionarTime onAdicionarTime={handleCreateTime} />
         </div>
       </div>
-
+  
       {timeEditando && (
         <EditarTime
           time={timeEditando}
           onSave={handleSaveTime}
           onClose={() => setTimeEditando(null)}
-        />
-      )}
-
-      {mostrarFormNovoTime && (
-        <NovoTime
-          onSave={handleCreateTime}
-          onClose={() => setMostrarFormNovoTime(false)}
         />
       )}
     </div>
