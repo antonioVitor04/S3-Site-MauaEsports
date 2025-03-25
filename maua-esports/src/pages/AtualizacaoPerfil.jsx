@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import { HiUserCircle } from "react-icons/hi2";
@@ -13,7 +12,6 @@ const AtualizacaoPerfil = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState(null);
   const [croppedImage, setCroppedImage] = useState(() => {
-    // Recupera a imagem salva no localStorage ao inicializar o componente
     return localStorage.getItem("croppedImage") || null;
   });
 
@@ -32,7 +30,45 @@ const AtualizacaoPerfil = () => {
     setCroppedArea(croppedAreaPixels);
   };
 
-  const handleCrop = () => {
+  const createCircularImage = (src) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      
+      img.onload = () => {
+        // Tamanho do canvas igual ao diâmetro do círculo
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+        
+        // Criar máscara circular
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        
+        // Desenhar a imagem centralizada
+        ctx.drawImage(
+          img,
+          (img.width - size) / 2,
+          (img.height - size) / 2,
+          size,
+          size,
+          0,
+          0,
+          size,
+          size
+        );
+        
+        resolve(canvas.toDataURL("image/jpeg"));
+      };
+      
+      img.src = src;
+    });
+  };
+
+  const handleCrop = async () => {
     if (image && croppedArea) {
       const canvas = document.createElement("canvas");
       const imageObj = new Image();
@@ -56,12 +92,13 @@ const AtualizacaoPerfil = () => {
         );
 
         const croppedImageUrl = canvas.toDataURL("image/jpeg");
-        setCroppedImage(croppedImageUrl);
-
-        // Salvar a imagem cortada no localStorage
-        localStorage.setItem("croppedImage", croppedImageUrl);
-
-        setImage(null);
+        
+        // Aplicar o corte circular
+        createCircularImage(croppedImageUrl).then((circularImageUrl) => {
+          setCroppedImage(circularImageUrl);
+          localStorage.setItem("croppedImage", circularImageUrl);
+          setImage(null);
+        });
       };
     }
   };
@@ -118,10 +155,11 @@ const AtualizacaoPerfil = () => {
                 image={image}
                 crop={crop}
                 zoom={zoom}
-                aspect={1}
+                aspect={1} // Mantém proporção 1:1 para garantir um círculo perfeito
                 onCropChange={setCrop}
                 onCropComplete={onCropComplete}
                 onZoomChange={setZoom}
+                cropShape="round" // Adiciona visualização de corte circular
               />
             </div>
             <div className="mt-4 flex justify-end" style={{ zIndex: 101 }}>
