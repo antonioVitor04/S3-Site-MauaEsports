@@ -149,7 +149,6 @@ const Times = () => {
 
       const data = await response.json();
       setTimes([...times, data].sort((a, b) => a.id - b.id));
-      setMostrarFormNovoTime(false);
     } catch (error) {
       console.error("Erro ao criar time:", error);
       alert(error.message || "Erro ao criar time. Por favor, tente novamente.");
