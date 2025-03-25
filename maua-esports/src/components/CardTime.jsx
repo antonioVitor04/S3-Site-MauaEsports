@@ -58,7 +58,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               <img
                 src={foto}
                 alt={`Imagem do time ${nome}`}
-                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-1100 ease-in-out hover:scale-125"
+                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-800 ease-in-out hover:scale-112"
                 onError={() => setImgError(true)}
               />
             )}

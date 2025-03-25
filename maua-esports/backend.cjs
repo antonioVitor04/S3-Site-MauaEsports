@@ -70,6 +70,7 @@ const jogadorSchema = mongoose.Schema({
     contentType: String,
     nomeOriginal: String,
   },
+
   insta: { type: String, unique: true, sparse: true },
   twitter: { type: String, unique: true, sparse: true },
   twitch: { type: String, unique: true, sparse: true },
