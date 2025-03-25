@@ -1,8 +1,7 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import CardTime from "../components/CardTime";
 import EditarTime from "../components/ModalEditarTime";
-import NovoTime from "../components/ModalNovoTime";
 import AdicionarTime from "../components/AdicionarTime";
 
 const API_BASE_URL = "http://localhost:3000";
@@ -17,31 +16,31 @@ const Times = () => {
     try {
       setCarregando(true);
       setErroCarregamento(null);
-      
+
       const response = await fetch(`${API_BASE_URL}/times`, {
         headers: {
-          'Accept': 'application/json'
-        }
+          Accept: "application/json",
+        },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || `Erro ${response.status}`);
       }
-  
+
       const data = await response.json();
-      
+
       if (!Array.isArray(data)) {
         throw new Error("Formato de dados inválido do servidor");
       }
-  
+
       // Adicione um timestamp único para evitar cache
-      const timesComUrls = data.map(time => ({
+      const timesComUrls = data.map((time) => ({
         ...time,
         fotoUrl: `${API_BASE_URL}/times/${time.id}/foto?${Date.now()}`,
-        jogoUrl: `${API_BASE_URL}/times/${time.id}/jogo?${Date.now()}`
+        jogoUrl: `${API_BASE_URL}/times/${time.id}/jogo?${Date.now()}`,
       }));
-  
+
       setTimes(timesComUrls.sort((a, b) => a.id - b.id));
     } catch (error) {
       console.error("Erro ao carregar times:", error);
@@ -61,8 +60,10 @@ const Times = () => {
   }, []);
 
   const handleDeleteTime = async (timeId) => {
-    const time = times.find(t => t.id === timeId);
-    if (!window.confirm(`Tem certeza que deseja excluir o time "${time.nome}"?`)) {
+    const time = times.find((t) => t.id === timeId);
+    if (
+      !window.confirm(`Tem certeza que deseja excluir o time "${time.nome}"?`)
+    ) {
       return;
     }
 
@@ -126,9 +127,13 @@ const Times = () => {
 
   const handleCreateTime = async (novoTime) => {
     try {
-      const idExistente = times.some(time => time.id === parseInt(novoTime.id));
+      const idExistente = times.some(
+        (time) => time.id === parseInt(novoTime.id)
+      );
       if (idExistente) {
-        throw new Error("Já existe um time com este ID. Por favor, use um ID diferente.");
+        throw new Error(
+          "Já existe um time com este ID. Por favor, use um ID diferente."
+        );
       }
       const formData = new FormData();
       formData.append("id", novoTime.id);
@@ -143,9 +148,9 @@ const Times = () => {
       });
 
       if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Falha ao criar time");
-    }
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao criar time");
+      }
 
       const data = await response.json();
       setTimes([...times, data].sort((a, b) => a.id - b.id));
@@ -160,7 +165,7 @@ const Times = () => {
     setTimeEditando({
       ...time,
       foto: time.fotoUrl, // Usamos a URL completa para o preview
-      jogo: time.jogoUrl
+      jogo: time.jogoUrl,
     });
   };
 
@@ -207,10 +212,9 @@ const Times = () => {
           Escolha seu time!
         </h1>
       </div>
-  
+
       <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">
-          
           {times.length > 0 ? (
             times.map((time) => (
               <CardTime
@@ -231,7 +235,7 @@ const Times = () => {
           <AdicionarTime onAdicionarTime={handleCreateTime} />
         </div>
       </div>
-  
+
       {timeEditando && (
         <EditarTime
           time={timeEditando}

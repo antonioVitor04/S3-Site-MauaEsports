@@ -55,8 +55,8 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border border-azul-claro">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
+      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border shadow-sm shadow-azul-claro">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Editar Time</h2>
           <button
