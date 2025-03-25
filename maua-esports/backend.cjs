@@ -72,9 +72,9 @@ const jogadorSchema = mongoose.Schema({
     contentType: String,
     nomeOriginal: String,
   },
-  insta: { type: String, required: false, unique: true },
-  twitter: { type: String, required: false, unique: true },
-  twitch: { type: String, required: false, unique: true },
+  insta: { type: String, required: false, unique: true, sparse:true },
+  twitter: { type: String, required: false, unique: true, sparse:true },
+  twitch: { type: String, required: false, unique: true, sparse:true },
   time: {
     type: Number, // Mudado para Number
     ref: "Time",
