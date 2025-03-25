@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { RiCloseFill } from "react-icons/ri";
+import { RiCloseFill, RiImageAddLine, RiImageEditLine } from "react-icons/ri";
 import PropTypes from "prop-types";
 import SalvarBtn from "./SalvarBtn";
 import CancelarBtn from "./CancelarBtn";
@@ -58,8 +58,13 @@ const ModalNovoTime = ({ onSave, onClose }) => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
       <div className="bg-fundo p-6 rounded-lg max-w-md w-full border shadow-sm shadow-azul-claro">
+=======
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border border-azul-claro max-h-[90vh] overflow-y-auto">
+>>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Criar Novo Time</h2>
           <button
@@ -119,42 +124,82 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* Foto do Time */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
+<<<<<<< HEAD
               Foto do Time <span className="text-vermelho-claro">*</span>
+=======
+              Foto do Time
+>>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, "foto")}
-              className="w-full text-branco"
-              required
-            />
-            {fotoPreview && (
-              <img
-                src={fotoPreview}
-                alt="Preview da foto"
-                className="mt-2 w-24 h-24 object-cover"
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                {fotoPreview ? (
+                  <RiImageEditLine className="w-8 h-8 text-azul-claro mb-2" />
+                ) : (
+                  <RiImageAddLine className="w-8 h-8 text-azul-claro mb-2" />
+                )}
+                <p className="text-sm text-fonte-escura">
+                  {fotoPreview ? "Alterar imagem" : "Clique para enviar"}
+                </p>
+                <p className="text-xs text-fonte-escura/50 mt-1">
+                  PNG, JPG ou JPEG (Max. 5MB)
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "foto")}
+                className="hidden"
               />
+            </label>
+            {fotoPreview && (
+              <div className="mt-4 flex justify-center">
+                <img
+                  src={fotoPreview}
+                  alt="Preview da foto"
+                  className="w-24 h-24 object-cover rounded border border-cinza-escuro"
+                />
+              </div>
             )}
           </div>
 
-          {/* Logo do Jogo */}
+          {/* Logo do Jogo - Estilo melhorado */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
+<<<<<<< HEAD
               Logo do Jogo <span className="text-vermelho-claro">*</span>
+=======
+              Logo do Jogo
+>>>>>>> 15aac198c0d4286d9e3af29dabf7388be6674ca6
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, "jogo")}
-              className="w-full text-branco"
-              required
-            />
-            {jogoPreview && (
-              <img
-                src={jogoPreview}
-                alt="Preview do logo"
-                className="mt-2 w-24 h-24 object-cover"
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                {jogoPreview ? (
+                  <RiImageEditLine className="w-8 h-8 text-azul-claro mb-2" />
+                ) : (
+                  <RiImageAddLine className="w-8 h-8 text-azul-claro mb-2" />
+                )}
+                <p className="text-sm text-fonte-escura">
+                  {jogoPreview ? "Alterar logo" : "Clique para enviar"}
+                </p>
+                <p className="text-xs text-fonte-escura/50 mt-1">
+                  PNG, JPG ou JPEG (Max. 5MB)
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "jogo")}
+                className="hidden"
               />
+            </label>
+            {jogoPreview && (
+              <div className="mt-4 flex justify-center">
+                <img
+                  src={jogoPreview}
+                  alt="Preview do logo"
+                  className="w-24 h-24 object-cover rounded border border-cinza-escuro"
+                />
+              </div>
             )}
           </div>
 
