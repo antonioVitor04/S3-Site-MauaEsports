@@ -16,12 +16,10 @@ const Membros = () => {
       try {
         setCarregando(true);
 
-        // Carrega dados do time específico
         const responseTime = await fetch(`${API_BASE_URL}/times/${timeId}`);
         const timeData = await responseTime.json();
         setTime(timeData);
 
-        // Carrega jogadores do time específico
         const responseJogadores = await fetch(
           `${API_BASE_URL}/times/${timeId}/jogadores`
         );
@@ -45,15 +43,21 @@ const Membros = () => {
 
   const handleDeleteJogador = async (jogadorId) => {
     try {
-      await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
+      const response = await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
         method: "DELETE",
       });
-      setJogadores(jogadores.filter((j) => j._id !== jogadorId));
+
+      if (!response.ok) {
+        throw new Error("Falha ao deletar jogador");
+      }
+
+      setJogadores((prev) => prev.filter((j) => j._id !== jogadorId));
+      alert("Jogador deletado com sucesso!");
     } catch (error) {
       console.error("Erro ao deletar jogador:", error);
+      alert(`Erro ao deletar jogador: ${error.message}`);
     }
   };
-
   const handleEditJogador = async (jogadorId, updatedData) => {
     try {
       const formData = new FormData();
@@ -64,18 +68,15 @@ const Membros = () => {
       formData.append("twitter", updatedData.twitter || "");
       formData.append("twitch", updatedData.twitch || "");
 
-      // Se a foto foi alterada (é um data URL ou File object)
       if (updatedData.foto) {
         if (
           typeof updatedData.foto === "string" &&
           updatedData.foto.startsWith("data:")
         ) {
-          // Converte data URL para Blob
           const response = await fetch(updatedData.foto);
           const blob = await response.blob();
           formData.append("foto", blob, "jogador-foto.jpg");
         } else if (updatedData.foto instanceof File) {
-          // Se já é um File object
           formData.append("foto", updatedData.foto);
         }
       }
@@ -83,7 +84,6 @@ const Membros = () => {
       const response = await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
         method: "PUT",
         body: formData,
-        // Não definir Content-Type - o navegador fará isso automaticamente
       });
 
       if (!response.ok) {
@@ -93,12 +93,11 @@ const Membros = () => {
 
       const data = await response.json();
 
-      // Atualiza a lista de jogadores
       setJogadores((prev) =>
         prev.map((j) =>
           j._id === jogadorId
             ? {
-                ...data.data, // Acessa os dados dentro da propriedade data
+                ...data.data,
                 fotoUrl: `${API_BASE_URL}/jogadores/${
                   data.data._id
                 }/imagem?${Date.now()}`,
@@ -108,20 +107,51 @@ const Membros = () => {
       );
     } catch (error) {
       console.error("Erro ao atualizar jogador:", error);
-      // Mostra feedback para o usuário
       alert(`Erro: ${error.message}`);
     }
   };
 
-  const handleAdicionarMembro = (novoMembro) => {
-    setJogadores([
-      ...jogadores,
-      {
-        _id: Date.now().toString(),
-        ...novoMembro,
-        time: timeId,
-      },
-    ]);
+  const handleAdicionarMembro = async (novoMembro) => {
+    try {
+      const formData = new FormData();
+      formData.append("nome", novoMembro.nome);
+      formData.append("titulo", novoMembro.titulo);
+      formData.append("descricao", novoMembro.descricao);
+      formData.append("time", timeId);
+
+      if (novoMembro.instagram) formData.append("insta", novoMembro.instagram);
+      if (novoMembro.twitter) formData.append("twitter", novoMembro.twitter);
+      if (novoMembro.twitch) formData.append("twitch", novoMembro.twitch);
+
+      if (novoMembro.foto && novoMembro.foto.startsWith("data:")) {
+        const response = await fetch(novoMembro.foto);
+        const blob = await response.blob();
+        formData.append("foto", blob, "foto-jogador.jpg");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/jogadores`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao adicionar membro");
+      }
+
+      const data = await response.json();
+
+      setJogadores((prev) => [
+        ...prev,
+        {
+          ...data,
+          fotoUrl: `${API_BASE_URL}/jogadores/${data._id}/imagem?${Date.now()}`,
+        },
+      ]);
+    } catch (error) {
+      console.error("Erro ao adicionar membro:", error);
+      alert(`Erro: ${error.message}`);
+    }
   };
 
   if (carregando) {
@@ -155,9 +185,13 @@ const Membros = () => {
               twitch={jogador.twitch}
               onDelete={handleDeleteJogador}
               onEdit={handleEditJogador}
+              logoTime={time?.logoUrl}
             />
           ))}
-          <AdicionarMembro onAdicionarMembro={handleAdicionarMembro} />
+          <AdicionarMembro
+            onAdicionarMembro={handleAdicionarMembro}
+            timeId={timeId}
+          />
         </div>
       </div>
     </div>

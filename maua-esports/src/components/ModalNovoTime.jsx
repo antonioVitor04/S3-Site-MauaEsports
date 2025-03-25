@@ -58,13 +58,13 @@ const ModalNovoTime = ({ onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border border-azul-claro max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
+      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border shadow-sm shadow-azul-claro">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Criar Novo Time</h2>
           <button
             onClick={onClose}
-            className="text-fonte-escura hover:text-vermelho-claro"
+            className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
           >
             <RiCloseFill size={24} />
           </button>
@@ -74,14 +74,14 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* ID do Time */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              ID do Time (Obrigatório)
+              ID do Time <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="number"
               name="id"
               value={formData.id}
               onChange={handleChange}
-              className="w-full p-2 bg-preto text-branco border border-cinza-escuro rounded"
+              className="w-full p-2 bg-preto text-branco border border-cinza-escuro rounded "
               required
             />
           </div>
@@ -89,7 +89,7 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* Nome do Time */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Nome do Time (Obrigatório)
+              Nome do Time <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"
@@ -104,7 +104,7 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           {/* Rota */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Rota (Obrigatório)
+              Rota <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"

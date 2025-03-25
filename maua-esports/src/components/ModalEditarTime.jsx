@@ -61,7 +61,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
           <h2 className="text-xl font-bold text-branco">Editar Time</h2>
           <button
             onClick={onClose}
-            className="text-fonte-escura hover:text-vermelho-claro"
+            className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
           >
             <RiCloseFill size={24} />
           </button>
@@ -87,7 +87,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
           {/* Nome do Time */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Nome do Time (Obrigatório)
+              Nome do Time <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"
@@ -102,7 +102,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
           {/* Rota */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
-              Rota (Obrigatório)
+              Rota <span className="text-vermelho-claro">*</span>
             </label>
             <input
               type="text"

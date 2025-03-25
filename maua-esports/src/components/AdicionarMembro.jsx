@@ -3,7 +3,7 @@ import { useState } from "react";
 import ModalAdicionarMembro from "./ModalAdicionarMembro";
 import PropTypes from "prop-types";
 
-const AdicionarMembro = ({ onAdicionarMembro }) => {
+const AdicionarMembro = ({ onAdicionarMembro, timeId }) => {
   const [modalAberto, setModalAberto] = useState(false);
 
   const handleAdicionarClick = (e) => {
@@ -36,6 +36,7 @@ const AdicionarMembro = ({ onAdicionarMembro }) => {
         <ModalAdicionarMembro
           onClose={handleFecharModal}
           onSave={handleSalvar}
+          timeId={timeId}
         />
       )}
     </>
@@ -44,6 +45,7 @@ const AdicionarMembro = ({ onAdicionarMembro }) => {
 
 AdicionarMembro.propTypes = {
   onAdicionarMembro: PropTypes.func.isRequired,
+  timeId: PropTypes.string.isRequired,
 };
 
 export default AdicionarMembro;

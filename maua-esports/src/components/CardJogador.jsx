@@ -21,6 +21,7 @@ const CardJogador = ({
   twitch,
   onDelete,
   onEdit,
+  logoTime,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hasSocialMedia = instagram || twitter || twitch;
@@ -33,10 +34,12 @@ const CardJogador = ({
   const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     const isConfirmed = window.confirm(
-      "Tem certeza que deseja deletar este jogador?"
+      `Tem certeza que deseja deletar o jogador ${nome}?`
     );
-    if (isConfirmed) {
+
+    if (isConfirmed && onDelete) {
       onDelete(jogadorId);
     }
   };
@@ -75,8 +78,8 @@ const CardJogador = ({
               {nome}
             </h1>
             <img
-              src={Jogo}
-              alt="Jogo"
+              src={logoTime}
+              alt="Logo do Time"
               className="w-6 h-6 mr-4 text-azul-claro"
             />
           </div>
@@ -92,7 +95,7 @@ const CardJogador = ({
               hasSocialMedia ? "justify-between" : "justify-center"
             }`}
           >
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 ml-4">
               {instagram && (
                 <a href={instagram} target="_blank" rel="noopener noreferrer">
                   <FaInstagram className="cursor-pointer hover:scale-110 transition-transform duration-300" />
@@ -155,6 +158,7 @@ CardJogador.propTypes = {
   twitch: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
+  logoTime: PropTypes.string, // Adicione esta linha
 };
 
 export default CardJogador;
