@@ -7,6 +7,7 @@ import AdicionarTime from "../components/AdicionarTime";
 
 const API_BASE_URL = "http://localhost:3000";
 
+
 const Times = () => {
   const [times, setTimes] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -136,20 +137,20 @@ const Times = () => {
       formData.append("rota", novoTime.rota);
       formData.append("foto", novoTime.foto);
       formData.append("jogo", novoTime.jogo);
-
+  
       const response = await fetch(`${API_BASE_URL}/times`, {
         method: "POST",
         body: formData,
       });
-
+  
       if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Falha ao criar time");
-    }
-
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao criar time");
+      }
+  
       const data = await response.json();
       setTimes([...times, data].sort((a, b) => a.id - b.id));
-      setMostrarFormNovoTime(false);
+      // REMOVA ESTA LINHA: setMostrarFormNovoTime(false);
     } catch (error) {
       console.error("Erro ao criar time:", error);
       alert(error.message || "Erro ao criar time. Por favor, tente novamente.");

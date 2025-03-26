@@ -159,8 +159,8 @@ const ModalNovoTime = ({ onSave, onClose }) => {
           </div>
 
           <div className="flex justify-end space-x-2">
-            <CancelarBtn onClick={onClose} />
             <SalvarBtn type="submit" />
+            <CancelarBtn onClick={onClose} />
           </div>
         </form>
       </div>
