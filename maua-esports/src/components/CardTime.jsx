@@ -12,7 +12,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
   const handleDeleteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onDelete(timeId); // Removida a confirmação daqui
+    onDelete(timeId);
   };
 
   const handleEditClick = (e) => {
@@ -38,6 +38,10 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
           }}
         >
+          {/* ID do Time - Posicionado no canto inferior direito */}
+          <div className="absolute up-1 right-1 bg-black bg-opacity-90 rounded-full w-8 h-8 flex items-center justify-center z-10 my-2 mx-2">
+            <span className="text-branco font-bold text-md">{timeId}</span>
+          </div>
 
           {/* Área da imagem */}
           <div
@@ -54,7 +58,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               <img
                 src={foto}
                 alt={`Imagem do time ${nome}`}
-                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-1100 ease-in-out hover:scale-125"
+                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-800 ease-in-out hover:scale-112"
                 onError={() => setImgError(true)}
               />
             )}
@@ -67,9 +71,9 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               {jogoError ? (
                 <div className="w-6 h-6 bg-cinza-escuro"></div>
               ) : (
-                <img 
-                  src={jogo} 
-                  alt="Logo do jogo" 
+                <img
+                  src={jogo}
+                  alt="Logo do jogo"
                   className="w-6 h-6"
                   onError={() => setJogoError(true)}
                 />
@@ -78,7 +82,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
 
             <div className="flex justify-center space-x-4">
               <EditarBtn onClick={handleEditClick} />
-              <DeletarBtn onClick={handleDeleteClick} />
+              <DeletarBtn onDelete={handleDeleteClick} />
             </div>
           </div>
         </div>

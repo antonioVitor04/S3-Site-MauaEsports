@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { FaInstagram } from "react-icons/fa";
@@ -22,20 +21,25 @@ const CardJogador = ({
   twitch,
   onDelete,
   onEdit,
+  logoTime,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const hasSocialMedia = instagram || twitter || twitch;
 
   const handleEdit = (updatedData) => {
     onEdit(jogadorId, updatedData);
     setIsModalOpen(false);
-
   };
 
   const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const isConfirmed = window.confirm("Tem certeza que deseja deletar este jogador?");
-    if (isConfirmed) {
+
+    const isConfirmed = window.confirm(
+      `Tem certeza que deseja deletar o jogador ${nome}?`
+    );
+
+    if (isConfirmed && onDelete) {
       onDelete(jogadorId);
     }
   };
@@ -45,86 +49,95 @@ const CardJogador = ({
       <div
         className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
         style={{
-          clipPath: "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
-          animation: "fadeInUp 0.5s ease-out"
+          clipPath:
+            "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
+          animation: "fadeInUp 0.5s ease-out",
         }}
       >
-        {/* Cabeçalho com título */}
         <h1 className="text-xl font-bold font-blinker bg-azul-claro rounded-bl-2xl px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
           {titulo}
         </h1>
 
-        {/* Foto do jogador */}
         <div className="w-full h-full relative">
           <img
             src={foto || Foto}
             alt={`Foto de ${nome}`}
             className="w-full h-full object-cover absolute top-0 left-0"
             style={{
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)"
+              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)",
+            }}
+            onError={(e) => {
+              e.target.src = Foto;
             }}
           />
         </div>
 
-        {/* Informações do jogador */}
-        <div className="justify-center items-center">
-          <div className="flex mt-3 space-x-2 font-blinker justify-between w-full">
-            <h1 className="text-lg font-semibold ml-5 text-fonte-clara">
+        <div className="w-full px-0">
+          <div className="flex justify-between items-center mt-3 font-blinker w-full">
+            <h1 className="text-lg font-semibold text-fonte-clara ml-4">
               {nome}
             </h1>
             <img
-              src={Jogo}
-              alt="Jogo"
-              className="w-6 h-6 mr-5 text-azul-claro"
+              src={logoTime}
+              alt="Logo do Time"
+              className="w-6 h-6 mr-4 text-azul-claro"
             />
           </div>
 
           <div className="w-full border-b-2 py-2 border-borda">
-            <p className="text-sm text-left mt-2 px-5 font-blinker w-full text-fonte-escura">
+            <p className="text-sm text-left mt-2 ml-4 font-blinker w-full text-fonte-escura">
               {descricao}
             </p>
           </div>
 
-          {/* Redes sociais e botões */}
-          <div className="flex items-center space-x-4 my-4 px-5 text-xl w-full text-fonte-escura">
-            {instagram && (
-              <a href={instagram} target="_blank" rel="noopener noreferrer">
-                <FaInstagram className="cursor-pointer hover:scale-110 transition-transform duration-300" />
-              </a>
-            )}
-            {twitter && (
-              <a href={twitter} target="_blank" rel="noopener noreferrer">
-                <RiTwitterXFill className="cursor-pointer hover:scale-110 transition-transform duration-300" />
-              </a>
-            )}
-            {twitch && (
-              <a href={twitch} target="_blank" rel="noopener noreferrer">
-                <IoLogoTwitch className="cursor-pointer hover:scale-110 transition-transform duration-300" />
-              </a>
-            )}
+          <div
+            className={`flex items-center my-4 text-xl w-full text-fonte-escura ${
+              hasSocialMedia ? "justify-between" : "justify-center"
+            }`}
+          >
+            <div className="flex space-x-4 ml-4">
+              {instagram && (
+                <a href={instagram} target="_blank" rel="noopener noreferrer">
+                  <FaInstagram className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                </a>
+              )}
+              {twitter && (
+                <a href={twitter} target="_blank" rel="noopener noreferrer">
+                  <RiTwitterXFill className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                </a>
+              )}
+              {twitch && (
+                <a href={twitch} target="_blank" rel="noopener noreferrer">
+                  <IoLogoTwitch className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                </a>
+              )}
+            </div>
 
-            <div className="flex space-x-2 ml-auto mr-3 gap-2">
+            <div className="flex space-x-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
-
-              <DeletarBtn jogadorId={jogadorId} onDelete={handleDelete}  tipo="jogador" />
-
+              <DeletarBtn
+                jogadorId={jogadorId}
+                onDelete={handleDelete}
+                tipo="jogador"
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal de edição */}
       {isModalOpen &&
         ReactDOM.createPortal(
           <EditarJogador
-            jogadorId={jogadorId}
-            nomeInicial={nome}
-            tituloInicial={titulo}
-            descricaoInicial={descricao}
-            fotoInicial={foto}
-            instagramInicial={instagram}
-            twitterInicial={twitter}
-            twitchInicial={twitch}
+            jogador={{
+              _id: jogadorId,
+              nome,
+              titulo,
+              descricao,
+              fotoUrl: foto,
+              insta: instagram,
+              twitter,
+              twitch,
+            }}
             onSave={handleEdit}
             onClose={() => setIsModalOpen(false)}
           />,
@@ -145,6 +158,7 @@ CardJogador.propTypes = {
   twitch: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
+  logoTime: PropTypes.string, // Adicione esta linha
 };
 
 export default CardJogador;

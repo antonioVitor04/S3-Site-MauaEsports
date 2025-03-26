@@ -1,12 +1,14 @@
-// eslint-disable-next-line no-unused-vars
-import React from "react";
+// SalvarBtn.jsx
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { MdDone } from "react-icons/md";
-import { useState } from "react";
-const SalvarBtn = ({ onClick }) => {
+
+const SalvarBtn = ({ onClick = () => {}, type = "button" }) => {
   const [isSaveHovered, setIsSaveHovered] = useState(false);
+
   return (
     <button
+      type={type}
       onMouseEnter={() => setIsSaveHovered(true)}
       onMouseLeave={() => setIsSaveHovered(false)}
       onClick={onClick}
@@ -23,7 +25,8 @@ const SalvarBtn = ({ onClick }) => {
 };
 
 SalvarBtn.propTypes = {
-  onClick: PropTypes.func.isRequired, // Função chamada ao clicar no botão
+  onClick: PropTypes.func,
+  type: PropTypes.oneOf(["button", "submit", "reset"]),
 };
 
 export default SalvarBtn;
