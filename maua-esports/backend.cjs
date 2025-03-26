@@ -74,12 +74,14 @@ const jogadorSchema = mongoose.Schema({
     nomeOriginal: String,
   },
 
-  insta: { type: String, unique: false },
-  twitter: { type: String, unique: false },
-  twitch: { type: String, unique: false },
+
+  insta: { type: String }, 
+  twitter: { type: String }, 
+  twitch: { type: String }, 
+
 
   time: {
-    type: Number, // Mudado para Number
+    type: Number,
     ref: "Time",
     required: true,
   },
@@ -139,24 +141,28 @@ app.post("/jogadores", upload.single("foto"), async (req, res) => {
         contentType: req.file.mimetype,
         nomeOriginal: req.file.originalname,
       },
-      insta,
-      twitter,
-      twitch,
+      insta: insta || null,
+      twitter: twitter || null,
+      twitch: twitch || null,
       time,
     });
 
     await novoJogador.save();
+    
+    // Retorna todos os campos, incluindo redes sociais
     res.status(201).json({
       _id: novoJogador._id,
+      nome: novoJogador.nome,
+      titulo: novoJogador.titulo,
+      descricao: novoJogador.descricao,
+      insta: novoJogador.insta,
+      twitter: novoJogador.twitter,
+      twitch: novoJogador.twitch,
+      time: novoJogador.time,
+      createdAt: novoJogador.createdAt,
       message: "Jogador criado com sucesso",
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        message: "Erro: Redes sociais devem ser únicas",
-        error: error.keyValue,
-      });
-    }
     res.status(500).json({ message: "Erro ao criar jogador", error });
   }
 });

@@ -38,47 +38,47 @@ const ModalAdicionarMembro = ({ onClose, onSave, timeId }) => {
 
   const validarLinks = () => {
     const { instagram, twitter, twitch } = formData;
-
-    const validarLink = (url, rede) => {
-      if (url && !url.startsWith("https://")) {
-        setErro(`O link do ${rede} deve começar com https://`);
-        return false;
-      }
-      return true;
-    };
-
-    return (
-      validarLink(instagram, "Instagram") &&
-      validarLink(twitter, "Twitter") &&
-      validarLink(twitch, "Twitch")
-    );
+  
+    // Apenas validação básica de formato
+    if (instagram && !instagram.startsWith("https://")) {
+      setErro("O link do Instagram deve começar com https://");
+      return false;
+    }
+    if (twitter && !twitter.startsWith("https://")) {
+      setErro("O link do Twitter deve começar com https://");
+      return false;
+    }
+    if (twitch && !twitch.startsWith("https://")) {
+      setErro("O link do Twitch deve começar com https://");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Validação básica
     if (!fotoCropped || !formData.nome || !formData.titulo || !formData.descricao) {
       setErro("Preencha todos os campos obrigatórios!");
       return;
     }
-
-    if (!validarLinks()) {
-      return;
-    }
-
+  
+    // Prepara os dados garantindo que redes sociais vazias sejam null
     const novoJogador = {
       nome: formData.nome.trim(),
       titulo: formData.titulo.trim(),
       descricao: formData.descricao.trim(),
       foto: fotoCropped,
-      insta: formData.instagram?.trim() || null,
+      insta: formData.instagram?.trim() || null, // Garante null se vazio
       twitter: formData.twitter?.trim() || null,
       twitch: formData.twitch?.trim() || null,
       time: timeId,
     };
-
+  
     try {
       await onSave(novoJogador);
+      onClose(); // Fecha o modal após sucesso
     } catch (error) {
       setErro(error.message || "Erro ao adicionar jogador");
     }
