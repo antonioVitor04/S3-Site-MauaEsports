@@ -59,7 +59,9 @@ const Times = () => {
 
   const handleDeleteTime = async (timeId) => {
     const time = times.find((t) => t.id === timeId);
-    if (!window.confirm(`Tem certeza que deseja excluir o time "${time.nome}"?`)) {
+    if (
+      !window.confirm(`Tem certeza que deseja excluir o time "${time.nome}"?`)
+    ) {
       return;
     }
 
@@ -84,7 +86,7 @@ const Times = () => {
 
   // Função para converter base64 para Blob
   const dataURLtoBlob = (dataURL) => {
-    const arr = dataURL.split(',');
+    const arr = dataURL.split(",");
     const mime = arr[0].match(/:(.*?);/)[1];
     const bstr = atob(arr[1]);
     let n = bstr.length;
@@ -102,37 +104,44 @@ const Times = () => {
       formData.append("rota", timeAtualizado.rota);
 
       // Verifica se a foto foi alterada (é uma nova imagem em base64)
-      if (timeAtualizado.foto && timeAtualizado.foto.startsWith('data:image')) {
+      if (timeAtualizado.foto && timeAtualizado.foto.startsWith("data:image")) {
         const fotoBlob = dataURLtoBlob(timeAtualizado.foto);
         formData.append("foto", fotoBlob, `foto-${Date.now()}.jpg`);
       }
 
       // Verifica se o jogo foi alterado (é uma nova imagem em base64)
-      if (timeAtualizado.jogo && timeAtualizado.jogo.startsWith('data:image')) {
+      if (timeAtualizado.jogo && timeAtualizado.jogo.startsWith("data:image")) {
         const jogoBlob = dataURLtoBlob(timeAtualizado.jogo);
         formData.append("jogo", jogoBlob, `jogo-${Date.now()}.jpg`);
       }
 
-      const response = await fetch(`${API_BASE_URL}/times/${timeAtualizado.id}`, {
-        method: "PUT",
-        body: formData,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/times/${timeAtualizado.id}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Falha ao atualizar time");
       }
 
       const data = await response.json();
-      
+
       // Atualiza a lista de times mantendo a ordem
-      setTimes(times.map(time => 
-        time.id === timeAtualizado.id ? {
-          ...data,
-          fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
-          jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`
-        } : time
-      ));
-      
+      setTimes(
+        times.map((time) =>
+          time.id === timeAtualizado.id
+            ? {
+                ...data,
+                fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
+                jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`,
+              }
+            : time
+        )
+      );
+
       setTimeEditando(null);
       return true; // Indica sucesso
     } catch (error) {
@@ -143,9 +152,13 @@ const Times = () => {
 
   const handleCreateTime = async (novoTime) => {
     try {
-      const idExistente = times.some((time) => time.id === parseInt(novoTime.id));
+      const idExistente = times.some(
+        (time) => time.id === parseInt(novoTime.id)
+      );
       if (idExistente) {
-        throw new Error("Já existe um time com este ID. Por favor, use um ID diferente.");
+        throw new Error(
+          "Já existe um time com este ID. Por favor, use um ID diferente."
+        );
       }
 
       const formData = new FormData();
@@ -154,13 +167,13 @@ const Times = () => {
       formData.append("rota", novoTime.rota);
 
       // Adiciona a foto (se existir)
-      if (novoTime.foto && novoTime.foto.startsWith('data:image')) {
+      if (novoTime.foto && novoTime.foto.startsWith("data:image")) {
         const fotoBlob = dataURLtoBlob(novoTime.foto);
         formData.append("foto", fotoBlob, `foto-${Date.now()}.jpg`);
       }
 
       // Adiciona o jogo (se existir)
-      if (novoTime.jogo && novoTime.jogo.startsWith('data:image')) {
+      if (novoTime.jogo && novoTime.jogo.startsWith("data:image")) {
         const jogoBlob = dataURLtoBlob(novoTime.jogo);
         formData.append("jogo", jogoBlob, `jogo-${Date.now()}.jpg`);
       }
@@ -176,14 +189,19 @@ const Times = () => {
       }
 
       const data = await response.json();
-      
+
       // Adiciona o novo time mantendo a ordem
-      setTimes([...times, {
-        ...data,
-        fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
-        jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`
-      }].sort((a, b) => a.id - b.id));
-      
+      setTimes(
+        [
+          ...times,
+          {
+            ...data,
+            fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
+            jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`,
+          },
+        ].sort((a, b) => a.id - b.id)
+      );
+
       return true; // Indica sucesso
     } catch (error) {
       console.error("Erro ao criar time:", error);
@@ -196,7 +214,7 @@ const Times = () => {
     setTimeEditando({
       ...time,
       foto: time.fotoUrl, // Usa a URL para preview
-      jogo: time.jogoUrl
+      jogo: time.jogoUrl,
     });
   };
 
@@ -249,7 +267,7 @@ const Times = () => {
           {times.length > 0 ? (
             times.map((time) => (
               <CardTime
-                key={time.id}  // Alterado para usar time.id em vez de time._id
+                key={time.id} // Alterado para usar time.id em vez de time._id
                 timeId={time.id}
                 nome={time.nome}
                 foto={`${API_BASE_URL}/times/${time.id}/foto?${Date.now()}`}
