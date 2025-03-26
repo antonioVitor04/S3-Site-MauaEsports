@@ -165,7 +165,7 @@ const NavBar = () => {
 
             <li className="px-4 py-2">
               <Link
-                to="/times"
+                to="/admins"
                 className="px-4 bg-transparent border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 hover:bg-hover hover:border-2 hover:border-borda hover:rounded-md cursor-pointer"
               >
                 <FaUserTie />

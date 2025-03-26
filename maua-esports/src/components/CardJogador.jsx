@@ -4,7 +4,6 @@ import { FaInstagram } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { IoLogoTwitch } from "react-icons/io";
 import Foto from "../assets/images/Foto.svg";
-import Jogo from "../assets/images/logovalorant.svg";
 import DeletarBtn from "./DeletarBtn";
 import EditarBtn from "./EditarBtn";
 import EditarJogador from "./ModalEditarJogador";
@@ -113,9 +112,7 @@ const CardJogador = ({
               )}
             </div>
 
-            <div className={`flex space-x-2 ${
-              hasSocialMedia ? "mr-5" : "mr-0"
-            }`}>
+            <div className="flex space-x-2">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
               <DeletarBtn
                 jogadorId={jogadorId}
