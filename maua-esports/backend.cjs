@@ -10,6 +10,8 @@ const multer = require("multer");
 const path = require("path");
 require("dotenv").config();
 
+
+
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
@@ -38,6 +40,7 @@ const upload = multer({
     cb(new Error("Apenas imagens são permitidas (jpeg, jpg, png, svg)"));
   },
 });
+
 
 const timeSchema = mongoose.Schema({
   id: { type: Number, required: true, unique: true },
@@ -186,6 +189,23 @@ app.get("/jogadores", async (req, res) => {
   }
 });
 
+app.delete("/jogadores/:id", async (req, res) => {
+  try {
+    const jogadorRemovido = await Jogador.findByIdAndDelete(req.params.id);
+
+    if (!jogadorRemovido) {
+      return res.status(404).json({ message: "Jogador não encontrado" });
+    }
+
+    res.status(200).json({
+      message: "Jogador removido com sucesso",
+      id: jogadorRemovido._id,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao remover jogador", error });
+  }
+});
+
 app.get("/jogadores/:id/imagem", async (req, res) => {
   try {
     const jogador = await Jogador.findById(req.params.id);
@@ -295,41 +315,7 @@ app.put("/jogadores/:id", upload.single("foto"), async (req, res) => {
   }
 });
 
-app.delete("/admins/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
 
-    // Debug: Verifique o ID recebido
-    console.log("ID recebido:", id);
-
-    // Validação robusta do ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Formato de ID inválido",
-      });
-    }
-
-    const adminRemovido = await Admin.findOneAndDelete({ _id: id });
-
-    if (!adminRemovido) {
-      return res.status(404).json({
-        success: false,
-        message: "Admin não encontrado para o ID fornecido",
-      });
-    }
-
-    // Resposta simplificada
-    res.status(204).end(); // 204 No Content
-  } catch (error) {
-    console.error("Erro no servidor:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erro interno no servidor",
-      error: error.message,
-    });
-  }
-});
 // Rota para buscar time por ID numérico
 app.get("/times/:id", async (req, res) => {
   try {
@@ -499,6 +485,48 @@ app.get("/times", async (req, res) => {
   }
 });
 
+
+app.delete("/admins/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validação robusta do ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Formato de ID inválido",
+        receivedId: id,
+        expectedFormat: "ObjectId (24 caracteres hexadecimais)"
+      });
+    }
+
+    const result = await Admin.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Nenhum admin encontrado com este ID"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Admin excluído com sucesso"
+    });
+
+  } catch (error) {
+    console.error('Erro no backend:', {
+      message: error.message,
+      stack: error.stack,
+      receivedId: req.params.id
+    });
+    res.status(500).json({
+      success: false,
+      message: "Erro interno no servidor"
+    });
+  }
+});
+
 app.put(
   "/times/:id",
   upload.fields([
@@ -580,7 +608,7 @@ app.delete("/times/:id", async (req, res) => {
   }
 });
 ////////////////////////////////////////////////////////////////////////////////AREA DE ADMINISTRADORES ////////////////////////////////////////////////////////////////////
-const adminSchema = mongoose.Schema({
+const adminSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   titulo: { type: String, required: true },
   descricao: { type: String, required: true },
@@ -589,18 +617,16 @@ const adminSchema = mongoose.Schema({
     contentType: String,
     nomeOriginal: String,
   },
-
-  insta: { type: String, unique: false },
-  twitter: { type: String, unique: false },
-  twitch: { type: String, unique: false },
-
+  insta: { type: String },
+  twitter: { type: String },
+  twitch: { type: String },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const Admin = mongoose.model("Admin", adminSchema);
+const Admin = mongoose.model('Admin', adminSchema);
 
 // Rota para listar todos os administradores
 app.get("/admins", async (req, res) => {
@@ -767,23 +793,8 @@ app.put("/admins/:id", upload.single("foto"), async (req, res) => {
 });
 
 // Rota DELETE
-app.delete("/admins/:id", async (req, res) => {
-  try {
-    const deleted = await Admin.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        message: "Admin não encontrado",
-      });
-    }
-    res.status(204).end(); // Resposta sem conteúdo
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
+// Rota DELETE corrigida para lidar com ObjectId
+
 app.get("/admins/:id/foto", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {

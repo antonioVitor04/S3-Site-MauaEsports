@@ -83,41 +83,23 @@ const Admins = () => {
   useEffect(() => {
     carregarAdmins();
   }, []);
-
   const handleDeleteAdmin = async (adminId) => {
     try {
-      // Força a conversão para string
-      const idToDelete = typeof adminId === "object" ? adminId._id : adminId;
-      const idString = idToDelete.toString();
-
-      console.log("Tentando excluir admin com ID:", idString); // Debug
-
-      const response = await fetch(`${API_BASE_URL}/admins/${idString}`, {
+      const response = await fetch(`${API_BASE_URL}/admins/${adminId}`, {
         method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Falha ao excluir admin");
+        throw new Error("Falha ao deletar admin");
       }
 
-      setAdmins((prev) =>
-        prev.filter((admin) => admin._id.toString() !== idString)
-      );
-      setFeedback({ type: "success", message: "Admin excluído com sucesso!" });
+      setAdmins((prev) => prev.filter((a) => a._id !== adminId));
     } catch (error) {
-      console.error("Erro na exclusão:", error);
-      setFeedback({
-        type: "error",
-        message: error.message.includes("não encontrado")
-          ? "Admin não encontrado"
-          : "Erro ao excluir admin",
-      });
+      console.error("Erro ao deletar jogador:", error);
+      alert(`Erro ao deletar jogador: ${error.message}`);
     }
   };
+
 
   const dataURLtoBlob = (dataURL) => {
     const arr = dataURL.split(",");
@@ -167,15 +149,15 @@ const Admins = () => {
         prev.map((admin) =>
           admin._id === adminAtualizado._id
             ? {
-                ...admin,
-                nome: data.nome,
-                titulo: data.titulo,
-                descricao: data.descricao,
-                insta: data.insta,
-                twitter: data.twitter,
-                twitch: data.twitch,
-                fotoUrl: data.fotoUrl || admin.fotoUrl,
-              }
+              ...admin,
+              nome: data.nome,
+              titulo: data.titulo,
+              descricao: data.descricao,
+              insta: data.insta,
+              twitter: data.twitter,
+              twitch: data.twitch,
+              fotoUrl: data.fotoUrl || admin.fotoUrl,
+            }
             : admin
         )
       );
@@ -295,9 +277,8 @@ const Admins = () => {
     <div className="w-full min-h-screen bg-fundo">
       {feedback && (
         <div
-          className={`fixed top-4 right-4 p-4 rounded-lg z-50 ${
-            feedback.type === "success" ? "bg-green-500" : "bg-red-500"
-          } text-white shadow-lg`}
+          className={`fixed top-4 right-4 p-4 rounded-lg z-50 ${feedback.type === "success" ? "bg-green-500" : "bg-red-500"
+            } text-white shadow-lg`}
         >
           {feedback.message}
         </div>

@@ -20,6 +20,19 @@ const CardAdmin = ({
 }) => {
   const hasSocialMedia = instagram || twitter || twitch;
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isConfirmed = window.confirm(
+      `Tem certeza que deseja deletar o admin ${nome}?`
+    );
+
+    if (isConfirmed && onDelete) {
+      onDelete(adminId);
+    }
+  };
+
   return (
     <div
       className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
@@ -60,9 +73,8 @@ const CardAdmin = ({
         </div>
 
         <div
-          className={`flex items-center my-4 text-xl w-full text-fonte-escura ${
-            hasSocialMedia ? "justify-between" : "justify-center"
-          }`}
+          className={`flex items-center my-4 text-xl w-full text-fonte-escura ${hasSocialMedia ? "justify-between" : "justify-center"
+            }`}
         >
           <div className="flex space-x-4 ml-4">
             {instagram && (
@@ -85,8 +97,8 @@ const CardAdmin = ({
           <div className="flex space-x-2 mr-4">
             <EditarBtn onClick={() => onEditClick(adminId)} />
             <DeletarBtn
-              itemId={adminId.toString()}
-              onDelete={onDelete}
+              itemId={adminId} // Remova o .toString()
+              onDelete={handleDelete}
               tipo="admin"
             />
           </div>
