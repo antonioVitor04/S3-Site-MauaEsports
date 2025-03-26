@@ -61,27 +61,28 @@ const EditarJogador = ({
 
   const handleSave = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.nome || !formData.titulo || !formData.descricao) {
       setErro("Preencha todos os campos obrigatórios!");
       return;
     }
-
-    if (formData.instagram && !validarLink(formData.instagram)) {
+  
+    // Mantenha apenas a validação básica dos links
+    if (formData.instagram && !formData.instagram.startsWith("https://")) {
       setErro("O link do Instagram deve começar com https://");
       return;
     }
-
-    if (formData.twitter && !validarLink(formData.twitter)) {
+  
+    if (formData.twitter && !formData.twitter.startsWith("https://")) {
       setErro("O link do Twitter deve começar com https://");
       return;
     }
-
-    if (formData.twitch && !validarLink(formData.twitch)) {
+  
+    if (formData.twitch && !formData.twitch.startsWith("https://")) {
       setErro("O link do Twitch deve começar com https://");
       return;
     }
-
+  
     setErro("");
     
     const jogadorAtualizado = {
@@ -89,7 +90,7 @@ const EditarJogador = ({
       ...formData,
       foto: fotoCropped || fotoInicial,
     };
-
+  
     try {
       await onSave(jogadorAtualizado);
     } catch (error) {

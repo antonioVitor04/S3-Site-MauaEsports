@@ -64,78 +64,62 @@ const Membros = () => {
       formData.append("nome", updatedData.nome);
       formData.append("titulo", updatedData.titulo);
       formData.append("descricao", updatedData.descricao);
-      formData.append("insta", updatedData.instagram || "");
-      formData.append("twitter", updatedData.twitter || "");
-      formData.append("twitch", updatedData.twitch || "");
-
+      formData.append("insta", updatedData.instagram || ""); // Pode ser vazio
+      formData.append("twitter", updatedData.twitter || ""); // Pode ser vazio
+      formData.append("twitch", updatedData.twitch || "");   // Pode ser vazio
+  
       if (updatedData.foto && updatedData.foto.startsWith("data:")) {
-        // Converte base64 para Blob
         const response = await fetch(updatedData.foto);
         const blob = await response.blob();
         formData.append("foto", blob, "jogador-foto.jpg");
       }
-
+  
       const response = await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
         method: "PUT",
         body: formData,
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Erro ao atualizar jogador");
       }
-
-      const data = await response.json();
-
-      setJogadores((prev) =>
-        prev.map((j) =>
-          j._id === jogadorId
-            ? {
-                ...data.data,
-                fotoUrl: `${API_BASE_URL}/jogadores/${
-                  data.data._id
-                }/imagem?${Date.now()}`,
-              }
-            : j
-        )
-      );
-      return true;
+  
+      // ... resto do código
     } catch (error) {
       console.error("Erro ao atualizar jogador:", error);
       throw error;
     }
   };
 
-  const handleAdicionarMembro = async (novoMembro) => {
+  const handleAdicionarMembro = async (novoJogador) => {
     try {
       const formData = new FormData();
-      formData.append("nome", novoMembro.nome);
-      formData.append("titulo", novoMembro.titulo);
-      formData.append("descricao", novoMembro.descricao);
-      formData.append("time", timeId);
-
-      if (novoMembro.instagram) formData.append("insta", novoMembro.instagram);
-      if (novoMembro.twitter) formData.append("twitter", novoMembro.twitter);
-      if (novoMembro.twitch) formData.append("twitch", novoMembro.twitch);
-
-      if (novoMembro.foto && novoMembro.foto.startsWith("data:")) {
-        const response = await fetch(novoMembro.foto);
+      formData.append("nome", novoJogador.nome);
+      formData.append("titulo", novoJogador.titulo);
+      formData.append("descricao", novoJogador.descricao);
+      formData.append("time", novoJogador.time);
+  
+      // Anexa redes sociais apenas se não forem null
+      if (novoJogador.insta !== null) formData.append("insta", novoJogador.insta);
+      if (novoJogador.twitter !== null) formData.append("twitter", novoJogador.twitter);
+      if (novoJogador.twitch !== null) formData.append("twitch", novoJogador.twitch);
+  
+      // Envia a foto
+      if (novoJogador.foto.startsWith("data:")) {
+        const response = await fetch(novoJogador.foto);
         const blob = await response.blob();
         formData.append("foto", blob, "foto-jogador.jpg");
       }
-
+  
       const response = await fetch(`${API_BASE_URL}/jogadores`, {
         method: "POST",
         body: formData,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erro ao adicionar membro");
-      }
-
+  
+      if (!response.ok) throw new Error("Falha ao criar jogador");
+  
       const data = await response.json();
-
+  
       setJogadores((prev) => [
         ...prev,
         {
@@ -143,10 +127,9 @@ const Membros = () => {
           fotoUrl: `${API_BASE_URL}/jogadores/${data._id}/imagem?${Date.now()}`,
         },
       ]);
-      return true;
     } catch (error) {
-      console.error("Erro ao adicionar membro:", error);
-      throw error;
+      console.error("Erro ao adicionar jogador:", error);
+      throw error; 
     }
   };
 
