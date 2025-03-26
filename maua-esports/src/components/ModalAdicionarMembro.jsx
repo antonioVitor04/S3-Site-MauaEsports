@@ -93,7 +93,7 @@ const ModalAdicionarMembro = ({ onClose, onSave, timeId }) => {
   return (
     <div className="my-2 fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
       <div
-        className="bg-fundo p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative"
+        className="bg-fundo p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
