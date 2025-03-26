@@ -52,12 +52,12 @@ const Membros = () => {
       }
 
       setJogadores((prev) => prev.filter((j) => j._id !== jogadorId));
-      alert("Jogador deletado com sucesso!");
     } catch (error) {
       console.error("Erro ao deletar jogador:", error);
       alert(`Erro ao deletar jogador: ${error.message}`);
     }
   };
+
   const handleEditJogador = async (jogadorId, updatedData) => {
     try {
       const formData = new FormData();
@@ -68,17 +68,11 @@ const Membros = () => {
       formData.append("twitter", updatedData.twitter || "");
       formData.append("twitch", updatedData.twitch || "");
 
-      if (updatedData.foto) {
-        if (
-          typeof updatedData.foto === "string" &&
-          updatedData.foto.startsWith("data:")
-        ) {
-          const response = await fetch(updatedData.foto);
-          const blob = await response.blob();
-          formData.append("foto", blob, "jogador-foto.jpg");
-        } else if (updatedData.foto instanceof File) {
-          formData.append("foto", updatedData.foto);
-        }
+      if (updatedData.foto && updatedData.foto.startsWith("data:")) {
+        // Converte base64 para Blob
+        const response = await fetch(updatedData.foto);
+        const blob = await response.blob();
+        formData.append("foto", blob, "jogador-foto.jpg");
       }
 
       const response = await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
@@ -105,9 +99,10 @@ const Membros = () => {
             : j
         )
       );
+      return true;
     } catch (error) {
       console.error("Erro ao atualizar jogador:", error);
-      alert(`Erro: ${error.message}`);
+      throw error;
     }
   };
 
@@ -148,9 +143,10 @@ const Membros = () => {
           fotoUrl: `${API_BASE_URL}/jogadores/${data._id}/imagem?${Date.now()}`,
         },
       ]);
+      return true;
     } catch (error) {
       console.error("Erro ao adicionar membro:", error);
-      alert(`Erro: ${error.message}`);
+      throw error;
     }
   };
 

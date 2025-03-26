@@ -1,6 +1,6 @@
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { useState } from "react";
-import ModalAdicionarMembro from "./ModalAdicionarMembro";
+import ModalAdicionarMembro from "./ModalAdicionarJogador";
 import PropTypes from "prop-types";
 
 const AdicionarMembro = ({ onAdicionarMembro, timeId }) => {

@@ -7,7 +7,7 @@ import Foto from "../assets/images/Foto.svg";
 import Jogo from "../assets/images/logovalorant.svg";
 import DeletarBtn from "./DeletarBtn";
 import EditarBtn from "./EditarBtn";
-import EditarJogador from "./EditarJogador";
+import EditarJogador from "./ModalEditarJogador";
 import PropTypes from "prop-types";
 
 const CardJogador = ({
