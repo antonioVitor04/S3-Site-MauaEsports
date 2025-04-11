@@ -5,6 +5,7 @@ import Membros from "./pages/Membros"; // Página de Membros
 import NotFound from "./pages/NotFound"; // Página de erro 404
 import Times from "./pages/Times";
 import Admins from "./pages/Admins";
+import HorasPaePage from "./pages/HorasPae";
 import { AuthProvider } from "./contexts/AuthContexts"; // Importando o AuthProvider
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/horas-pae" element={<HorasPaePage />} />
+
           <Route path="/times" element={<Times />} />
           <Route path="/times/:timeId/membros" element={<Membros />} />
           <Route path="/admins" element={<Admins />} />

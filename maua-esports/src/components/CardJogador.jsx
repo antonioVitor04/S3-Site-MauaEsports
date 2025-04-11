@@ -112,7 +112,7 @@ const CardJogador = ({
               )}
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mr-4">
               <EditarBtn onClick={() => setIsModalOpen(true)} />
               <DeletarBtn
                 jogadorId={jogadorId}

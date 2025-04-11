@@ -10,13 +10,30 @@ const multer = require("multer");
 const path = require("path");
 require("dotenv").config();
 
-
-
 app.use(express.json());
-app.use(cors());
+// Configuração EXTENDIDA do CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
 app.use(bodyParser.json());
 app.use(express.json({ limit: "10mb" }));
 app.use(bodyParser.json({ limit: "10mb" }));
+// Middleware para headers manuais (como fallback)
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 async function conectarAoMongoDB() {
   await mongoose.connect(process.env.MONGO_URL);
@@ -53,11 +70,9 @@ const jogadorSchema = mongoose.Schema({
     nomeOriginal: String,
   },
 
-
-  insta: { type: String }, 
-  twitter: { type: String }, 
-  twitch: { type: String }, 
-
+  insta: { type: String },
+  twitter: { type: String },
+  twitch: { type: String },
 
   time: {
     type: Number,
@@ -71,7 +86,6 @@ const jogadorSchema = mongoose.Schema({
 });
 
 const Jogador = mongoose.model("Jogador", jogadorSchema);
-
 
 app.post("/jogadores", upload.single("foto"), async (req, res) => {
   try {
@@ -97,7 +111,7 @@ app.post("/jogadores", upload.single("foto"), async (req, res) => {
     });
 
     await novoJogador.save();
-    
+
     // Retorna todos os campos, incluindo redes sociais
     res.status(201).json({
       _id: novoJogador._id,
@@ -396,7 +410,8 @@ app.get("/times/:id/jogo", async (req, res) => {
   }
 });
 
-app.post("/times",
+app.post(
+  "/times",
   upload.fields([
     { name: "foto", maxCount: 1 },
     { name: "jogo", maxCount: 1 },
@@ -462,7 +477,6 @@ app.get("/times", async (req, res) => {
   }
 });
 
-
 app.delete("/admins/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -473,33 +487,34 @@ app.delete("/admins/:id", async (req, res) => {
         success: false,
         message: "Formato de ID inválido",
         receivedId: id,
-        expectedFormat: "ObjectId (24 caracteres hexadecimais)"
+        expectedFormat: "ObjectId (24 caracteres hexadecimais)",
       });
     }
 
-    const result = await Admin.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+    const result = await Admin.deleteOne({
+      _id: new mongoose.Types.ObjectId(id),
+    });
 
     if (result.deletedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: "Nenhum admin encontrado com este ID"
+        message: "Nenhum admin encontrado com este ID",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Admin excluído com sucesso"
+      message: "Admin excluído com sucesso",
     });
-
   } catch (error) {
-    console.error('Erro no backend:', {
+    console.error("Erro no backend:", {
       message: error.message,
       stack: error.stack,
-      receivedId: req.params.id
+      receivedId: req.params.id,
     });
     res.status(500).json({
       success: false,
-      message: "Erro interno no servidor"
+      message: "Erro interno no servidor",
     });
   }
 });
@@ -603,7 +618,7 @@ const adminSchema = new mongoose.Schema({
   },
 });
 
-const Admin = mongoose.model('Admin', adminSchema);
+const Admin = mongoose.model("Admin", adminSchema);
 
 // Rota para listar todos os administradores
 app.get("/admins", async (req, res) => {
@@ -769,7 +784,6 @@ app.put("/admins/:id", upload.single("foto"), async (req, res) => {
   }
 });
 
-
 app.get("/admins/:id/foto", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -815,6 +829,173 @@ app.get("/perfil-puxar", async (req, res) => {
   } catch (error) {
     res.status(500).send(error);
   }
+});
+const axios = require("axios");
+
+app.get("/horas-pae/:playerId", async (req, res) => {
+  const { playerId } = req.params;
+  console.log(`Calculando horas PAE para jogador ${playerId}`);
+
+  try {
+    // 1. Busca todos os treinos da API externa
+    console.log("Acessando API externa...");
+    const response = await axios.get(
+      "https://API-Esports.lcstuber.net/trains/all",
+      {
+        headers: {
+          Authorization: "Bearer frontendmauaesports",
+        },
+      }
+    );
+
+    console.log(`Total de treinos recebidos: ${response.data.length}`);
+    console.log("Primeiros treinos:", response.data.slice(0, 2));
+
+    // 2. Filtra e processa os treinos
+    let totalHoras = 0;
+    const detalhes = [];
+    let jogadoresEncontrados = 0;
+
+    response.data.forEach((treino) => {
+      const playerData = treino.AttendedPlayers?.find(
+        (p) => p.PlayerId === playerId
+      );
+
+      if (playerData) {
+        jogadoresEncontrados++;
+        console.log(`Jogador encontrado no treino ${treino._id}`);
+
+        if (playerData?.EntranceTimestamp && playerData?.ExitTimestamp) {
+          const duracaoHoras =
+            (playerData.ExitTimestamp - playerData.EntranceTimestamp) /
+            (1000 * 60 * 60);
+          totalHoras += duracaoHoras;
+
+          detalhes.push({
+            modalityId: treino.ModalityId,
+            nomeModalidade: getNomeModalidade(treino.ModalityId),
+            data: new Date(playerData.EntranceTimestamp).toLocaleDateString(
+              "pt-BR"
+            ),
+            duracaoHoras: duracaoHoras.toFixed(2),
+            treinoId: treino._id,
+          });
+        } else {
+          console.log(`Timestamps ausentes no treino ${treino._id}`);
+        }
+      }
+    });
+
+    console.log(`Total de jogadores encontrados: ${jogadoresEncontrados}`);
+    console.log(`Total de horas calculadas: ${totalHoras}`);
+
+    // 3. Retorna o resultado
+    res.json({
+      playerId,
+      totalHoras: totalHoras.toFixed(2),
+      totalTreinos: detalhes.length,
+      detalhes,
+    });
+  } catch (error) {
+    console.error("Erro ao calcular horas PAE:", error);
+    res.status(500).json({
+      error: "Erro ao processar a requisição",
+      details: error.message,
+    });
+  }
+});
+
+// Atualize a função getNomeModalidade com TODAS as modalidades
+function getNomeModalidade(modalityId) {
+  const modalidades = {
+    "6360944b04a823de3a359357": "Valorant Feminino",
+    "63641abd9328c1ab1e364c86": "Rocket League",
+    "641246ec14a24f13c339bb1f": "Counter-Strike: Global Offensive A",
+    "64124b4c14a24f13c339bb20": "Valorant Misto Blue",
+    "64124b9114a24f13c339bb21": "Valorant Misto Black",
+    "6418aa5f9dec6ec29dc77be9": "League of Legends A",
+    "641902c127cd51b2d0f2bd92": "Counter-Strike: Global Offensive B",
+    "6429eebd5ee71b5d45436aa3": "Rainbow Six",
+    "642b6ac5bc274fddaadf57e3": "Rainbow Six Academy",
+    "642cc2bf81b714e8f342ccfa": "Teamfight Tactics",
+    "64408e2748ac52dbe2d7af62": "EA SPORTS FC™ 25",
+    "64e16a08639c17d83824cfa8": "League of Legends B",
+    "64f62ee5257dd75e74425e0c": "Teamfight Tactics B",
+    "636842a610b252eded9290b1": "Modalidade Desconhecida", // Adicione este para o ID que aparece nos dados
+  };
+  return modalidades[modalityId] || `Modalidade ${modalityId}`;
+}
+
+// Rota de health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`CORS configurado para: http://localhost:5173`);
+});
+
+const client_id = process.env.TWITCH_CLIENT_ID;
+const client_secret = process.env.TWITCH_CLIENT_SECRET;
+
+let access_token = null;
+
+// Get access token
+const getToken = async () => {
+  const response = await axios.post("https://id.twitch.tv/oauth2/token", null, {
+    params: {
+      client_id,
+      client_secret,
+      grant_type: "client_credentials",
+    },
+  });
+  access_token = response.data.access_token;
+};
+
+// Middleware para garantir que o token esteja carregado
+app.use(async (req, res, next) => {
+  if (!access_token) {
+    await getToken();
+  }
+  next();
+});
+
+app.get("/twitch/live/:channel", async (req, res) => {
+  try {
+    const { channel } = req.params;
+
+    let response = await axios.get("https://api.twitch.tv/helix/streams", {
+      headers: {
+        "Client-ID": client_id,
+        Authorization: `Bearer ${access_token}`,
+      },
+      params: { user_login: channel },
+    });
+
+    // Se a resposta for 401, tenta renovar o token
+    if (response.status === 401 || response.data.status === 401) {
+      await getToken();
+      response = await axios.get("https://api.twitch.tv/helix/streams", {
+        headers: {
+          "Client-ID": client_id,
+          Authorization: `Bearer ${access_token}`,
+        },
+        params: { user_login: channel },
+      });
+    }
+
+    const isLive = response.data.data.length > 0;
+    res.json({ live: isLive });
+  } catch (error) {
+    console.error("Erro na Twitch API:", error.response?.data || error);
+    res.status(500).json({ error: "Erro ao verificar o status do canal." });
+  }
+});
+
+app.listen(3002, () => {
+  console.log("Servidor rodando na porta 3002");
 });
 /////////////////////////////////////////////////////////////////////////  PORTA  //////////////////////////////////////////////////////////////////////////////////////////////////
 app.listen(3000, () => {
