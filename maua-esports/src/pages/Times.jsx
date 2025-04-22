@@ -267,7 +267,7 @@ const Times = () => {
           {times.length > 0 ? (
             times.map((time) => (
               <CardTime
-                key={time.id} // Alterado para usar time.id em vez de time._id
+                key={time.id} 
                 timeId={time.id}
                 nome={time.nome}
                 foto={`${API_BASE_URL}/times/${time.id}/foto?${Date.now()}`}

@@ -8,6 +8,8 @@ import { RiTeamFill } from "react-icons/ri";
 import { FaUserTie, FaRegClock } from "react-icons/fa";
 import { HiUserCircle } from "react-icons/hi2";
 import logo from "../assets/images/Logo.svg";
+import { GiSwordsEmblem } from "react-icons/gi";
+
 import AtualizacaoPerfil from "../pages/AtualizacaoPerfil";
 
 const NavBar = () => {
@@ -16,6 +18,7 @@ const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isClockHovered, setClockIsHovered] = useState(false);
+  const [isSwordHovered, setSwordHovered] = useState(false);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
 
@@ -244,29 +247,57 @@ const NavBar = () => {
 
               {/* Opções do menu */}
               <div className="flex-grow">
-                <div
-                  className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
-                  onMouseEnter={() => setClockIsHovered(true)}
-                  onMouseLeave={() => setClockIsHovered(false)}
-                >
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    <FaRegClock
-                      className="text-2xl text-azul-claro"
-                      style={{
-                        animation: isClockHovered
-                          ? "rodar 0.7s ease-in-out "
-                          : "none", // Aplica a animação apenas no hover
-                      }}
-                    />
+                {/* Treinos */}
+                <Link to="/treinos-admin" className="w-full">
+                  <div
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    onMouseEnter={() => setSwordHovered(true)}
+                    onMouseLeave={() => setSwordHovered(false)}
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <GiSwordsEmblem
+                        className="text-2xl text-azul-claro"
+                        style={{
+                          animation: isSwordHovered
+                            ? "shake 0.7s ease-in-out "
+                            : "none", // Aplica a animação apenas no hover
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col flex-grow items-start overflow-hidden">
+                      <h1 className="font-bold">Treinos</h1>
+                      <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                        Consulte seus treinos
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+                {/* Horas PAEs */}
+                <Link to="/horas-pae" className="w-full">
+                  <div
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    onMouseEnter={() => setClockIsHovered(true)}
+                    onMouseLeave={() => setClockIsHovered(false)}
+                  >
                     {/* Ícone de relógio */}
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <FaRegClock
+                        className="text-2xl text-azul-claro"
+                        style={{
+                          animation: isClockHovered
+                            ? "rodar 0.7s ease-in-out "
+                            : "none", // Aplica a animação apenas no hover
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col flex-grow items-start overflow-hidden">
+                      <h1 className="font-bold">Horas PAEs</h1>
+                      <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                        Consulte suas horas PAEs
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-col flex-grow items-start overflow-hidden">
-                    <h1 className="font-bold">Horas PAEs</h1>
-                    <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                      Consulte suas horas PAEs
-                    </p>
-                  </div>
-                </div>
+                </Link>
               </div>
 
               {/* Botão de Sair da conta */}

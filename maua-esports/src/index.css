@@ -16,6 +16,7 @@
   --color-borda: oklch(38.37% 0.0179 254.74);
   --color-vermelho-claro: oklch(71.66% 0.1758 18.47);
   --color-preto: oklch(0% 0 0);
+  --color-verde-claro: oklch(0.78 0.1318 144.18);
   --font-blinker: Blinker, "sans-serif";
 }
 /* oculta a barra de scroll da area de membros/staff/times */
@@ -44,7 +45,8 @@
 }
 
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg);
   }
   25% {
@@ -59,14 +61,10 @@
 }
 
 @keyframes rodar {
-
-  
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg); /* Uma volta completa */
   }
-
 }
-

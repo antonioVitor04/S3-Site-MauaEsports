@@ -805,137 +805,44 @@ app.get("/admins/:id/foto", async (req, res) => {
     res.status(500).send("Erro ao carregar imagem");
   }
 });
-/////////////////////////////////////////////////////////////////////    PERFIL   ///////////////////////////////////////////////////////////////////////////////////////////////
-const perfilSchema = new mongoose.Schema({
-  src: { type: String, required: true },
-});
-
-const Perfil = mongoose.model("perfil", perfilSchema);
-
-app.post("/perfil-adicionar", async (req, res) => {
-  try {
-    const novoPerfil = new Perfil(req.body);
-    await novoPerfil.save();
-    res.status(201).send(novoPerfil);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-app.get("/perfil-puxar", async (req, res) => {
-  try {
-    const perfil = await Perfil.find();
-    res.status(200).send(perfil);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-const axios = require("axios");
-
-app.get("/horas-pae/:playerId", async (req, res) => {
-  const { playerId } = req.params;
-  console.log(`Calculando horas PAE para jogador ${playerId}`);
-
-  try {
-    // 1. Busca todos os treinos da API externa
-    console.log("Acessando API externa...");
-    const response = await axios.get(
-      "https://API-Esports.lcstuber.net/trains/all",
-      {
-        headers: {
-          Authorization: "Bearer frontendmauaesports",
-        },
-      }
-    );
-
-    console.log(`Total de treinos recebidos: ${response.data.length}`);
-    console.log("Primeiros treinos:", response.data.slice(0, 2));
-
-    // 2. Filtra e processa os treinos
-    let totalHoras = 0;
-    const detalhes = [];
-    let jogadoresEncontrados = 0;
-
-    response.data.forEach((treino) => {
-      const playerData = treino.AttendedPlayers?.find(
-        (p) => p.PlayerId === playerId
-      );
-
-      if (playerData) {
-        jogadoresEncontrados++;
-        console.log(`Jogador encontrado no treino ${treino._id}`);
-
-        if (playerData?.EntranceTimestamp && playerData?.ExitTimestamp) {
-          const duracaoHoras =
-            (playerData.ExitTimestamp - playerData.EntranceTimestamp) /
-            (1000 * 60 * 60);
-          totalHoras += duracaoHoras;
-
-          detalhes.push({
-            modalityId: treino.ModalityId,
-            nomeModalidade: getNomeModalidade(treino.ModalityId),
-            data: new Date(playerData.EntranceTimestamp).toLocaleDateString(
-              "pt-BR"
-            ),
-            duracaoHoras: duracaoHoras.toFixed(2),
-            treinoId: treino._id,
-          });
-        } else {
-          console.log(`Timestamps ausentes no treino ${treino._id}`);
-        }
-      }
-    });
-
-    console.log(`Total de jogadores encontrados: ${jogadoresEncontrados}`);
-    console.log(`Total de horas calculadas: ${totalHoras}`);
-
-    // 3. Retorna o resultado
-    res.json({
-      playerId,
-      totalHoras: totalHoras.toFixed(2),
-      totalTreinos: detalhes.length,
-      detalhes,
-    });
-  } catch (error) {
-    console.error("Erro ao calcular horas PAE:", error);
-    res.status(500).json({
-      error: "Erro ao processar a requisição",
-      details: error.message,
-    });
-  }
-});
-
-// Atualize a função getNomeModalidade com TODAS as modalidades
-function getNomeModalidade(modalityId) {
-  const modalidades = {
-    "6360944b04a823de3a359357": "Valorant Feminino",
-    "63641abd9328c1ab1e364c86": "Rocket League",
-    "641246ec14a24f13c339bb1f": "Counter-Strike: Global Offensive A",
-    "64124b4c14a24f13c339bb20": "Valorant Misto Blue",
-    "64124b9114a24f13c339bb21": "Valorant Misto Black",
-    "6418aa5f9dec6ec29dc77be9": "League of Legends A",
-    "641902c127cd51b2d0f2bd92": "Counter-Strike: Global Offensive B",
-    "6429eebd5ee71b5d45436aa3": "Rainbow Six",
-    "642b6ac5bc274fddaadf57e3": "Rainbow Six Academy",
-    "642cc2bf81b714e8f342ccfa": "Teamfight Tactics",
-    "64408e2748ac52dbe2d7af62": "EA SPORTS FC™ 25",
-    "64e16a08639c17d83824cfa8": "League of Legends B",
-    "64f62ee5257dd75e74425e0c": "Teamfight Tactics B",
-    "636842a610b252eded9290b1": "Modalidade Desconhecida", // Adicione este para o ID que aparece nos dados
-  };
-  return modalidades[modalityId] || `Modalidade ${modalityId}`;
-}
-
-// Rota de health check
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK" });
-});
+/////////////////////////////////////////////////////////////////////    API   ///////////////////////////////////////////////////////////////////////////////////////////////
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log(`CORS configurado para: http://localhost:5173`);
 });
+function authenticate(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || authHeader !== "Bearer frontendmauaesports") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+}
+app.get("/trains/all", authenticate, (req, res) => {
+  let filteredTrains = trains;
+  const startTimestampGt = req.query["StartTimestamp>"];
+  const startTimestampLt = req.query["StartTimestamp<"];
+  const status = req.query["Status"];
+
+  if (startTimestampGt) {
+    filteredTrains = filteredTrains.filter(
+      (t) => t.StartTimestamp > Number(startTimestampGt)
+    );
+  }
+  if (startTimestampLt) {
+    filteredTrains = filteredTrains.filter(
+      (t) => t.StartTimestamp < Number(startTimestampLt)
+    );
+  }
+  if (status) {
+    filteredTrains = filteredTrains.filter((t) => t.Status === status);
+  }
+
+  res.json(filteredTrains);
+});
+
+/////////////////////////////////////////////////////////////////////////  TWITCH  //////////////////////////////////////////////////////////////////////////////////////////////////
 
 const client_id = process.env.TWITCH_CLIENT_ID;
 const client_secret = process.env.TWITCH_CLIENT_SECRET;

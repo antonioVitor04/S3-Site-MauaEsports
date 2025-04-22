@@ -7,6 +7,7 @@ import Times from "./pages/Times";
 import Admins from "./pages/Admins";
 import HorasPaePage from "./pages/HorasPae";
 import { AuthProvider } from "./contexts/AuthContexts"; // Importando o AuthProvider
+import TreinosAdmin from "./pages/TreinosAdmin";
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/horas-pae" element={<HorasPaePage />} />
-
+          <Route path="/treinos-admin" element={<TreinosAdmin />} />
           <Route path="/times" element={<Times />} />
           <Route path="/times/:timeId/membros" element={<Membros />} />
           <Route path="/admins" element={<Admins />} />
