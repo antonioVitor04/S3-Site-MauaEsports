@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const path = require("path");
+const axios = require("axios");
 require("dotenv").config();
 app.use(express.json());
 // Configuração EXTENDIDA do CORS
@@ -865,7 +866,6 @@ app.use(async (req, res, next) => {
   }
   next();
 });
-
 app.get("/twitch/live/:channel", async (req, res) => {
   try {
     const { channel } = req.params;

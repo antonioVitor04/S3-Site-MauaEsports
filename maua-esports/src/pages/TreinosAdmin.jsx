@@ -1,76 +1,158 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Agendamento from "../components/Agendamento";
-import { MdChevronRight, MdChevronLeft, MdClear } from "react-icons/md";
+import { MdChevronRight, MdChevronLeft, MdClear, MdEdit, MdSave, MdClose } from "react-icons/md";
+
+// Componente Agendamento atualizado
+const Agendamento = ({ 
+  inicio, 
+  fim,
+  diaSemana,
+  time, 
+  status,
+  onEditar 
+}) => {
+  const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  
+  return (
+    <div className="flex items-center justify-between mx-10 my-0 h-[80px] border-b border-borda text-center">
+      <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center w-40">
+          <span className="text-branco font-bold">{inicio} - {fim}</span>
+          <span className="text-cinza-claro text-sm">Duração: {calcularDuracao(inicio, fim)}</span>
+        </div>
+        
+        <div className="w-32 text-center">
+          <span className="text-branco">{diasDaSemana[diaSemana]}</span>
+        </div>
+        
+        <div className="ml-3 text-sm w-48 text-left">
+          <p className="font-semibold text-white font-blinker">{time}</p>
+          <p className={`font-blinker ${
+            status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
+          }`}>
+            {status === 'agendado' ? 'Agendado' : 'Realizado'}
+          </p>
+        </div>
+      </div>
+      
+      <button
+        onClick={onEditar}
+        className="text-azul-claro hover:text-azul-escuro text-2xl cursor-pointer"
+      >
+        <MdEdit />
+      </button>
+    </div>
+  );
+};
+
+// Função auxiliar para calcular duração
+function calcularDuracao(inicio, fim) {
+  const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
+  const [horaFim, minutoFim] = fim.split(':').map(Number);
+  
+  const totalMinutosInicio = horaInicio * 60 + minutoInicio;
+  const totalMinutosFim = horaFim * 60 + minutoFim;
+  
+  const diferencaMinutos = totalMinutosFim - totalMinutosInicio;
+  
+  const horas = Math.floor(diferencaMinutos / 60);
+  const minutos = diferencaMinutos % 60;
+  
+  return `${horas}h${minutos.toString().padStart(2, '0')}min`;
+}
 
 const TreinosAdmin = () => {
   // Estados principais
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [modalidades, setModalidades] = useState({});
   const [modalidadeSelecionada, setModalidadeSelecionada] = useState("");
-  const [todosTreinos, setTodosTreinos] = useState([]);
-  const [agendamentos, setAgendamentos] = useState([]);
+  const [agendamentosOriginais, setAgendamentosOriginais] = useState([]);
+  const [agendamentosFiltrados, setAgendamentosFiltrados] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [filtroDataAtivo, setFiltroDataAtivo] = useState(false);
-  const [novoTreino, setNovoTreino] = useState({
-    horario: '',
-    modalidade: ''
+  const [editandoTreino, setEditandoTreino] = useState(null);
+  const [formEdicao, setFormEdicao] = useState({
+    inicio: "",
+    fim: "",
+    diaSemana: 0
   });
 
-  // Buscar modalidades
-  useEffect(() => {
-    const fetchModalidades = async () => {
-      try {
-        const response = await axios.get('/api/modality/all', {
-          headers: { "Authorization": "Bearer frontendmauaesports" }
-        });
-        setModalidades(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar modalidades:", error);
-      }
+  // Dias da semana para o select
+  const diasDaSemana = [
+    { value: 0, label: "Domingo" },
+    { value: 1, label: "Segunda" },
+    { value: 2, label: "Terça" },
+    { value: 3, label: "Quarta" },
+    { value: 4, label: "Quinta" },
+    { value: 5, label: "Sexta" },
+    { value: 6, label: "Sábado" }
+  ];
+
+  // Converter CRON para horário legível e dia da semana
+  const parseCron = (cron) => {
+    const parts = cron.split(' ');
+    const [minuto, hora] = parts.slice(1, 3);
+    const diaSemana = parts[5] || 0;
+    
+    return {
+      hora: hora.padStart(2, '0'),
+      minuto: minuto.padStart(2, '0'),
+      diaSemana: parseInt(diaSemana)
     };
-    fetchModalidades();
-  }, []);
+  };
 
-  // Buscar e formatar treinos
+  // Buscar modalidades e seus treinos agendados
   useEffect(() => {
-    const fetchTreinos = async () => {
-      if (Object.keys(modalidades).length === 0) return;
-
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/trains/all', {
+        // Buscar modalidades
+        const responseModalidades = await axios.get('/api/modality/all', {
           headers: { "Authorization": "Bearer frontendmauaesports" }
         });
+        
+        const mods = responseModalidades.data;
+        setModalidades(mods);
 
-        const treinosFormatados = response.data.map(treino => {
-          const modalidade = modalidades[treino.ModalityId];
-          return {
-            id: treino._id,
-            horario: treino.StartTimestamp
-              ? new Date(treino.StartTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              : '--:--',
-            data: new Date(treino.StartTimestamp),
-            status: treino.Status === "ENDED" ? "realizado" : "agendado",
-            ModalityId: treino.ModalityId,
-            NomeModalidade: modalidade?.Name || "Desconhecido"
-          };
-        });
+        // Processar treinos agendados de cada modalidade
+        const todosAgendamentos = [];
+        
+        for (const modId in mods) {
+          const mod = mods[modId];
+          if (mod.ScheduledTrainings && mod.ScheduledTrainings.length > 0) {
+            mod.ScheduledTrainings.forEach(treino => {
+              const inicio = parseCron(treino.Start);
+              const fim = parseCron(treino.End);
+              
+              todosAgendamentos.push({
+                id: `${modId}-${treino.Start}`,
+                inicio: `${inicio.hora}:${inicio.minuto}`,
+                fim: `${fim.hora}:${fim.minuto}`,
+                diaSemana: inicio.diaSemana,
+                status: "agendado",
+                ModalityId: modId,
+                NomeModalidade: mod.Name || "Desconhecido",
+                cronInicio: treino.Start,
+                cronFim: treino.End
+              });
+            });
+          }
+        }
 
-        setTodosTreinos(treinosFormatados);
-        setAgendamentos(treinosFormatados);
+        setAgendamentosOriginais(todosAgendamentos);
+        setAgendamentosFiltrados(todosAgendamentos);
       } catch (error) {
-        console.error("Erro ao buscar treinos:", error);
+        console.error("Erro ao buscar dados:", error);
       } finally {
         setCarregando(false);
       }
     };
 
-    fetchTreinos();
-  }, [modalidades]);
+    fetchData();
+  }, []);
 
   // Aplicar filtros
   useEffect(() => {
-    let treinosFiltrados = [...todosTreinos];
+    let treinosFiltrados = [...agendamentosOriginais];
 
     // Filtro por modalidade
     if (modalidadeSelecionada) {
@@ -79,20 +161,15 @@ const TreinosAdmin = () => {
       );
     }
 
-    // Filtro por data
+    // Filtro por data (dia da semana)
     if (filtroDataAtivo) {
-      treinosFiltrados = treinosFiltrados.filter(treino => {
-        const dataTreino = treino.data;
-        return (
-          dataTreino.getDate() === dataSelecionada.getDate() &&
-          dataTreino.getMonth() === dataSelecionada.getMonth() &&
-          dataTreino.getFullYear() === dataSelecionada.getFullYear()
-        );
-      });
+      treinosFiltrados = treinosFiltrados.filter(treino => 
+        treino.diaSemana === dataSelecionada.getDay()
+      );
     }
 
-    setAgendamentos(treinosFiltrados);
-  }, [modalidadeSelecionada, todosTreinos, dataSelecionada, filtroDataAtivo]);
+    setAgendamentosFiltrados(treinosFiltrados);
+  }, [modalidadeSelecionada, dataSelecionada, filtroDataAtivo, agendamentosOriginais]);
 
   // Limpar filtros
   const limparFiltros = () => {
@@ -101,24 +178,57 @@ const TreinosAdmin = () => {
     setDataSelecionada(new Date());
   };
 
-  // Adicionar novo treino
-  const adicionarTreino = async (dataSelecionada, horario, modalidadeId) => {
-    try {
-      const [hora, minuto] = horario.split(':').map(Number);
-      const dataTreino = new Date(dataSelecionada);
-      dataTreino.setHours(hora, minuto, 0, 0);
-      
-      const cronExpression = `0 ${minuto} ${hora} ${dataTreino.getDate()} ${dataTreino.getMonth() + 1} ${dataTreino.getDay()}`;
-      
-      const novoAgendamento = {
-        _id: modalidadeId,
-        ScheduledTrainings: [{
-          Start: cronExpression,
-          End: `0 ${minuto + 1} ${hora} ${dataTreino.getDate()} ${dataTreino.getMonth() + 1} ${dataTreino.getDay()}`
-        }]
-      };
+  // Iniciar edição de treino
+  const iniciarEdicao = (treino) => {
+    setEditandoTreino(treino);
+    setFormEdicao({
+      inicio: treino.inicio,
+      fim: treino.fim,
+      diaSemana: treino.diaSemana
+    });
+  };
 
-      await axios.patch('/api/modality', novoAgendamento, {
+  // Cancelar edição
+  const cancelarEdicao = () => {
+    setEditandoTreino(null);
+    setFormEdicao({ inicio: "", fim: "", diaSemana: 0 });
+  };
+
+  // Atualizar formulário de edição
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormEdicao(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Gerar expressão CRON a partir dos dados do formulário
+  const gerarCron = (horaMinuto, diaSemana) => {
+    const [hora, minuto] = horaMinuto.split(':');
+    return `0 ${minuto} ${hora} * * ${diaSemana}`;
+  };
+
+  // Salvar edição do treino
+  const salvarEdicao = async () => {
+    if (!editandoTreino || !formEdicao.inicio || !formEdicao.fim) return;
+
+    try {
+      const novaCronInicio = gerarCron(formEdicao.inicio, formEdicao.diaSemana);
+      const novaCronFim = gerarCron(formEdicao.fim, formEdicao.diaSemana);
+      
+      // Buscar a modalidade atual
+      const modalidade = modalidades[editandoTreino.ModalityId];
+      if (!modalidade) throw new Error("Modalidade não encontrada");
+
+      // Atualizar o treino específico
+      const updatedTrainings = modalidade.ScheduledTrainings.map(t => 
+        t.Start === editandoTreino.cronInicio ? 
+        { ...t, Start: novaCronInicio, End: novaCronFim } : t
+      );
+
+      // Enviar atualização para o servidor
+      await axios.patch('/api/modality', {
+        _id: editandoTreino.ModalityId,
+        ScheduledTrainings: updatedTrainings
+      }, {
         headers: {
           "Authorization": "Bearer frontendmauaesports",
           "Content-Type": "application/json"
@@ -126,42 +236,26 @@ const TreinosAdmin = () => {
       });
 
       // Atualizar estado local
-      const novoTreino = {
-        id: Date.now().toString(),
-        horario: horario,
-        data: dataTreino,
-        status: "agendado",
-        ModalityId: modalidadeId,
-        NomeModalidade: modalidades[modalidadeId]?.Name || "Novo Treino"
-      };
-      
-      setTodosTreinos([...todosTreinos, novoTreino]);
-      setAgendamentos(prev => [...prev, novoTreino]);
-      
-      return true;
-    } catch (error) {
-      console.error("Erro ao adicionar treino:", error);
-      return false;
-    }
-  };
+      const updatedAgendamentos = agendamentosOriginais.map(a => 
+        a.id === editandoTreino.id ? 
+        { 
+          ...a, 
+          inicio: formEdicao.inicio,
+          fim: formEdicao.fim,
+          diaSemana: parseInt(formEdicao.diaSemana),
+          cronInicio: novaCronInicio,
+          cronFim: novaCronFim
+        } : a
+      );
 
-  const handleAdicionarTreino = async () => {
-    if (!novoTreino.horario || !novoTreino.modalidade) {
-      alert('Preencha todos os campos!');
-      return;
-    }
-    
-    const sucesso = await adicionarTreino(
-      dataSelecionada,
-      novoTreino.horario,
-      novoTreino.modalidade
-    );
-    
-    if (sucesso) {
-      alert('Treino adicionado com sucesso!');
-      setNovoTreino({ horario: '', modalidade: '' });
-    } else {
-      alert('Erro ao adicionar treino');
+      setAgendamentosOriginais(updatedAgendamentos);
+      setEditandoTreino(null);
+      setFormEdicao({ inicio: "", fim: "", diaSemana: 0 });
+      
+      alert('Treino atualizado com sucesso!');
+    } catch (error) {
+      console.error("Erro ao atualizar treino:", error);
+      alert('Erro ao atualizar treino');
     }
   };
 
@@ -243,9 +337,9 @@ const TreinosAdmin = () => {
 
   // Contadores
   const contadores = {
-    agendados: agendamentos.filter(a => a.status === "agendado").length,
-    realizados: agendamentos.filter(a => a.status === "realizado").length,
-    total: agendamentos.length
+    agendados: agendamentosFiltrados.filter(a => a.status === "agendado").length,
+    realizados: agendamentosFiltrados.filter(a => a.status === "realizado").length,
+    total: agendamentosFiltrados.length
   };
 
   if (carregando) {
@@ -254,8 +348,8 @@ const TreinosAdmin = () => {
 
   return (
     <div className="min-h-screen w-screen bg-fundo pt-[90px] px-10 overflow-hidden">
-      <div className="w-full h-[80px] justify-center text-center flex mb-8">
-        <h1 className="text-azul-claro text-center font-blinker text-5xl">Treinos</h1>
+      <div className="w-full h-[80px] justify-center px-0 text-center flex mb-8 bg-preto">
+        <h1 className="font-blinker text-branco font-bold text-3xl text-center">Treinos Agendados</h1>
       </div>
 
       {/* Barra de Controles */}
@@ -280,7 +374,7 @@ const TreinosAdmin = () => {
         {/* Controles de Filtro */}
         <div className="flex items-center gap-4">
           <div className="flex items-center">
-            <label className="text-white mr-2">Filtrar por data:</label>
+            <label className="text-white mr-2">Filtrar por dia:</label>
             <button
               onClick={() => setFiltroDataAtivo(!filtroDataAtivo)}
               className={`px-3 py-1 rounded ${
@@ -310,8 +404,8 @@ const TreinosAdmin = () => {
           <div>
             <h3 className="text-white font-bold">
               {filtroDataAtivo
-                ? `Treinos em ${dataSelecionada.toLocaleDateString('pt-BR')}`
-                : "Todos os treinos"}
+                ? `Treinos na ${diasDaSemana.find(d => d.value === dataSelecionada.getDay())?.label}`
+                : "Todos os treinos agendados"}
               {modalidadeSelecionada && ` - ${modalidades[modalidadeSelecionada]?.Name}`}
             </h3>
           </div>
@@ -325,44 +419,7 @@ const TreinosAdmin = () => {
               <div className="text-branco">Agendados</div>
               <div className="text-fonte-escura font-bold text-xl">{contadores.agendados}</div>
             </div>
-            <div className="text-center">
-              <div className="text-branco">Realizados</div>
-              <div className="text-verde-claro font-bold text-xl">{contadores.realizados}</div>
-            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Adicionar Novo Treino */}
-      <div className="mb-6 p-4 bg-navbar rounded-lg">
-        <h3 className="text-white font-bold mb-3">Adicionar Novo Treino</h3>
-        
-        <div className="flex gap-4 mb-3 flex-wrap">
-          <input
-            type="time"
-            value={novoTreino.horario}
-            onChange={(e) => setNovoTreino({...novoTreino, horario: e.target.value})}
-            className="p-2 rounded bg-fundo text-white"
-            placeholder="Horário"
-          />
-          
-          <select
-            value={novoTreino.modalidade}
-            onChange={(e) => setNovoTreino({...novoTreino, modalidade: e.target.value})}
-            className="p-2 rounded bg-fundo text-white flex-1 min-w-[200px]"
-          >
-            <option value="">Selecione a modalidade</option>
-            {Object.entries(modalidades).map(([id, mod]) => (
-              <option key={id} value={id}>{mod.Name}</option>
-            ))}
-          </select>
-
-          <button
-            onClick={handleAdicionarTreino}
-            className="bg-azul-claro text-white px-4 py-2 rounded hover:bg-azul-escuro whitespace-nowrap"
-          >
-            Adicionar Treino
-          </button>
         </div>
       </div>
 
@@ -370,27 +427,90 @@ const TreinosAdmin = () => {
         {/* Lista de Treinos */}
         <div className="w-[65%] h-full bg-navbar border border-borda rounded-xl overflow-y-auto">
           <div className="border-b border-borda p-4 sticky top-0 bg-navbar z-10">
-            <div className="font-blinker text-xl text-branco flex justify-between">
+            <div className="ml-15 font-blinker text-xl text-branco flex justify-between">
               <span className="w-1/4">Horário</span>
-              <span className="w-2/4">Compromisso</span>
+              <span className="w-1/4">Dia da Semana</span>
+              <span className="w-2/4">Time</span>
               <span className="w-1/4 text-right">Ações</span>
             </div>
           </div>
 
           <div className="pb-6">
-            {agendamentos.length > 0 ? (
-              agendamentos.map((agendamento) => (
+            {agendamentosFiltrados.length > 0 ? (
+              agendamentosFiltrados.map((agendamento) => (
                 <div key={agendamento.id} className="border-b border-borda">
-                  <Agendamento
-                    horario={agendamento.horario}
-                    status={agendamento.status}
-                    compromisso={agendamento.NomeModalidade}
-                  />
+                  {editandoTreino?.id === agendamento.id ? (
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-4 w-full">
+                        <div className="flex flex-col">
+                          <label className="text-cinza-claro text-sm mb-1">Início</label>
+                          <input
+                            type="time"
+                            name="inicio"
+                            value={formEdicao.inicio}
+                            onChange={handleFormChange}
+                            className="p-2 rounded bg-fundo text-white w-32"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <label className="text-cinza-claro text-sm mb-1">Fim</label>
+                          <input
+                            type="time"
+                            name="fim"
+                            value={formEdicao.fim}
+                            onChange={handleFormChange}
+                            className="p-2 rounded bg-fundo text-white w-32"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <label className="text-cinza-claro text-sm mb-1">Dia</label>
+                          <select
+                            name="diaSemana"
+                            value={formEdicao.diaSemana}
+                            onChange={handleFormChange}
+                            className="p-2 rounded bg-fundo text-white w-40"
+                          >
+                            {diasDaSemana.map(dia => (
+                              <option key={dia.value} value={dia.value}>{dia.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <span className="text-white ml-4">{agendamento.NomeModalidade}</span>
+                      </div>
+                      
+                      <div className="flex gap-2 ml-4">
+                        <button
+                          onClick={salvarEdicao}
+                          className="bg-verde-claro text-white px-3 py-1 rounded flex items-center"
+                        >
+                          <MdSave className="mr-1" /> Salvar
+                        </button>
+                        <button
+                          onClick={cancelarEdicao}
+                          className="bg-vermelho-claro text-white px-3 py-1 rounded flex items-center"
+                        >
+                          <MdClose className="mr-1" /> Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Agendamento
+                      inicio={agendamento.inicio}
+                      fim={agendamento.fim}
+                      diaSemana={agendamento.diaSemana}
+                      status={agendamento.status}
+                      time={agendamento.NomeModalidade}
+                      onEditar={() => iniciarEdicao(agendamento)}
+                    />
+                  )}
                 </div>
               ))
             ) : (
               <div className="text-white text-center py-8">
-                Nenhum treino encontrado com os filtros atuais
+                Nenhum treino agendado encontrado com os filtros atuais
               </div>
             )}
           </div>

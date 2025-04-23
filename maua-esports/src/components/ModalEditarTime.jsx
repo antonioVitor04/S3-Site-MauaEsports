@@ -13,8 +13,9 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
     rota: time.rota,
   });
   const [erro, setErro] = useState("");
+  const [jogoImage, setJogoImage] = useState(null);
   
-  // Controles para a foto do time
+  // Controles para a foto do time (com cropper)
   const {
     image: fotoImage,
     croppedImage: fotoCropped,
@@ -24,17 +25,6 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
     handleCancelCrop: handleCancelFotoCrop,
     setCroppedImage: setFotoCropped
   } = UseImageCrop(time.foto || null);
-  
-  // Controles para o logo do jogo
-  const {
-    image: jogoImage,
-    croppedImage: jogoCropped,
-    isCropping: isCroppingJogo,
-    handleFileChange: handleJogoFileChange,
-    handleCropComplete: handleJogoCropComplete,
-    handleCancelCrop: handleCancelJogoCrop,
-    setCroppedImage: setJogoCropped
-  } = UseImageCrop(time.jogo || null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,6 +32,18 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
       ...formData,
       [name]: value,
     });
+  };
+
+  // Manipulador simples para a imagem do jogo (sem cropper)
+  const handleJogoFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setJogoImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -54,7 +56,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
       const dataToSave = {
         ...formData,
         foto: fotoCropped,
-        jogo: jogoCropped
+        jogo: jogoImage // Usando a imagem direta sem cropper
       };
       
       await onSave(dataToSave);
@@ -66,24 +68,12 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-fundo/80">
-      {/* Modal de corte de imagem para foto do time */}
+      {/* Modal de corte de imagem apenas para foto do time */}
       {isCroppingFoto && (
         <ImageCropper
           initialImage={fotoImage}
           onCropComplete={handleFotoCropComplete}
           onCancel={handleCancelFotoCrop}
-          aspect={1}
-          cropShape="rect"
-          cropSize={{ width: 400, height: 400 }}
-        />
-      )}
-      
-      {/* Modal de corte de imagem para logo do jogo */}
-      {isCroppingJogo && (
-        <ImageCropper
-          initialImage={jogoImage}
-          onCropComplete={handleJogoCropComplete}
-          onCancel={handleCancelJogoCrop}
           aspect={1}
           cropShape="rect"
           cropSize={{ width: 400, height: 400 }}
@@ -153,7 +143,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
             />
           </div>
 
-          {/* Foto do Time */}
+          {/* Foto do Time (com cropper) */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
               Foto do Time
@@ -193,20 +183,20 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
             )}
           </div>
 
-          {/* Logo do Jogo */}
+          {/* Logo do Jogo (sem cropper) */}
           <div className="mb-4">
             <label className="block text-sm text-fonte-escura font-semibold mb-2">
               Logo do Jogo
             </label>
             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-azul-claro rounded-lg cursor-pointer hover:bg-cinza-escuro/50 transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                {jogoCropped ? (
+                {jogoImage ? (
                   <RiImageEditLine className="w-8 h-8 text-azul-claro mb-2" />
                 ) : (
                   <RiImageAddLine className="w-8 h-8 text-azul-claro mb-2" />
                 )}
                 <p className="text-sm text-fonte-escura">
-                  {jogoCropped ? "Alterar logo" : "Clique para enviar"}
+                  {jogoImage ? "Alterar logo" : "Clique para enviar"}
                 </p>
                 <p className="text-xs text-fonte-escura/50 mt-1">
                   PNG, JPG ou JPEG (Max. 5MB)
@@ -215,19 +205,16 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => {
-                  handleJogoFileChange(e);
-                  setJogoCropped(null);
-                }}
+                onChange={handleJogoFileChange}
                 className="hidden"
               />
             </label>
-            {jogoCropped && (
+            {jogoImage && (
               <div className="mt-4 flex justify-center">
                 <img
-                  src={jogoCropped}
+                  src={jogoImage}
                   alt="Preview do logo"
-                  className="w-24 h-24 object-cover rounded border border-cinza-escuro"
+                  className="w-24 h-24 object-contain rounded border border-cinza-escuro"
                 />
               </div>
             )}
