@@ -9,8 +9,8 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const path = require("path");
 require("dotenv").config();
-
 app.use(express.json());
+// Configuração EXTENDIDA do CORS
 // Configuração EXTENDIDA do CORS
 app.use(
   cors({
@@ -22,11 +22,8 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
-app.use(bodyParser.json());
-app.use(express.json({ limit: "10mb" }));
-app.use(bodyParser.json({ limit: "10mb" }));
-// Middleware para headers manuais (como fallback)
 
+// Middleware para headers manuais (como fallback)
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:5173");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
