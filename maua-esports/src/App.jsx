@@ -8,6 +8,7 @@ import Admins from "./pages/Admins";
 import HorasPaePage from "./pages/HorasPae";
 import { AuthProvider } from "./contexts/AuthContexts"; // Importando o AuthProvider
 import TreinosAdmin from "./pages/TreinosAdmin";
+import Politicas from "./pages/Politicas";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/times/:timeId/membros" element={<Membros />} />
           <Route path="/admins" element={<Admins />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/politicas" element={<Politicas />} />
         </Routes>
       </Router>
     </AuthProvider>

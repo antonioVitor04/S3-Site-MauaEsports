@@ -1,5 +1,6 @@
 import { Mail, ArrowUp } from "lucide-react";
 import { BsInstagram, BsTwitch, BsDiscord, BsYoutube} from "react-icons/bs";
+import { Link } from "react-router-dom";
 
 const Rodape = () => {
     const scrollToTop = () => {
@@ -15,7 +16,7 @@ const Rodape = () => {
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <div className="flex flex-row items-center gap-5 mb-4 md:mb-0 text-fonte-escura">
                         <p>© 2025 Todos Direitos Reservados Mauá Esports</p>
-                        <a href="#" className="hover:underline">Termos e Políticas</a>
+                        <Link to="/politicas" className="hover:underline">Termos e Políticas</Link>
                     </div>
 
                     <div className="flex items-center space-x-4 text-fonte-escura">
