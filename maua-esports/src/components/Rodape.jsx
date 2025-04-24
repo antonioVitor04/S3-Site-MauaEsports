@@ -10,23 +10,23 @@ const Rodape = () => {
     };
 
     return (
-        <footer className="bg-[#010409] text-[#00BCFF] border-t border-[#3D444D] mt-auto py-6 w-full">
+        <footer className="bg-navbar border-t border-borda mt-auto py-6 w-full">
             <div className="mx-4 md:mx-14 px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center">
-                    <div className="flex flex-row items-center gap-5 mb-4 md:mb-0 text-[#8D8D99]">
+                    <div className="flex flex-row items-center gap-5 mb-4 md:mb-0 text-fonte-escura">
                         <p>© 2025 Todos Direitos Reservados Mauá Esports</p>
                         <a href="#" className="hover:underline">Termos e Políticas</a>
                     </div>
 
-                    <div className="flex items-center space-x-4 text-[#8D8D99]">
-                        <a href="https://www.instagram.com/esportsmaua" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer"> <BsInstagram size={20} /> </a>
-                        <a href="https://www.twitch.tv/mauaesports" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer"> <BsTwitch size={20} /> </a>
-                        <a href="https://discord.com/invite/Av5EA6QfdR" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer"> <BsDiscord size={20} /> </a>
-                        <a href="https://www.youtube.com/mauaesports" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer"> <BsYoutube size={20} /> </a>
-                        <a href="mailto:esports@maua.br" className="hover:text-white transition-colors"> <Mail size={20} /> </a>
+                    <div className="flex items-center space-x-4 text-fonte-escura">
+                        <a href="https://www.instagram.com/esportsmaua" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsInstagram size={20} /> </a>
+                        <a href="https://www.twitch.tv/mauaesports" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsTwitch size={20} /> </a>
+                        <a href="https://discord.com/invite/Av5EA6QfdR" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsDiscord size={20} /> </a>
+                        <a href="https://www.youtube.com/mauaesports" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsYoutube size={20} /> </a>
+                        <a href="mailto:esports@maua.br" className="hover:text-branco transition-colors"> <Mail size={20} /> </a>
                         <button
                             onClick={scrollToTop}
-                            className="hover:text-white transition-colors ml-2 cursor-pointer"
+                            className="hover:text-branco transition-colors ml-2 cursor-pointer"
                             aria-label="Voltar ao topo"
                         >
                             <ArrowUp size={24} />

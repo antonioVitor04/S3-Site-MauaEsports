@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MdChevronRight, MdChevronLeft, MdClear, MdEdit, MdSave, MdClose } from "react-icons/md";
+import Rodape from "../components/Rodape";
 
 // Componente Agendamento atualizado
-const Agendamento = ({ 
-  inicio, 
+const Agendamento = ({
+  inicio,
   fim,
   diaSemana,
-  time, 
+  time,
   status,
-  onEditar 
+  onEditar
 }) => {
   const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-  
+
   return (
     <div className="flex items-center justify-between mx-10 my-0 h-[80px] border-b border-borda text-center">
       <div className="flex items-center gap-8">
@@ -20,21 +21,20 @@ const Agendamento = ({
           <span className="text-branco font-bold">{inicio} - {fim}</span>
           <span className="text-cinza-claro text-sm">Duração: {calcularDuracao(inicio, fim)}</span>
         </div>
-        
+
         <div className="w-32 text-center">
           <span className="text-branco">{diasDaSemana[diaSemana]}</span>
         </div>
-        
+
         <div className="ml-3 text-sm w-48 text-left">
           <p className="font-semibold text-white font-blinker">{time}</p>
-          <p className={`font-blinker ${
-            status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
-          }`}>
+          <p className={`font-blinker ${status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
+            }`}>
             {status === 'agendado' ? 'Agendado' : 'Realizado'}
           </p>
         </div>
       </div>
-      
+
       <button
         onClick={onEditar}
         className="text-azul-claro hover:text-azul-escuro text-2xl cursor-pointer"
@@ -49,15 +49,15 @@ const Agendamento = ({
 function calcularDuracao(inicio, fim) {
   const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
   const [horaFim, minutoFim] = fim.split(':').map(Number);
-  
+
   const totalMinutosInicio = horaInicio * 60 + minutoInicio;
   const totalMinutosFim = horaFim * 60 + minutoFim;
-  
+
   const diferencaMinutos = totalMinutosFim - totalMinutosInicio;
-  
+
   const horas = Math.floor(diferencaMinutos / 60);
   const minutos = diferencaMinutos % 60;
-  
+
   return `${horas}h${minutos.toString().padStart(2, '0')}min`;
 }
 
@@ -93,7 +93,7 @@ const TreinosAdmin = () => {
     const parts = cron.split(' ');
     const [minuto, hora] = parts.slice(1, 3);
     const diaSemana = parts[5] || 0;
-    
+
     return {
       hora: hora.padStart(2, '0'),
       minuto: minuto.padStart(2, '0'),
@@ -109,20 +109,20 @@ const TreinosAdmin = () => {
         const responseModalidades = await axios.get('/api/modality/all', {
           headers: { "Authorization": "Bearer frontendmauaesports" }
         });
-        
+
         const mods = responseModalidades.data;
         setModalidades(mods);
 
         // Processar treinos agendados de cada modalidade
         const todosAgendamentos = [];
-        
+
         for (const modId in mods) {
           const mod = mods[modId];
           if (mod.ScheduledTrainings && mod.ScheduledTrainings.length > 0) {
             mod.ScheduledTrainings.forEach(treino => {
               const inicio = parseCron(treino.Start);
               const fim = parseCron(treino.End);
-              
+
               todosAgendamentos.push({
                 id: `${modId}-${treino.Start}`,
                 inicio: `${inicio.hora}:${inicio.minuto}`,
@@ -156,14 +156,14 @@ const TreinosAdmin = () => {
 
     // Filtro por modalidade
     if (modalidadeSelecionada) {
-      treinosFiltrados = treinosFiltrados.filter(treino => 
+      treinosFiltrados = treinosFiltrados.filter(treino =>
         treino.ModalityId === modalidadeSelecionada
       );
     }
 
     // Filtro por data (dia da semana)
     if (filtroDataAtivo) {
-      treinosFiltrados = treinosFiltrados.filter(treino => 
+      treinosFiltrados = treinosFiltrados.filter(treino =>
         treino.diaSemana === dataSelecionada.getDay()
       );
     }
@@ -213,15 +213,15 @@ const TreinosAdmin = () => {
     try {
       const novaCronInicio = gerarCron(formEdicao.inicio, formEdicao.diaSemana);
       const novaCronFim = gerarCron(formEdicao.fim, formEdicao.diaSemana);
-      
+
       // Buscar a modalidade atual
       const modalidade = modalidades[editandoTreino.ModalityId];
       if (!modalidade) throw new Error("Modalidade não encontrada");
 
       // Atualizar o treino específico
-      const updatedTrainings = modalidade.ScheduledTrainings.map(t => 
-        t.Start === editandoTreino.cronInicio ? 
-        { ...t, Start: novaCronInicio, End: novaCronFim } : t
+      const updatedTrainings = modalidade.ScheduledTrainings.map(t =>
+        t.Start === editandoTreino.cronInicio ?
+          { ...t, Start: novaCronInicio, End: novaCronFim } : t
       );
 
       // Enviar atualização para o servidor
@@ -236,22 +236,22 @@ const TreinosAdmin = () => {
       });
 
       // Atualizar estado local
-      const updatedAgendamentos = agendamentosOriginais.map(a => 
-        a.id === editandoTreino.id ? 
-        { 
-          ...a, 
-          inicio: formEdicao.inicio,
-          fim: formEdicao.fim,
-          diaSemana: parseInt(formEdicao.diaSemana),
-          cronInicio: novaCronInicio,
-          cronFim: novaCronFim
-        } : a
+      const updatedAgendamentos = agendamentosOriginais.map(a =>
+        a.id === editandoTreino.id ?
+          {
+            ...a,
+            inicio: formEdicao.inicio,
+            fim: formEdicao.fim,
+            diaSemana: parseInt(formEdicao.diaSemana),
+            cronInicio: novaCronInicio,
+            cronFim: novaCronFim
+          } : a
       );
 
       setAgendamentosOriginais(updatedAgendamentos);
       setEditandoTreino(null);
       setFormEdicao({ inicio: "", fim: "", diaSemana: 0 });
-      
+
       alert('Treino atualizado com sucesso!');
     } catch (error) {
       console.error("Erro ao atualizar treino:", error);
@@ -322,8 +322,8 @@ const TreinosAdmin = () => {
                   ${isSelecionado
                     ? "bg-azul-claro text-white"
                     : isHoje
-                    ? "border-2 border-azul-claro text-white"
-                    : "hover:bg-fundo/70 text-white"
+                      ? "border-2 border-azul-claro text-white"
+                      : "hover:bg-fundo/70 text-white"
                   }`}
               >
                 {dia}
@@ -377,11 +377,10 @@ const TreinosAdmin = () => {
             <label className="text-white mr-2">Filtrar por dia:</label>
             <button
               onClick={() => setFiltroDataAtivo(!filtroDataAtivo)}
-              className={`px-3 py-1 rounded ${
-                filtroDataAtivo 
-                  ? "bg-azul-claro text-white" 
+              className={`px-3 py-1 rounded ${filtroDataAtivo
+                  ? "bg-azul-claro text-white"
                   : "bg-fundo text-white border border-borda"
-              }`}
+                }`}
             >
               {filtroDataAtivo ? "Ativo" : "Inativo"}
             </button>
@@ -452,7 +451,7 @@ const TreinosAdmin = () => {
                             className="p-2 rounded bg-fundo text-white w-32"
                           />
                         </div>
-                        
+
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Fim</label>
                           <input
@@ -463,7 +462,7 @@ const TreinosAdmin = () => {
                             className="p-2 rounded bg-fundo text-white w-32"
                           />
                         </div>
-                        
+
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Dia</label>
                           <select
@@ -477,10 +476,10 @@ const TreinosAdmin = () => {
                             ))}
                           </select>
                         </div>
-                        
+
                         <span className="text-white ml-4">{agendamento.NomeModalidade}</span>
                       </div>
-                      
+
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={salvarEdicao}

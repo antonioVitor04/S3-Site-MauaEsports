@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CardTime from "../components/CardTime";
 import EditarTime from "../components/ModalEditarTime";
 import AdicionarTime from "../components/AdicionarTime";
+import Rodape from "../components/Rodape";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -79,7 +80,7 @@ const Times = () => {
       console.error("Erro ao deletar time:", error);
       alert(
         error.message ||
-          "Não foi possível excluir o time. Verifique se não há jogadores associados."
+        "Não foi possível excluir o time. Verifique se não há jogadores associados."
       );
     }
   };
@@ -134,10 +135,10 @@ const Times = () => {
         times.map((time) =>
           time.id === timeAtualizado.id
             ? {
-                ...data,
-                fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
-                jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`,
-              }
+              ...data,
+              fotoUrl: `${API_BASE_URL}/times/${data.id}/foto?${Date.now()}`,
+              jogoUrl: `${API_BASE_URL}/times/${data.id}/jogo?${Date.now()}`,
+            }
             : time
         )
       );
@@ -267,7 +268,7 @@ const Times = () => {
           {times.length > 0 ? (
             times.map((time) => (
               <CardTime
-                key={time.id} 
+                key={time.id}
                 timeId={time.id}
                 nome={time.nome}
                 foto={`${API_BASE_URL}/times/${time.id}/foto?${Date.now()}`}
@@ -292,6 +293,8 @@ const Times = () => {
           onClose={() => setTimeEditando(null)}
         />
       )}
+
+      <Rodape />
     </div>
   );
 };

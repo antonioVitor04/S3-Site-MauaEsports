@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CardAdmin from "../components/CardAdmin";
 import ModalEditarAdmin from "../components/ModalEditarAdmin";
 import AdicionarAdmin from "../components/AdicionarAdmin";
+import Rodape from "../components/Rodape";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -324,6 +325,8 @@ const Admins = () => {
           onClose={() => setAdminEditando(null)}
         />
       )}
+
+      <Rodape />
     </div>
   );
 };

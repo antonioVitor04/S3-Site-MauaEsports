@@ -121,7 +121,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          <Link to="/">Sobre</Link>
+          {/* <Link to="/">Sobre</Link> */}
         </li>
 
         {/* Item "Times" com dropdown */}
@@ -186,7 +186,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          <Link to="/campeonatos">Campeonatos</Link>
+          {/* <Link to="/campeonatos">Campeonatos</Link> */}
         </li>
 
         {/* Item "Novidades" */}
@@ -197,7 +197,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          <Link to="/novidades">Novidades</Link>
+          {/* <Link to="/novidades">Novidades</Link> */}
         </li>
 
         {/* Ícone do usuário e dropdown do perfil */}
