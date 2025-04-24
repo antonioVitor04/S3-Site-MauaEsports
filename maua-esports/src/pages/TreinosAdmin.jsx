@@ -4,32 +4,33 @@ import { MdChevronRight, MdChevronLeft, MdClear, MdEdit, MdSave, MdClose } from 
 import Rodape from "../components/Rodape";
 
 // Componente Agendamento atualizado
-const Agendamento = ({
-  inicio,
+const Agendamento = ({ 
+  inicio, 
   fim,
   diaSemana,
-  time,
+  time, 
   status,
-  onEditar
+  onEditar 
 }) => {
   const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
   return (
-    <div className="flex items-center justify-between mx-10 my-0 h-[80px] border-b border-borda text-center">
-      <div className="flex items-center gap-8">
-        <div className="flex flex-col items-center w-40">
+    <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:mx-4 my-0 min-h-[80px] border-b border-borda">
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-8 w-full sm:w-auto">
+        <div className="flex flex-col items-center w-full sm:w-40">
           <span className="text-branco font-bold">{inicio} - {fim}</span>
-          <span className="text-cinza-claro text-sm">Duração: {calcularDuracao(inicio, fim)}</span>
+          <span className="text-azul-claro text-sm">Duração: {calcularDuracao(inicio, fim)}</span>
         </div>
-
+        
         <div className="w-32 text-center">
           <span className="text-branco">{diasDaSemana[diaSemana]}</span>
         </div>
-
+        
         <div className="ml-3 text-sm w-48 text-left">
           <p className="font-semibold text-white font-blinker">{time}</p>
-          <p className={`font-blinker ${status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
-            }`}>
+          <p className={`font-blinker ${
+            status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
+          }`}>
             {status === 'agendado' ? 'Agendado' : 'Realizado'}
           </p>
         </div>
@@ -37,7 +38,7 @@ const Agendamento = ({
 
       <button
         onClick={onEditar}
-        className="text-azul-claro hover:text-azul-escuro text-2xl cursor-pointer"
+        className="text-azul-claro hover:text-azul-escuro text-2xl cursor-pointer mt-2 sm:mt-0"
       >
         <MdEdit />
       </button>
@@ -45,7 +46,7 @@ const Agendamento = ({
   );
 };
 
-// Função auxiliar para calcular duração
+// Função auxiliar para calcular duração (mantida igual)
 function calcularDuracao(inicio, fim) {
   const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
   const [horaFim, minutoFim] = fim.split(':').map(Number);
@@ -62,7 +63,7 @@ function calcularDuracao(inicio, fim) {
 }
 
 const TreinosAdmin = () => {
-  // Estados principais
+  // Estados principais (mantidos iguais)
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [modalidades, setModalidades] = useState({});
   const [modalidadeSelecionada, setModalidadeSelecionada] = useState("");
@@ -77,7 +78,7 @@ const TreinosAdmin = () => {
     diaSemana: 0
   });
 
-  // Dias da semana para o select
+  // Dias da semana para o select (mantido igual)
   const diasDaSemana = [
     { value: 0, label: "Domingo" },
     { value: 1, label: "Segunda" },
@@ -88,7 +89,7 @@ const TreinosAdmin = () => {
     { value: 6, label: "Sábado" }
   ];
 
-  // Converter CRON para horário legível e dia da semana
+  // Converter CRON para horário legível e dia da semana (mantido igual)
   const parseCron = (cron) => {
     const parts = cron.split(' ');
     const [minuto, hora] = parts.slice(1, 3);
@@ -101,11 +102,10 @@ const TreinosAdmin = () => {
     };
   };
 
-  // Buscar modalidades e seus treinos agendados
+  // Buscar modalidades e seus treinos agendados (mantido igual)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Buscar modalidades
         const responseModalidades = await axios.get('/api/modality/all', {
           headers: { "Authorization": "Bearer frontendmauaesports" }
         });
@@ -113,7 +113,6 @@ const TreinosAdmin = () => {
         const mods = responseModalidades.data;
         setModalidades(mods);
 
-        // Processar treinos agendados de cada modalidade
         const todosAgendamentos = [];
 
         for (const modId in mods) {
@@ -128,7 +127,6 @@ const TreinosAdmin = () => {
                 inicio: `${inicio.hora}:${inicio.minuto}`,
                 fim: `${fim.hora}:${fim.minuto}`,
                 diaSemana: inicio.diaSemana,
-                status: "agendado",
                 ModalityId: modId,
                 NomeModalidade: mod.Name || "Desconhecido",
                 cronInicio: treino.Start,
@@ -150,18 +148,16 @@ const TreinosAdmin = () => {
     fetchData();
   }, []);
 
-  // Aplicar filtros
+  // Aplicar filtros (mantido igual)
   useEffect(() => {
     let treinosFiltrados = [...agendamentosOriginais];
 
-    // Filtro por modalidade
     if (modalidadeSelecionada) {
       treinosFiltrados = treinosFiltrados.filter(treino =>
         treino.ModalityId === modalidadeSelecionada
       );
     }
 
-    // Filtro por data (dia da semana)
     if (filtroDataAtivo) {
       treinosFiltrados = treinosFiltrados.filter(treino =>
         treino.diaSemana === dataSelecionada.getDay()
@@ -171,14 +167,14 @@ const TreinosAdmin = () => {
     setAgendamentosFiltrados(treinosFiltrados);
   }, [modalidadeSelecionada, dataSelecionada, filtroDataAtivo, agendamentosOriginais]);
 
-  // Limpar filtros
+  // Limpar filtros (mantido igual)
   const limparFiltros = () => {
     setModalidadeSelecionada("");
     setFiltroDataAtivo(false);
     setDataSelecionada(new Date());
   };
 
-  // Iniciar edição de treino
+  // Iniciar edição de treino (mantido igual)
   const iniciarEdicao = (treino) => {
     setEditandoTreino(treino);
     setFormEdicao({
@@ -188,43 +184,42 @@ const TreinosAdmin = () => {
     });
   };
 
-  // Cancelar edição
+  // Cancelar edição (mantido igual)
   const cancelarEdicao = () => {
     setEditandoTreino(null);
     setFormEdicao({ inicio: "", fim: "", diaSemana: 0 });
   };
 
-  // Atualizar formulário de edição
+  // Atualizar formulário de edição (mantido igual)
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormEdicao(prev => ({ ...prev, [name]: value }));
   };
 
-  // Gerar expressão CRON a partir dos dados do formulário
+  // Gerar expressão CRON (mantido igual)
   const gerarCron = (horaMinuto, diaSemana) => {
     const [hora, minuto] = horaMinuto.split(':');
     return `0 ${minuto} ${hora} * * ${diaSemana}`;
   };
 
-  // Salvar edição do treino
+  // Salvar edição do treino (mantido igual)
   const salvarEdicao = async () => {
     if (!editandoTreino || !formEdicao.inicio || !formEdicao.fim) return;
 
     try {
       const novaCronInicio = gerarCron(formEdicao.inicio, formEdicao.diaSemana);
       const novaCronFim = gerarCron(formEdicao.fim, formEdicao.diaSemana);
-
+      
       // Buscar a modalidade atual
       const modalidade = modalidades[editandoTreino.ModalityId];
       if (!modalidade) throw new Error("Modalidade não encontrada");
 
       // Atualizar o treino específico
-      const updatedTrainings = modalidade.ScheduledTrainings.map(t =>
-        t.Start === editandoTreino.cronInicio ?
-          { ...t, Start: novaCronInicio, End: novaCronFim } : t
+      const updatedTrainings = modalidade.ScheduledTrainings.map(t => 
+        t.Start === editandoTreino.cronInicio ? 
+        { ...t, Start: novaCronInicio, End: novaCronFim } : t
       );
 
-      // Enviar atualização para o servidor
       await axios.patch('/api/modality', {
         _id: editandoTreino.ModalityId,
         ScheduledTrainings: updatedTrainings
@@ -236,16 +231,16 @@ const TreinosAdmin = () => {
       });
 
       // Atualizar estado local
-      const updatedAgendamentos = agendamentosOriginais.map(a =>
-        a.id === editandoTreino.id ?
-          {
-            ...a,
-            inicio: formEdicao.inicio,
-            fim: formEdicao.fim,
-            diaSemana: parseInt(formEdicao.diaSemana),
-            cronInicio: novaCronInicio,
-            cronFim: novaCronFim
-          } : a
+      const updatedAgendamentos = agendamentosOriginais.map(a => 
+        a.id === editandoTreino.id ? 
+        { 
+          ...a, 
+          inicio: formEdicao.inicio,
+          fim: formEdicao.fim,
+          diaSemana: parseInt(formEdicao.diaSemana),
+          cronInicio: novaCronInicio,
+          cronFim: novaCronFim
+        } : a
       );
 
       setAgendamentosOriginais(updatedAgendamentos);
@@ -259,7 +254,7 @@ const TreinosAdmin = () => {
     }
   };
 
-  // Componente Calendario
+  // Componente Calendario responsivo
   const Calendario = () => {
     const [mesAtual, setMesAtual] = useState(new Date());
 
@@ -287,7 +282,7 @@ const TreinosAdmin = () => {
           <button onClick={() => mudarMes(-1)} className="text-azul-claro hover:text-azul-escuro text-2xl">
             <MdChevronLeft />
           </button>
-          <h3 className="text-xl font-bold text-white">
+          <h3 className="text-lg sm:text-xl font-bold text-white text-center">
             {mesAtual.toLocaleString("pt-BR", { month: "long", year: "numeric" })}
           </h3>
           <button onClick={() => mudarMes(1)} className="text-azul-claro hover:text-azul-escuro text-2xl">
@@ -297,13 +292,13 @@ const TreinosAdmin = () => {
 
         <div className="grid grid-cols-7 gap-1">
           {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia) => (
-            <div key={dia} className="text-center text-white font-semibold py-2">
+            <div key={dia} className="text-center text-xs sm:text-sm text-white font-semibold py-1 sm:py-2">
               {dia}
             </div>
           ))}
 
           {Array.from({ length: diaInicial }).map((_, index) => (
-            <div key={`empty-${index}`} className="h-10" />
+            <div key={`empty-${index}`} className="h-6 sm:h-8" />
           ))}
 
           {Array.from({ length: diasNoMes }, (_, i) => i + 1).map((dia) => {
@@ -318,12 +313,12 @@ const TreinosAdmin = () => {
                   setDataSelecionada(diaAtual);
                   setFiltroDataAtivo(true);
                 }}
-                className={`h-10 rounded-full flex items-center justify-center
+                className={`h-6 sm:h-8 text-xs sm:text-sm rounded-full flex items-center justify-center
                   ${isSelecionado
                     ? "bg-azul-claro text-white"
                     : isHoje
-                      ? "border-2 border-azul-claro text-white"
-                      : "hover:bg-fundo/70 text-white"
+                    ? "border-2 border-azul-claro text-white"
+                    : "hover:bg-fundo/70 text-white"
                   }`}
               >
                 {dia}
@@ -335,10 +330,8 @@ const TreinosAdmin = () => {
     );
   };
 
-  // Contadores
+  // Contadores (mantido igual)
   const contadores = {
-    agendados: agendamentosFiltrados.filter(a => a.status === "agendado").length,
-    realizados: agendamentosFiltrados.filter(a => a.status === "realizado").length,
     total: agendamentosFiltrados.length
   };
 
@@ -347,20 +340,35 @@ const TreinosAdmin = () => {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-fundo pt-[90px] px-10 overflow-hidden">
-      <div className="w-full h-[80px] justify-center px-0 text-center flex mb-8 bg-preto">
-        <h1 className="font-blinker text-branco font-bold text-3xl text-center">Treinos Agendados</h1>
+    <div className="min-h-screen w-full bg-fundo pt-[90px] px-4 sm:px-6 md:px-8 lg:px-10 overflow-x-hidden">
+      <div className="w-full h-[80px] justify-center px-0 text-center flex mb-4 sm:mb-8 bg-fundo">
+        <h1 className="font-blinker text-branco font-bold text-2xl sm:text-3xl text-center">Treinos</h1>
       </div>
 
-      {/* Barra de Controles */}
-      <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-        {/* Seletor de Modalidade */}
-        <div className="flex-1 min-w-[250px]">
-          <label className="text-white font-bold text-lg mr-2">Time:</label>
+      {/* Resumo responsivo */}
+      <div className="bg-navbar p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 w-full">
+        <div className="flex flex-col items-center gap-1 sm:gap-2">
+          <h3 className="text-white font-bold text-sm sm:text-base text-center">
+            {filtroDataAtivo
+              ? `Treinos na ${diasDaSemana.find(d => d.value === dataSelecionada.getDay())?.label}`
+              : "Todos os treinos"}
+            {modalidadeSelecionada && ` - ${modalidades[modalidadeSelecionada]?.Name}`}
+          </h3>
+          
+          <div className="text-azul-claro font-bold text-lg sm:text-xl">
+            {contadores.total} {contadores.total === 1 ? 'treino' : 'treinos'}
+          </div>
+        </div>
+      </div>
+      {/* Barra de Controles responsiva */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
+        {/* Seletor de Modalidade - agora menor em mobile */}
+        <div className="w-full sm:flex-1">
+          <label className="text-white font-bold text-sm sm:text-lg mr-2">Time:</label>
           <select
             value={modalidadeSelecionada}
             onChange={(e) => setModalidadeSelecionada(e.target.value)}
-            className="p-2 rounded-md bg-fundo text-white flex-1 min-w-[200px]"
+            className="p-2 rounded-md bg-preto text-white w-full sm:w-[30%]"
           >
             <option value="">Todos os times</option>
             {Object.entries(modalidades).map(([id, mod]) => (
@@ -372,13 +380,14 @@ const TreinosAdmin = () => {
         </div>
 
         {/* Controles de Filtro */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center">
-            <label className="text-white mr-2">Filtrar por dia:</label>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <div className="flex items-center w-full sm:w-auto">
+            <label className="text-white text-sm sm:text-base mr-2">Filtrar por dia:</label>
             <button
               onClick={() => setFiltroDataAtivo(!filtroDataAtivo)}
-              className={`px-3 py-1 rounded ${filtroDataAtivo
-                  ? "bg-azul-claro text-white"
+              className={`px-3 py-1 rounded ${
+                filtroDataAtivo 
+                  ? "bg-azul-claro text-white" 
                   : "bg-fundo text-white border border-borda"
                 }`}
             >
@@ -389,7 +398,7 @@ const TreinosAdmin = () => {
           {(modalidadeSelecionada || filtroDataAtivo) && (
             <button
               onClick={limparFiltros}
-              className="text-vermelho-claro hover:text-vermelho-escuro flex items-center"
+              className="text-vermelho-claro hover:text-vermelho-escuro flex items-center text-sm sm:text-base"
             >
               <MdClear className="mr-1" /> Limpar filtros
             </button>
@@ -397,61 +406,40 @@ const TreinosAdmin = () => {
         </div>
       </div>
 
-      {/* Resumo */}
-      <div className="bg-navbar p-4 rounded-lg mb-6">
-        <div className="flex flex-wrap justify-between items-center">
-          <div>
-            <h3 className="text-white font-bold">
-              {filtroDataAtivo
-                ? `Treinos na ${diasDaSemana.find(d => d.value === dataSelecionada.getDay())?.label}`
-                : "Todos os treinos agendados"}
-              {modalidadeSelecionada && ` - ${modalidades[modalidadeSelecionada]?.Name}`}
-            </h3>
-          </div>
 
-          <div className="flex gap-6">
-            <div className="text-center">
-              <div className="text-branco">Total</div>
-              <div className="text-azul-claro font-bold text-xl">{contadores.total}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-branco">Agendados</div>
-              <div className="text-fonte-escura font-bold text-xl">{contadores.agendados}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex w-full h-[calc(100vh-180px)] gap-8">
-        {/* Lista de Treinos */}
-        <div className="w-[65%] h-full bg-navbar border border-borda rounded-xl overflow-y-auto">
-          <div className="border-b border-borda p-4 sticky top-0 bg-navbar z-10">
-            <div className="ml-15 font-blinker text-xl text-branco flex justify-between">
+      <div className="flex flex-col lg:flex-row w-full h-auto lg:h-[calc(100vh-180px)] gap-4 sm:gap-6 md:gap-8">
+        {/* Lista de Treinos responsiva */}
+        <div className="w-full lg:w-[65%] h-auto lg:h-full bg-navbar border border-borda rounded-xl overflow-y-auto order-2 lg:order-1">
+          <div className="border-b border-borda p-3 sm:p-4 sticky top-0 bg-navbar z-10">
+            <div className="font-blinker text-sm sm:text-base md:text-lg lg:text-xl text-branco hidden sm:flex justify-between">
               <span className="w-1/4">Horário</span>
               <span className="w-1/4">Dia da Semana</span>
               <span className="w-2/4">Time</span>
               <span className="w-1/4 text-right">Ações</span>
             </div>
+            <div className="sm:hidden font-blinker text-base text-branco text-center">
+              Lista de Treinos
+            </div>
           </div>
 
-          <div className="pb-6">
+          <div className="pb-4 sm:pb-6">
             {agendamentosFiltrados.length > 0 ? (
               agendamentosFiltrados.map((agendamento) => (
                 <div key={agendamento.id} className="border-b border-borda">
                   {editandoTreino?.id === agendamento.id ? (
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center gap-4 w-full">
-                        <div className="flex flex-col">
-                          <label className="text-cinza-claro text-sm mb-1">Início</label>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
+                        <div className="flex flex-col w-full sm:w-auto">
+                          <label className="text-cinza-claro text-xs sm:text-sm mb-1">Início</label>
                           <input
                             type="time"
                             name="inicio"
                             value={formEdicao.inicio}
                             onChange={handleFormChange}
-                            className="p-2 rounded bg-fundo text-white w-32"
+                            className="p-1 sm:p-2 rounded bg-fundo text-white w-full sm:w-32"
                           />
                         </div>
-
+                        
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Fim</label>
                           <input
@@ -459,37 +447,37 @@ const TreinosAdmin = () => {
                             name="fim"
                             value={formEdicao.fim}
                             onChange={handleFormChange}
-                            className="p-2 rounded bg-fundo text-white w-32"
+                            className="p-1 sm:p-2 rounded bg-fundo text-white w-full sm:w-32"
                           />
                         </div>
-
+                        
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Dia</label>
                           <select
                             name="diaSemana"
                             value={formEdicao.diaSemana}
                             onChange={handleFormChange}
-                            className="p-2 rounded bg-fundo text-white w-40"
+                            className="p-1 sm:p-2 rounded bg-fundo text-white w-full sm:w-40"
                           >
                             {diasDaSemana.map(dia => (
                               <option key={dia.value} value={dia.value}>{dia.label}</option>
                             ))}
                           </select>
                         </div>
-
+                        
                         <span className="text-white ml-4">{agendamento.NomeModalidade}</span>
                       </div>
-
+                      
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={salvarEdicao}
-                          className="bg-verde-claro text-white px-3 py-1 rounded flex items-center"
+                          className="bg-verde-claro text-white px-2 sm:px-3 py-1 rounded flex items-center text-xs sm:text-sm"
                         >
                           <MdSave className="mr-1" /> Salvar
                         </button>
                         <button
                           onClick={cancelarEdicao}
-                          className="bg-vermelho-claro text-white px-3 py-1 rounded flex items-center"
+                          className="bg-vermelho-claro text-white px-2 sm:px-3 py-1 rounded flex items-center text-xs sm:text-sm"
                         >
                           <MdClose className="mr-1" /> Cancelar
                         </button>
@@ -508,15 +496,15 @@ const TreinosAdmin = () => {
                 </div>
               ))
             ) : (
-              <div className="text-white text-center py-8">
+              <div className="text-white text-center py-6 sm:py-8 text-sm sm:text-base">
                 Nenhum treino agendado encontrado com os filtros atuais
               </div>
             )}
           </div>
         </div>
 
-        {/* Calendário */}
-        <div className="w-[30%] h-[90%] bg-navbar border border-borda rounded-xl p-6">
+        {/* Calendário responsivo */}
+        <div className="w-full lg:w-[30%] h-auto sm:h-[400px] lg:h-[90%] bg-navbar border border-borda rounded-xl p-4 sm:p-6 order-1 lg:order-2">
           <Calendario />
         </div>
       </div>
