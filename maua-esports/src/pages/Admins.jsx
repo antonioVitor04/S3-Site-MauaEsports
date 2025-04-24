@@ -3,6 +3,7 @@ import CardAdmin from "../components/CardAdmin";
 import ModalEditarAdmin from "../components/ModalEditarAdmin";
 import AdicionarAdmin from "../components/AdicionarAdmin";
 import Rodape from "../components/Rodape";
+import PageBanner from "../components/PageBanner";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -285,11 +286,9 @@ const Admins = () => {
         </div>
       )}
 
-      <div className="flex w-full bg-preto h-60 justify-center items-center">
-        <h1 className="font-blinker text-branco font-bold text-3xl">
-          Administradores
-        </h1>
-      </div>
+      <div className="bg-[#010409] h-[104px]">.</div>
+
+      <PageBanner pageName="Administradores" />
 
       <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">

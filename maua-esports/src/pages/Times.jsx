@@ -3,6 +3,8 @@ import CardTime from "../components/CardTime";
 import EditarTime from "../components/ModalEditarTime";
 import AdicionarTime from "../components/AdicionarTime";
 import Rodape from "../components/Rodape";
+import PageBanner from "../components/PageBanner";
+import NavBar from "../components/NavBar";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -257,11 +259,12 @@ const Times = () => {
 
   return (
     <div className="w-full min-h-screen bg-fundo">
-      <div className="flex w-full bg-preto h-60 justify-center items-center relative">
-        <h1 className="font-blinker text-branco font-bold text-3xl">
-          Escolha seu time!
-        </h1>
-      </div>
+
+      <NavBar />
+
+      <div className="bg-[#010409] h-[104px]">.</div>
+
+      <PageBanner pageName="Escolha seu time!" />
 
       <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">

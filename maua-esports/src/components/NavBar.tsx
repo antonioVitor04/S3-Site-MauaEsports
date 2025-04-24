@@ -68,7 +68,7 @@ const NavBar = () => {
 
   return (
     <nav
-      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out
+      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out border-b-2 border-[#3D444D]
     ${
       isScrolled
         ? "bg-navbar lg:bg-navbar/97"
