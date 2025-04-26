@@ -32,24 +32,15 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
         className="block hover:scale-105 transition-transform duration-300 cursor-pointer"
       >
         <div
-          className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center"
-          style={{
-            clipPath:
-              "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
-          }}
+          className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center rounded-md"
         >
-          {/* ID do Time - Posicionado no canto inferior direito */}
-          <div className="absolute up-1 right-1 bg-black bg-opacity-90 rounded-full w-8 h-8 flex items-center justify-center z-10 my-2 mx-2">
+          {/* ID do Time - Posicionado no canto superior direito */}
+          <div className="absolute top-2 right-2 bg-black bg-opacity-90 rounded-full w-8 h-8 flex items-center justify-center z-10">
             <span className="text-branco font-bold text-md">{timeId}</span>
           </div>
 
           {/* Área da imagem */}
-          <div
-            className="w-full h-[70%] relative overflow-hidden"
-            style={{
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)",
-            }}
-          >
+          <div className="w-full h-[70%] relative overflow-hidden rounded-t-md">
             {imgError ? (
               <div className="w-full h-full bg-cinza-escuro flex items-center justify-center">
                 <span className="text-branco">Imagem não disponível</span>
@@ -58,7 +49,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
               <img
                 src={foto}
                 alt={`Imagem do time ${nome}`}
-                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-800 ease-in-out hover:scale-112"
+                className="w-full h-full object-cover absolute top-0 left-0 transition-transform duration-800 ease-in-out hover:scale-110"
                 onError={() => setImgError(true)}
               />
             )}
@@ -69,7 +60,7 @@ const CardTime = ({ timeId, nome, foto, jogo, onDelete, onEditClick }) => {
             <div className="flex justify-between items-center">
               <h1 className="text-lg text-branco font-semibold">{nome}</h1>
               {jogoError ? (
-                <div className="w-6 h-6 bg-cinza-escuro"></div>
+                <div className="w-6 h-6 bg-cinza-escuro rounded-md"></div>
               ) : (
                 <img
                   src={jogo}

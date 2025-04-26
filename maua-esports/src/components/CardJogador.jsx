@@ -46,14 +46,9 @@ const CardJogador = ({
   return (
     <>
       <div
-        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp"
-        style={{
-          clipPath:
-            "polygon(15% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%, 0% 10%)",
-          animation: "fadeInUp 0.5s ease-out",
-        }}
+        className="border-2 border-borda relative w-[300px] h-[450px] bg-fundo shadow-lg flex flex-col items-center hover:scale-110 transition-transform duration-300 cursor-pointer animate-fadeInUp rounded-md"
       >
-        <h1 className="text-xl font-bold font-blinker bg-azul-claro rounded-bl-2xl px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
+        <h1 className="text-xl font-bold font-blinker bg-azul-claro rounded-bl-md px-2 py-1 inline-block absolute top-0 right-0 z-10 opacity-70">
           {titulo}
         </h1>
 
@@ -61,10 +56,7 @@ const CardJogador = ({
           <img
             src={foto || Foto}
             alt={`Foto de ${nome}`}
-            className="w-full h-full object-cover absolute top-0 left-0"
-            style={{
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 90%, 85% 100%, 0% 100%)",
-            }}
+            className="w-full h-[90%] object-cover rounded-t-md"
             onError={(e) => {
               e.target.src = Foto;
             }}
@@ -72,7 +64,7 @@ const CardJogador = ({
         </div>
 
         <div className="w-full px-0">
-          <div className="flex justify-between items-center mt-3 font-blinker w-full">
+          <div className="flex justify-between items-center font-blinker w-full">
             <h1 className="text-lg font-semibold text-fonte-clara ml-4">
               {nome}
             </h1>
@@ -157,7 +149,7 @@ CardJogador.propTypes = {
   twitch: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
-  logoTime: PropTypes.string, // Adicione esta linha
+  logoTime: PropTypes.string,
 };
 
 export default CardJogador;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import CardJogador from "../components/CardJogador";
 import AdicionarMembro from "../components/AdicionarMembro";
+import PageBanner from "../components/PageBanner";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -67,23 +68,23 @@ const Membros = () => {
       formData.append("insta", updatedData.instagram || ""); // Pode ser vazio
       formData.append("twitter", updatedData.twitter || ""); // Pode ser vazio
       formData.append("twitch", updatedData.twitch || "");   // Pode ser vazio
-  
+
       if (updatedData.foto && updatedData.foto.startsWith("data:")) {
         const response = await fetch(updatedData.foto);
         const blob = await response.blob();
         formData.append("foto", blob, "jogador-foto.jpg");
       }
-  
+
       const response = await fetch(`${API_BASE_URL}/jogadores/${jogadorId}`, {
         method: "PUT",
         body: formData,
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Erro ao atualizar jogador");
       }
-  
+
       // ... resto do código
     } catch (error) {
       console.error("Erro ao atualizar jogador:", error);
@@ -98,28 +99,28 @@ const Membros = () => {
       formData.append("titulo", novoJogador.titulo);
       formData.append("descricao", novoJogador.descricao);
       formData.append("time", novoJogador.time);
-  
+
       // Anexa redes sociais apenas se não forem null
       if (novoJogador.insta !== null) formData.append("insta", novoJogador.insta);
       if (novoJogador.twitter !== null) formData.append("twitter", novoJogador.twitter);
       if (novoJogador.twitch !== null) formData.append("twitch", novoJogador.twitch);
-  
+
       // Envia a foto
       if (novoJogador.foto.startsWith("data:")) {
         const response = await fetch(novoJogador.foto);
         const blob = await response.blob();
         formData.append("foto", blob, "foto-jogador.jpg");
       }
-  
+
       const response = await fetch(`${API_BASE_URL}/jogadores`, {
         method: "POST",
         body: formData,
       });
-  
+
       if (!response.ok) throw new Error("Falha ao criar jogador");
-  
+
       const data = await response.json();
-  
+
       setJogadores((prev) => [
         ...prev,
         {
@@ -129,7 +130,7 @@ const Membros = () => {
       ]);
     } catch (error) {
       console.error("Erro ao adicionar jogador:", error);
-      throw error; 
+      throw error;
     }
   };
 
@@ -143,11 +144,10 @@ const Membros = () => {
 
   return (
     <div className="w-full min-h-screen bg-fundo">
-      <div className="flex w-full bg-preto h-60 justify-center items-center">
-        <h1 className="font-blinker text-branco font-bold text-3xl">
-          {time?.nome ? `Membros do ${time.nome}` : "Membros do Time"}
-        </h1>
-      </div>
+
+      <div className="bg-[#010409] h-[104px]">.</div>
+
+      <PageBanner pageName={time?.nome ? `Membros do ${time.nome}` : "Membros do Time"} />
 
       <div className="bg-fundo w-full flex justify-center items-center overflow-auto scrollbar-hidden">
         <div className="w-full flex flex-wrap py-16 justify-center gap-8">
