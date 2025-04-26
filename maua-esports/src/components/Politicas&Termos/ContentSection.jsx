@@ -86,7 +86,7 @@ const ContentSection = ({ id, title, isActive }) => {
 
   return (
     <div className={`${isActive ? 'block' : 'hidden'}`}>
-      <div className="flex justify-between items-start md:items-center border-b-2 border-[#3D444D] pb-3 mb-19">
+      <div className="flex justify-between items-start md:items-center border-b-2 border-[#3D444D] pb-3 mb-3">
         <h2 className="text-2xl font-bold text-[#F0F6FC]">{title}</h2>
         
         {!isEditing ? (

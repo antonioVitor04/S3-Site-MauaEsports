@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar"; // Importando a NavBar
+import Rodape from "./components/Rodape"; // Importando a Rodape
 import Home from "./pages/Home"; // Página inicial
 import Membros from "./pages/Membros"; // Página de Membros
 import NotFound from "./pages/NotFound"; // Página de erro 404
@@ -25,6 +26,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/politicas" element={<Politicas />} />
         </Routes>
+        <Rodape />
       </Router>
     </AuthProvider>
   );

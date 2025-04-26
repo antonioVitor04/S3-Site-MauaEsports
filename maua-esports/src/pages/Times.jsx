@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import CardTime from "../components/CardTime";
 import EditarTime from "../components/ModalEditarTime";
 import AdicionarTime from "../components/AdicionarTime";
-import Rodape from "../components/Rodape";
 import PageBanner from "../components/PageBanner";
-import NavBar from "../components/NavBar";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -294,8 +292,6 @@ const Times = () => {
           onClose={() => setTimeEditando(null)}
         />
       )}
-
-      <Rodape />
     </div>
   );
 };

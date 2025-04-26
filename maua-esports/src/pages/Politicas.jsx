@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import PageBannner from "../components/PageBanner"
-import Menu from '../components/Politicas&Termos/Menu';
-import ContentSection from '../components/Politicas&Termos/ContentSection';
-import Rodape from "../components/Rodape"
-import NavBar from '../components/NavBar';
+import Menu from '../components/politicas&termos/Menu';
+import ContentSection from '../components/politicas&termos/ContentSection';
 
 const Politicas = () => {
   const [activeSection, setActiveSection] = useState('');
@@ -183,7 +181,6 @@ const Politicas = () => {
           </div>
         </div>
       </div>
-      <Rodape />
     </div>
   );
 };
