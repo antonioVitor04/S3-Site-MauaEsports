@@ -68,7 +68,7 @@ const NavBar = () => {
 
   return (
     <nav
-      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out border-b-2 border-[#3D444D]
+      className={`z-50 py-5 fixed w-full flex justify-between items-center text-lg text-white font-blinker transition-all duration-300 ease-in-out border-b-1 border-[#3D444D]
     ${
       isScrolled
         ? "bg-navbar lg:bg-navbar/97"
@@ -78,7 +78,7 @@ const NavBar = () => {
   `}
     >
       {/* Borda animada que aparece ao rolar a página */}
-      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-transparent">
+      <div className="absolute bottom-0 left-0 w-full h-[1.5px] bg-transparent">
         <div
           className={`absolute left-0 h-full bg-borda transition-all duration-500 ${
             isScrolled ? "w-full" : "w-0"
@@ -121,7 +121,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          {/* <Link to="/">Sobre</Link> */}
+          <Link to="/">Sobre</Link>
         </li>
 
         {/* Item "Times" com dropdown */}
@@ -186,7 +186,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          {/* <Link to="/campeonatos">Campeonatos</Link> */}
+          <Link to="/campeonatos">Campeonatos</Link>
         </li>
 
         {/* Item "Novidades" */}
@@ -197,7 +197,7 @@ const NavBar = () => {
               : "border-b-transparent hover:border-borda rounded-md"
           }`}
         >
-          {/* <Link to="/novidades">Novidades</Link> */}
+          <Link to="/novidades">Novidades</Link>
         </li>
 
         {/* Ícone do usuário e dropdown do perfil */}

@@ -10,6 +10,7 @@ import HorasPaePage from "./pages/HorasPae";
 import { AuthProvider } from "./contexts/AuthContexts"; // Importando o AuthProvider
 import TreinosAdmin from "./pages/TreinosAdmin";
 import Politicas from "./pages/Politicas";
+import Campeonatos from "./pages/Campeonatos";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/admins" element={<Admins />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/politicas" element={<Politicas />} />
+          <Route path="/campeonatos" element={<Campeonatos />} />
         </Routes>
         <Rodape />
       </Router>
