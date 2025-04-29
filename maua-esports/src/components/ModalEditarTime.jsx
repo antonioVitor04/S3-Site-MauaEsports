@@ -13,7 +13,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
     rota: time.rota,
   });
   const [erro, setErro] = useState("");
-  const [jogoImage, setJogoImage] = useState(null);
+  const [jogoImage, setJogoImage] = useState(time.jogo || null);
   
   // Controles para a foto do time (com cropper)
   const {
@@ -38,12 +38,28 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
   const handleJogoFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const tiposPermitidos = ["image/jpeg", "image/jpg", "image/png"];
+      if (!tiposPermitidos.includes(file.type)) {
+        setErro("Formato de imagem inválido. Use apenas JPG, JPEG ou PNG.");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setErro("A imagem deve ter no máximo 5MB");
+        return;
+      }
+
+      setErro("");
       const reader = new FileReader();
       reader.onload = () => {
         setJogoImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemoveJogoImage = () => {
+    setJogoImage(null);
   };
 
   const handleSubmit = async (e) => {
@@ -56,7 +72,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
       const dataToSave = {
         ...formData,
         foto: fotoCropped,
-        jogo: jogoImage // Usando a imagem direta sem cropper
+        jogo: jogoImage
       };
       
       await onSave(dataToSave);
@@ -80,7 +96,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
         />
       )}
       
-      <div className="bg-fundo p-6 rounded-lg max-w-md w-full border shadow-sm shadow-azul-claro max-h-[90vh] overflow-y-auto">
+      <div className="bg-fundo p-6 rounded-lg shadow-sm shadow-azul-claro w-96 relative max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-branco">Editar Time</h2>
           <button
@@ -92,7 +108,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
         </div>
 
         {erro && (
-          <div className="mb-4 p-2 bg-vermelho-escuro/20 text-vermelho-claro rounded text-sm">
+          <div className="mb-4 p-2 bg-vermelho-claro/20 text-vermelho-claro rounded">
             {erro}
           </div>
         )}
@@ -108,7 +124,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
               name="id"
               value={formData.id}
               onChange={handleChange}
-              className="w-full p-2 bg-preto text-branco border border-cinza-escuro rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               disabled
             />
           </div>
@@ -123,7 +139,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
               name="nome"
               value={formData.nome}
               onChange={handleChange}
-              className="w-full p-2 bg-preto text-branco border border-cinza-escuro rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               required
             />
           </div>
@@ -138,7 +154,7 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
               name="rota"
               value={formData.rota}
               onChange={handleChange}
-              className="w-full p-2 bg-preto text-branco border border-cinza-escuro rounded"
+              className="w-full border border-borda text-branco bg-preto p-2 rounded focus:border-azul-claro focus:outline-none"
               required
             />
           </div>
@@ -174,11 +190,21 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
             </label>
             {fotoCropped && (
               <div className="mt-4 flex justify-center">
-                <img
-                  src={fotoCropped}
-                  alt="Preview da foto"
-                  className="w-24 h-24 object-cover rounded border border-cinza-escuro"
-                />
+                <div className="relative w-24 h-24">
+                  <img
+                    src={fotoCropped}
+                    alt="Preview da foto"
+                    className="w-full h-full rounded object-cover border border-cinza-escuro"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFotoCropped(null)}
+                    className="absolute -top-2 -right-2 bg-vermelho-claro text-branco rounded-full w-6 h-6 flex items-center justify-center hover:bg-vermelho-escuro transition-colors"
+                    title="Remover imagem"
+                  >
+                    <RiCloseFill className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -211,16 +237,26 @@ const ModalEditarTime = ({ time, onSave, onClose }) => {
             </label>
             {jogoImage && (
               <div className="mt-4 flex justify-center">
-                <img
-                  src={jogoImage}
-                  alt="Preview do logo"
-                  className="w-24 h-24 object-contain rounded border border-cinza-escuro"
-                />
+                <div className="relative w-24 h-24">
+                  <img
+                    src={jogoImage}
+                    alt="Preview do logo"
+                    className="w-full h-full rounded object-contain border border-cinza-escuro"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveJogoImage}
+                    className="absolute -top-2 -right-2 bg-vermelho-claro text-branco rounded-full w-6 h-6 flex items-center justify-center hover:bg-vermelho-escuro transition-colors"
+                    title="Remover imagem"
+                  >
+                    <RiCloseFill className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-2 mt-6">
             <SalvarBtn type="submit" />
             <CancelarBtn onClick={onClose} />
           </div>

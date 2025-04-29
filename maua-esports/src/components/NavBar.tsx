@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IoMdArrowDropdown, IoMdClose } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useAuth } from "../contexts/AuthContexts";
@@ -20,6 +20,7 @@ const NavBar = () => {
   const [isSwordHovered, setSwordHovered] = useState(false);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
     const savedImage = localStorage.getItem("croppedImage");
@@ -52,6 +53,8 @@ const NavBar = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
   const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen);
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav
@@ -99,23 +102,17 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? "border-borda"
-              : "border-b-transparent hover:border-borda rounded-md"
+              ? `border-borda ${isActive("/") ? "text-azul-claro" : ""}`
+              : `border-b-transparent hover:text-azul-claro ${isActive("/") ? "text-azul-claro" : ""}`
           }`}
         >
           <Link to="/">Sobre</Link>
         </li>
 
-        <li
-          className={`relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
-            isHamburgerOpen
-              ? "border-borda"
-              : "border-b-transparent hover:border-borda rounded-md"
-          }`}
-        >
+        <li className="relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] border-b-3 border-b-transparent">
           <button
             onClick={toggleDropdown}
-            className="focus:outline-none flex items-center gap-1 cursor-pointer"
+            className="focus:outline-none flex items-center gap-1 cursor-pointer hover:text-azul-claro"
           >
             Times{" "}
             <IoMdArrowDropdown
@@ -139,7 +136,9 @@ const NavBar = () => {
             <li className="px-4 py-2 border-b-2 border-borda relative">
               <Link
                 to="/times"
-                className="px-4 bg-transparent border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer hover:bg-hover hover:border-2 hover:border-borda hover:rounded-md"
+                className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
+                  isActive("/times") ? "text-azul-claro font-bold" : "hover:text-azul-claro"
+                }`}
               >
                 <RiTeamFill />
                 Membros
@@ -149,7 +148,9 @@ const NavBar = () => {
             <li className="px-4 py-2">
               <Link
                 to="/admins"
-                className="px-4 bg-transparent border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 hover:bg-hover hover:border-2 hover:border-borda hover:rounded-md cursor-pointer"
+                className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
+                  isActive("/admins") ? "text-azul-claro font-bold" : "hover:text-azul-claro"
+                }`}
               >
                 <FaUserTie />
                 Administradores
@@ -161,8 +162,8 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? "border-borda"
-              : "border-b-transparent hover:border-borda rounded-md"
+              ? `border-borda ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
+              : `border-b-transparent hover:text-azul-claro ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
           }`}
         >
           <Link to="/campeonatos">Campeonatos</Link>
@@ -171,8 +172,8 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? "border-borda"
-              : "border-b-transparent hover:border-borda rounded-md"
+              ? `border-borda ${isActive("/novidades") ? "text-azul-claro" : ""}`
+              : `border-b-transparent hover:text-azul-claro ${isActive("/novidades") ? "text-azul-claro" : ""}`
           }`}
         >
           <Link to="/novidades">Novidades</Link>
@@ -198,7 +199,6 @@ const NavBar = () => {
             )}
           </button>
 
-          {/* Dropdown do perfil - Alterações principais aqui */}
           <ul
             className={`transition-all duration-300 ease-out text-center ${
               isProfileDropdownOpen
