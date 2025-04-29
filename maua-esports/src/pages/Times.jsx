@@ -239,7 +239,7 @@ const Times = () => {
           <div className="flex flex-col space-y-2">
             <button
               onClick={carregarTimes}
-              className="bg-azul-claro text-branco px-4 py-2 rounded hover:bg-azul-escuro"
+              className="bg-azul-escuro text-branco px-4 py-2 rounded hover:bg-azul-escuro"
             >
               Tentar novamente
             </button>

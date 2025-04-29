@@ -210,7 +210,7 @@ const NavBar = () => {
                 : "absolute left-1/2 transform -translate-x-1/2 mt-12"
             }`}
           >
-            <div className="bg-fundo w-full border-2 border-borda shadow-azul-claro shadow-sm rounded-lg flex flex-col">
+            <div className="bg-fundo w-full border-2 border-borda shadow-azul-escuro shadow-sm rounded-lg flex flex-col">
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
                 <AtualizacaoPerfil />
                 <div className="flex flex-col flex-grow items-start overflow-hidden">
@@ -230,7 +230,7 @@ const NavBar = () => {
                   >
                     <div className="w-10 h-10 flex items-center justify-center">
                       <GiSwordsEmblem
-                        className="text-2xl text-azul-claro"
+                        className="text-2xl text-azul-escuro"
                         style={{
                           animation: isSwordHovered
                             ? "shake 0.7s ease-in-out "
@@ -254,7 +254,7 @@ const NavBar = () => {
                   >
                     <div className="w-10 h-10 flex items-center justify-center">
                       <FaRegClock
-                        className="text-2xl text-azul-claro"
+                        className="text-2xl text-azul-escuro"
                         style={{
                           animation: isClockHovered
                             ? "rodar 0.7s ease-in-out "
@@ -287,7 +287,7 @@ const NavBar = () => {
           {!isLoggedIn && (
             <button
               onClick={fazerLogin}
-              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
+              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />

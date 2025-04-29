@@ -323,7 +323,7 @@ const TreinosAdmin = () => {
       {/* Container unificado para NavBar e PageBanner */}
       <div className="w-full bg-navbar mb-10">
         <div className="h-[104px]"> {/* Espaço para a NavBar */} </div>
-        <PageBanner pageName="Treinos Administrativos" className="bg-navbar" />
+        <PageBanner pageName="Treinos" className="bg-navbar" />
       </div>
 
       {/* Resumo centralizado */}

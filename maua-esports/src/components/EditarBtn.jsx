@@ -12,7 +12,7 @@ const EditarBtn = ({ onClick, isEditing }) => {
       onMouseEnter={() => setPenIsHovered(true)}
       onMouseLeave={() => setPenIsHovered(false)}
       onClick={onClick}
-      className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-azul-claro hover:scale-110 transition-transform duration-300"
+      className="w-8 h-8 flex items-center justify-center p-1 bg-fonte-escura rounded-full text-branco cursor-pointer hover:bg-dourado hover:scale-110 transition-transform duration-300"
     >
       <FaPen
         className="w-4 h-4"
