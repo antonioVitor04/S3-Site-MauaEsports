@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PageBanner from "../components/PageBanner";
 
 // Importe as imagens corretamente (ajuste os caminhos conforme sua estrutura de pastas)
 import rank1 from "../assets/images/rank1.png";
@@ -70,9 +71,14 @@ function HorasPaePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white pt-24 pb-10 px-4 md:px-14">
 
-      <div className="flex flex-col md:flex-row gap-6">
+    <div className="min-h-screen bg-[#0D1117] text-white ">
+
+      <div className="bg-[#010409] h-[104px]"></div>
+      <PageBanner pageName={`Horas PAEs - ${selectedTeam}`} />
+
+      <div className="flex flex-col md:flex-row gap-6 md:px-14 md:py-15">
+
         {/* Sidebar - Times */}
         <aside className="w-full md:w-72 bg-gray-800 border-2 border-gray-700 rounded-[30px] p-6 h-fit">
           <h2 className="text-2xl font-bold mb-6 text-white">Times</h2>
@@ -80,11 +86,10 @@ function HorasPaePage() {
             {times.map((time, idx) => (
               <li
                 key={idx}
-                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
-                  selectedTeam === time 
-                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold" 
+                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${selectedTeam === time
+                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
                     : "bg-gray-800"
-                }`}
+                  }`}
                 onClick={() => setSelectedTeam(time)}
               >
                 {time}
@@ -95,9 +100,6 @@ function HorasPaePage() {
 
         {/* Main content */}
         <main className="flex-1">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">
-            Horas PAEs - {selectedTeam}
-          </h1>
 
           {/* Container das barras */}
           <div className="bg-gray-800 border-2 border-gray-700 rounded-[30px] shadow-lg p-6">
@@ -107,9 +109,9 @@ function HorasPaePage() {
               <div className="flex-1 grid grid-cols-8 gap-1">
                 {ranks.map((rank, index) => (
                   <div key={index} className="flex flex-col items-center">
-                    <img 
-                      src={rank.image} 
-                      alt={rank.name} 
+                    <img
+                      src={rank.image}
+                      alt={rank.name}
                       className="w-20 h-20 object-contain mb-1"
                     />
                     <span className="text-md text-center">{rank.name}</span>
@@ -122,27 +124,27 @@ function HorasPaePage() {
             {playersData.map((player, playerIndex) => {
               const filledBars = getFilledBars(player.hours);
               const barColor = getColor(player.hours);
-              
+
               return (
                 <div key={playerIndex} className="flex items-center mb-4">
                   <div className="w-24 md:w-32 font-semibold">{player.name}</div>
-                  
+
                   {/* Barra de progresso com segmentos para cada rank */}
                   <div className="flex-1 grid grid-cols-8 gap-1">
                     {ranks.map((_, rankIndex) => {
                       const isFilled = rankIndex < filledBars;
                       const color = isFilled ? barColor : "bg-gray-700";
-                      
+
                       return (
                         <div key={rankIndex} className="relative h-10">
                           {/* Fundo do segmento */}
-                          <div 
+                          <div
                             className="absolute inset-0"
                             style={{ clipPath: "polygon(0 0, 90% 0, 100% 100%, 10% 100%)" }}
                           >
                             <div className={`absolute inset-0 ${color}`}></div>
                           </div>
-                          
+
                           {/* Valor das horas totais na última barra */}
                           {rankIndex === ranks.length - 1 && (
                             <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
@@ -170,7 +172,7 @@ function HorasPaePage() {
                 { range: "71h+", color: "bg-amber-200", name: "Bege" },
               ].map((item, index) => (
                 <div key={index} className="flex items-center">
-                  <div 
+                  <div
                     className={`w-5 h-5 mr-2 ${item.color}`}
                     style={{ clipPath: "polygon(0 0, 90% 0, 100% 100%, 10% 100%)" }}
                   ></div>
