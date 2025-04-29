@@ -110,9 +110,9 @@ function HorasPaePage() {
                     <img 
                       src={rank.image} 
                       alt={rank.name} 
-                      className="w-10 h-10 object-contain mb-1"
+                      className="w-20 h-20 object-contain mb-1"
                     />
-                    <span className="text-xs text-center">{rank.name}</span>
+                    <span className="text-md text-center">{rank.name}</span>
                   </div>
                 ))}
               </div>
@@ -145,7 +145,7 @@ function HorasPaePage() {
                           
                           {/* Valor das horas totais na última barra */}
                           {rankIndex === ranks.length - 1 && (
-                            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                            <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
                               {player.hours}h
                             </div>
                           )}
