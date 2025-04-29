@@ -158,7 +158,7 @@ const ModalAdicionarAdmin = ({ onClose, onSave, erro }) => {
                   <img
                     src={fotoPreview}
                     alt="Preview da foto"
-                    className="w-full h-full rounded-full object-cover border border-cinza-escuro"
+                    className="w-full h-full rounded object-cover border border-cinza-escuro" // Alterado aqui
                   />
                   <button
                     type="button"
