@@ -162,14 +162,14 @@ function HorasPaePage() {
             {/* Legenda */}
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {[
-                { range: "1-10h", color: "bg-amber-800", name: "Marrom/Bronze" },
-                { range: "11-20h", color: "bg-gray-300", name: "Prata" },
-                { range: "21-30h", color: "bg-yellow-400", name: "Amarelo Dourado" },
-                { range: "31-40h", color: "bg-blue-200", name: "Azul Bebê" },
-                { range: "41-50h", color: "bg-purple-500", name: "Roxo" },
-                { range: "51-60h", color: "bg-green-500", name: "Verde" },
-                { range: "61-70h", color: "bg-red-500", name: "Vermelho" },
-                { range: "71h+", color: "bg-amber-200", name: "Bege" },
+                { range: "1-10h", color: "bg-[#5D0F01]", name: "Marrom/Bronze" },
+                { range: "11-20h", color: "bg-[#7A807D]", name: "Prata" },
+                { range: "21-30h", color: "bg-[#FCA610]", name: "Amarelo Dourado" },
+                { range: "31-40h", color: "bg-[#39A0B1]", name: "Azul Bebê" },
+                { range: "41-50h", color: "bg-[#047C21]", name: "Verde" },
+                { range: "51-60h", color: "bg-[#60409E]", name: "Roxo" },
+                { range: "61-70h", color: "bg-[#C10146]", name: "Vermelho" },
+                { range: "71h+", color: "bg-[#FFC87F]", name: "Bege" },
               ].map((item, index) => (
                 <div key={index} className="flex items-center">
                   <div
