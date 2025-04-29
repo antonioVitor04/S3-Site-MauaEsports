@@ -25,12 +25,12 @@ function HorasPaePage() {
   ];
 
   const players = [
-    { name: "Player 1", hours: 45 },
-    { name: "Player 2", hours: 9 },
-    { name: "Player 3", hours: 25 },
-    { name: "Player 4", hours: 32 },
-    { name: "Player 5", hours: 58 },
-    { name: "Coach", hours: 74 },
+    { name: "player 1", hours: 5 },    // Branco (1º polígono)
+    { name: "player 2", hours: 12 },      // Bronze (2º polígono)
+    { name: "player 3", hours: 20 }, // Prata (3º polígono)
+    { name: "player 4", hours: 30 },    // Ouro (4º polígono)
+    { name: "player 5", hours: 45 },  // Azul (5º polígono)
+    { name: "coach", hours: 55 },    // Esmeralda (6º polígono   
   ];
 
   const times = [
@@ -44,46 +44,49 @@ function HorasPaePage() {
   const [selectedTeam, setSelectedTeam] = useState("Valorant Blue");
   const [playersData, setPlayers] = useState(players);
 
-  // Cores baseadas nas horas totais
-  const getColor = (hours) => {
-    if (hours >= 75) return "bg-[#FFC87F]"; // Bege
-    if (hours >= 60) return "bg-[#C10146]"; // Vermelho
-    if (hours >= 50) return "bg-[#60409E]"; // Roxo
-    if (hours >= 40) return "bg-[#047C21]"; // Verde
-    if (hours >= 30) return "bg-[#39A0B1]"; // Azul bebê
-    if (hours >= 20) return "bg-[#FCA610]"; // Amarelo dourado
-    if (hours >= 10) return "bg-[#7A807D]"; // Prata
-    if (hours >= 1) return "bg-[#5D0F01]"; // Marrom/Bronze
-    return "bg-gray-700"; // Cinza escuro (vazio)
-  };
-
-  // Determina o rank atual baseado nas horas
+  // Funções modificadas para funcionar corretamente
   const getCurrentRank = (hours) => {
-    if (hours >= 75) return 8;
-    if (hours >= 60) return 7;
-    if (hours >= 50) return 6;
-    if (hours >= 40) return 5;
-    if (hours >= 30) return 4;
-    if (hours >= 20) return 3;
-    if (hours >= 10) return 2;
-    if (hours >= 1) return 1;
-    return 0;
+    if (hours >= 80) return 8;    // Diamante (80h)
+    if (hours >= 70) return 7;    // Vermelho (70-79h)
+    if (hours >= 60) return 6;    // Roxo (60-69h)
+    if (hours >= 50) return 5;    // Esmeralda (50-59h)
+    if (hours >= 35) return 4;    // Azul (35-49h)
+    if (hours >= 25) return 3;    // Ouro (25-34h)
+    if (hours >= 15) return 2;    // Prata (15-24h)
+    if (hours >= 10) return 1;    // Bronze (10-14h)
+    if (hours >= 1) return 0;     // Branco (1-9h)
+    return -1;                    // Vazio (0h)
   };
 
-  // Calcula a porcentagem de preenchimento dentro do rank atual
   const getFillPercentage = (hours) => {
     const rank = getCurrentRank(hours);
-    
-    switch(rank) {
-      case 1: return Math.min(hours / 10 * 100, 100);
-      case 2: return Math.min((hours - 10) / 10 * 100, 100);
-      case 3: return Math.min((hours - 20) / 10 * 100, 100);
-      case 4: return Math.min((hours - 30) / 10 * 100, 100);
-      case 5: return Math.min((hours - 40) / 10 * 100, 100);
-      case 6: return Math.min((hours - 50) / 10 * 100, 100);
-      case 7: return Math.min((hours - 60) / 15 * 100, 100);
-      case 8: return 100;
+
+    switch (rank) {
+      case 0: return (hours / 10) * 100;       // Branco (1-9h) - preenche o primeiro polígono
+      case 1: return ((hours - 10) / 5) * 100; // Bronze (10-14h) - preenche o segundo polígono
+      case 2: return ((hours - 15) / 10) * 100;// Prata (15-24h)
+      case 3: return ((hours - 25) / 10) * 100;// Ouro (25-34h)
+      case 4: return ((hours - 35) / 15) * 100;// Azul (35-49h)
+      case 5: return ((hours - 50) / 10) * 100;// Esmeralda (50-59h)
+      case 6: return ((hours - 60) / 10) * 100;// Roxo (60-69h)
+      case 7: return ((hours - 70) / 10) * 100;// Vermelho (70-79h)
+      case 8: return 100;                      // Diamante (80h)
       default: return 0;
+    }
+  };
+
+  const getColor = (rank) => {
+    switch (rank) {
+      case 0: return "bg-white";         // Branco
+      case 1: return "bg-[#5D0F01]";     // Bronze
+      case 2: return "bg-[#7A807D]";     // Prata
+      case 3: return "bg-[#FCA610]";     // Ouro
+      case 4: return "bg-[#39A0B1]";     // Azul
+      case 5: return "bg-[#047C21]";     // Esmeralda
+      case 6: return "bg-[#60409E]";     // Roxo
+      case 7: return "bg-[#C10146]";     // Vermelho
+      case 8: return "bg-[#FFC87F]";     // Diamante
+      default: return "bg-gray-700";     // Vazio
     }
   };
 
@@ -100,11 +103,10 @@ function HorasPaePage() {
             {times.map((time, idx) => (
               <li
                 key={idx}
-                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
-                  selectedTeam === time
-                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
-                    : "bg-gray-800"
-                }`}
+                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${selectedTeam === time
+                  ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
+                  : "bg-gray-800"
+                  }`}
                 onClick={() => setSelectedTeam(time)}
               >
                 {time}
@@ -149,29 +151,37 @@ function HorasPaePage() {
                   <div className="flex-1 grid grid-cols-8 gap-1">
                     {ranks.map((_, rankIndex) => {
                       const rankNumber = rankIndex + 1;
-                      const isActiveRank = rankNumber === currentRank;
-                      const isCompletedRank = rankNumber < currentRank;
-                      const color = isCompletedRank ? barColor : 
-                                   (isActiveRank ? barColor : emptyColor);
+                      const isActiveRank = rankNumber === currentRank + 1; // Ajuste aqui (+1 para começar do Rank 1)
+                      const isCompletedRank = rankNumber <= currentRank;
+                      const isEmpty = currentRank === -1;
+
+                      let color;
+                      if (isEmpty) {
+                        color = "bg-gray-700";
+                      } else if (isCompletedRank) {
+                        color = getColor(currentRank);
+                      } else if (isActiveRank) {
+                        color = getColor(currentRank);
+                      } else {
+                        color = "bg-gray-700";
+                      }
+
+                      const fillPercentage = isActiveRank ? getFillPercentage(player.hours) :
+                        isCompletedRank ? 100 : 0;
 
                       return (
                         <div key={rankIndex} className="relative h-10">
-                          {/* Fundo do segmento (invertido) */}
                           <div
                             className="absolute inset-0 bg-gray-700"
                             style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0% 100%)" }}
                           >
-                            {/* Parte preenchida */}
-                            <div 
+                            <div
                               className={`absolute inset-0 ${color}`}
-                              style={{
-                                width: isActiveRank ? `${fillPercentage}%` : '100%'
-                              }}
+                              style={{ width: `${fillPercentage}%` }}
                             ></div>
                           </div>
 
-                          {/* Valor das horas totais na última barra */}
-                          {rankNumber === ranks.length && (
+                          {rankNumber === 8 && (
                             <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
                               {player.hours}h
                             </div>
@@ -187,14 +197,15 @@ function HorasPaePage() {
             {/* Legenda atualizada */}
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {[
-                { range: "1-9h", color: "bg-[#5D0F01]", name: "Bronze (Rank 1)" },
-                { range: "10-19h", color: "bg-[#7A807D]", name: "Prata (Rank 2)" },
-                { range: "20-29h", color: "bg-[#FCA610]", name: "Ouro (Rank 3)" },
-                { range: "30-39h", color: "bg-[#39A0B1]", name: "Azul (Rank 4)" },
-                { range: "40-49h", color: "bg-[#047C21]", name: "Verde (Rank 5)" },
-                { range: "50-59h", color: "bg-[#60409E]", name: "Roxo (Rank 6)" },
-                { range: "60-74h", color: "bg-[#C10146]", name: "Vermelho (Rank 7)" },
-                { range: "75h+", color: "bg-[#FFC87F]", name: "Diamante (Rank 8)" },
+                { range: "1-9h", color: "bg-white", name: "Iniciante" },
+                { range: "10-14h", color: "bg-[#5D0F01]", name: "Novato" },
+                { range: "15-24h", color: "bg-[#7A807D]", name: "intermediário" },
+                { range: "25-34h", color: "bg-[#FCA610]", name: "Avançado" },
+                { range: "35-49h", color: "bg-[#39A0B1]", name: "Experiente" },
+                { range: "50-59h", color: "bg-[#047C21]", name: "Veterano" },
+                { range: "60-69h", color: "bg-[#60409E]", name: "Elite" },
+                { range: "70-79h", color: "bg-[#C10146]", name: "Mestre" },
+                { range: "80h", color: "bg-[#FFC87F]", name: "lenda" },
               ].map((item, index) => (
                 <div key={index} className="flex items-center">
                   <div

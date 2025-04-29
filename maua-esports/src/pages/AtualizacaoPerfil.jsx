@@ -126,7 +126,7 @@ const AtualizacaoPerfil = () => {
 
         <div className="absolute bottom-0 right-0 rounded-full p-1 shadow-sm transition-opacity duration-300">
           <FaPen
-            className="w-4 h-4 text-dourado"
+            className="w-4 h-4 text-azul-claro"
             style={{
               animation: isPenHovered ? "shake 0.7s ease-in-out" : "none",
             }}
