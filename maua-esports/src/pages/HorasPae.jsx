@@ -1,180 +1,180 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
-function HorasPae() {
-  const [dados, setDados] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const playerId = "000000000000000001";
+function HorasPaePage() {
+  // Dados dos ranks com imagens (substitua pelos seus caminhos de imagem reais)
+  const ranks = [
+    { id: 1, name: "Rank 1", image: "/images/rank1.png" },
+    { id: 2, name: "Rank 2", image: "/images/rank2.png" },
+    { id: 3, name: "Rank 3", image: "/images/rank3.png" },
+    { id: 4, name: "Rank 4", image: "/images/rank4.png" },
+    { id: 5, name: "Rank 5", image: "/images/rank5.png" },
+    { id: 6, name: "Rank 6", image: "/images/rank6.png" },
+    { id: 7, name: "Rank 7", image: "/images/rank7.png" },
+    { id: 8, name: "Rank 8", image: "/images/rank8.png" }
+  ];
 
-  useEffect(() => {
-    const fetchHorasPae = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/horas-pae/${playerId}`,
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+  const players = [
+    { name: "Player 1", hours: 45 },
+    { name: "Player 2", hours: 9 },
+    { name: "Player 3", hours: 25 },
+    { name: "Player 4", hours: 35 },
+    { name: "Player 5", hours: 55 },
+    { name: "Coach", hours: 75 },
+  ];
 
-        console.log("Dados recebidos do backend:", response.data);
+  const times = [
+    "Valorant Blue",
+    "Valorant Purple",
+    "Valorant White",
+    "Counter Strike 2",
+    "Rainbow Six Siege",
+  ];
 
-        if (response.data) {
-          setDados({
-            ...response.data,
-            detalhes: response.data.detalhes || [],
-          });
-        }
-      } catch (err) {
-        console.error("Erro completo:", err);
-        setError(err.response?.data?.error || "Erro ao carregar dados");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [selectedTeam, setSelectedTeam] = useState("Valorant Blue");
+  const [playersData, setPlayers] = useState(players);
 
-    fetchHorasPae();
-  }, [playerId]);
+  // Cores baseadas nas horas totais
+  const getColor = (hours) => {
+    if (hours >= 71) return "bg-amber-200"; // Bege
+    if (hours >= 61) return "bg-red-500";   // Vermelho
+    if (hours >= 51) return "bg-green-500"; // Verde
+    if (hours >= 41) return "bg-purple-500";// Roxo
+    if (hours >= 31) return "bg-blue-200";  // Azul bebê
+    if (hours >= 21) return "bg-yellow-400";// Amarelo dourado
+    if (hours >= 11) return "bg-gray-300";  // Prata
+    if (hours >= 0) return "bg-amber-800";  // Marrom/Bronze
+    return "bg-gray-700";                  // Cinza escuro
+  };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <span className="ml-3 text-gray-700">Carregando dados...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4">
-        <h3 className="font-bold">Erro ao carregar dados</h3>
-        <p>{error}</p>
-      </div>
-    );
-  }
+  // Calcular quantas barras devem ser preenchidas (de 0 a 8)
+  const getFilledBars = (hours) => {
+    if (hours >= 71) return 8;
+    if (hours >= 61) return 7;
+    if (hours >= 51) return 6;
+    if (hours >= 41) return 5;
+    if (hours >= 31) return 4;
+    if (hours >= 21) return 3;
+    if (hours >= 11) return 2;
+    if (hours >= 1) return 1;
+    return 0;
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Relatório de Horas PAE
-        </h2>
+    <div className="min-h-screen bg-gray-900 text-white pt-24 pb-10 px-4 md:px-14">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-blue-600 font-medium">Jogador ID</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {dados?.playerId || "N/A"}
-            </p>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-green-600 font-medium">Total de horas</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {dados?.totalHoras || "0.00"}h
-            </p>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-sm text-purple-600 font-medium">
-              Total de treinos
-            </p>
-            <p className="text-lg font-semibold text-gray-800">
-              {dados?.totalTreinos || 0}
-            </p>
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Sidebar - Times */}
+        <aside className="w-full md:w-72 bg-gray-800 border-2 border-gray-700 rounded-[30px] p-6 h-fit">
+          <h2 className="text-2xl font-bold mb-6 text-yellow-400">Times</h2>
+          <ul className="space-y-4">
+            {times.map((time, idx) => (
+              <li
+                key={idx}
+                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
+                  selectedTeam === time 
+                    ? "bg-gray-700 border-l-4 border-yellow-400 font-bold" 
+                    : "bg-gray-800"
+                }`}
+                onClick={() => setSelectedTeam(time)}
+              >
+                {time}
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Detalhes dos Treinos
-        </h3>
+        {/* Main content */}
+        <main className="flex-1">
+          <h1 className="text-3xl font-bold mb-6 text-center text-yellow-400">
+            Horas PAEs - {selectedTeam}
+          </h1>
 
-        {dados?.detalhes?.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Modalidade
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Nome
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Data
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Duração (horas)
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {dados.detalhes.map((treino, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {treino.modalityId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {treino.nomeModalidade || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {treino.data}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {treino.duracaoHoras}
-                      </span>
-                    </td>
-                  </tr>
+          {/* Container das barras */}
+          <div className="bg-gray-800 border-2 border-gray-700 rounded-[30px] shadow-lg p-6">
+            {/* Cabeçalho com imagens dos ranks */}
+            <div className="flex mb-4">
+              <div className="w-24 md:w-32"></div> {/* Espaço para os nomes dos jogadores */}
+              <div className="flex-1 grid grid-cols-8 gap-1">
+                {ranks.map((rank, index) => (
+                  <div key={index} className="flex flex-col items-center">
+                    <img 
+                      src={rank.image} 
+                      alt={rank.name} 
+                      className="w-10 h-10 object-contain mb-1"
+                    />
+                    <span className="text-xs text-center">{rank.name}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-yellow-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700">
-                  Nenhum treino registrado para este jogador.
-                </p>
               </div>
             </div>
+
+            {/* Lista de jogadores com barras */}
+            {playersData.map((player, playerIndex) => {
+              const filledBars = getFilledBars(player.hours);
+              const barColor = getColor(player.hours);
+              
+              return (
+                <div key={playerIndex} className="flex items-center mb-4">
+                  <div className="w-24 md:w-32 font-semibold">{player.name}</div>
+                  
+                  {/* Barra de progresso com segmentos para cada rank */}
+                  <div className="flex-1 grid grid-cols-8 gap-1">
+                    {ranks.map((_, rankIndex) => {
+                      const isFilled = rankIndex < filledBars;
+                      const color = isFilled ? barColor : "bg-gray-700";
+                      
+                      return (
+                        <div key={rankIndex} className="relative h-10">
+                          {/* Fundo do segmento */}
+                          <div 
+                            className="absolute inset-0"
+                            style={{ clipPath: "polygon(0 0, 90% 0, 100% 100%, 10% 100%)" }}
+                          >
+                            <div className={`absolute inset-0 ${color}`}></div>
+                          </div>
+                          
+                          {/* Valor das horas totais na última barra */}
+                          {rankIndex === ranks.length - 1 && (
+                            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                              {player.hours}h
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Legenda */}
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[
+                { range: "0-10h", color: "bg-amber-800", name: "Marrom/Bronze" },
+                { range: "11-20h", color: "bg-gray-300", name: "Prata" },
+                { range: "21-30h", color: "bg-yellow-400", name: "Amarelo Dourado" },
+                { range: "31-40h", color: "bg-blue-200", name: "Azul Bebê" },
+                { range: "41-50h", color: "bg-purple-500", name: "Roxo" },
+                { range: "51-60h", color: "bg-green-500", name: "Verde" },
+                { range: "61-70h", color: "bg-red-500", name: "Vermelho" },
+                { range: "71h+", color: "bg-amber-200", name: "Bege" },
+              ].map((item, index) => (
+                <div key={index} className="flex items-center">
+                  <div 
+                    className={`w-5 h-5 mr-2 ${item.color}`}
+                    style={{ clipPath: "polygon(0 0, 90% 0, 100% 100%, 10% 100%)" }}
+                  ></div>
+                  <span className="text-sm">
+                    {item.range} - {item.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+        </main>
       </div>
     </div>
   );
 }
 
-export default HorasPae;
+export default HorasPaePage;
