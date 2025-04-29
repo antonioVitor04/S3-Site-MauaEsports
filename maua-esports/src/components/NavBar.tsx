@@ -230,7 +230,7 @@ const NavBar = () => {
                   >
                     <div className="w-10 h-10 flex items-center justify-center">
                       <GiSwordsEmblem
-                        className="text-2xl text-azul-escuro"
+                        className="text-2xl text-azul-claro"
                         style={{
                           animation: isSwordHovered
                             ? "shake 0.7s ease-in-out "
@@ -254,7 +254,7 @@ const NavBar = () => {
                   >
                     <div className="w-10 h-10 flex items-center justify-center">
                       <FaRegClock
-                        className="text-2xl text-azul-escuro"
+                        className="text-2xl text-azul-claro"
                         style={{
                           animation: isClockHovered
                             ? "rodar 0.7s ease-in-out "

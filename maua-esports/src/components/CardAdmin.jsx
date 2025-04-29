@@ -72,17 +72,17 @@ const CardAdmin = ({
           <div className="flex space-x-4 ml-4">
             {instagram && (
               <a href={instagram} target="_blank" rel="noopener noreferrer">
-                <FaInstagram className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                <FaInstagram className="cursor-pointer hover:scale-110 hover:text-azul-escuro transition-transform duration-300" />
               </a>
             )}
             {twitter && (
               <a href={twitter} target="_blank" rel="noopener noreferrer">
-                <RiTwitterXFill className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                <RiTwitterXFill className="cursor-pointer hover:scale-110 hover:text-azul-escuro transition-transform duration-300" />
               </a>
             )}
             {twitch && (
               <a href={twitch} target="_blank" rel="noopener noreferrer">
-                <IoLogoTwitch className="cursor-pointer hover:scale-110 transition-transform duration-300" />
+                <IoLogoTwitch className="cursor-pointer hover:scale-110 hover:text-azul-escuro transition-transform duration-300" />
               </a>
             )}
           </div>

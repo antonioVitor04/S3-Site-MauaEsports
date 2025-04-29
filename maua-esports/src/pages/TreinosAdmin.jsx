@@ -5,15 +5,16 @@ import Rodape from "../components/Rodape";
 import PageBanner from "../components/PageBanner";
 import { useNavigate } from "react-router-dom";
 
-const Agendamento = ({ 
-  inicio, 
+const Agendamento = ({
+  inicio,
   fim,
   diaSemana,
-  time, 
+  time,
   status,
-  onEditar 
+  onEditar
 }) => {
   const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:mx-4 my-0 min-h-[80px] border-b border-borda">
@@ -22,11 +23,11 @@ const Agendamento = ({
           <span className="text-branco font-bold">{inicio} - {fim}</span>
           <span className="text-azul-claro text-sm">Duração: {calcularDuracao(inicio, fim)}</span>
         </div>
-        
+
         <div className="w-32 text-center">
           <span className="text-branco">{diasDaSemana[diaSemana]}</span>
         </div>
-        
+
         <div className="ml-3 text-sm w-full sm:w-48 text-center sm:text-left">
           <p className="font-semibold text-white font-blinker">{time}</p>
         </div>
@@ -34,10 +35,19 @@ const Agendamento = ({
 
       <button
         onClick={onEditar}
-        className="text-azul-claro hover:text-azul-escuro text-2xl cursor-pointer mt-2 sm:mt-0"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="text-azul-claro text-2xl cursor-pointer mt-2 sm:mt-0"
       >
-        <MdEdit />
+        <MdEdit 
+          className="w-6 h-6" // Ajuste o tamanho conforme necessário
+          style={{
+            animation: isHovered ? "shake 0.7s ease-in-out" : "none",
+            transformOrigin: 'center center' // Importante para a animação de rotação
+          }}
+        />
       </button>
+
     </div>
   );
 };
@@ -193,13 +203,13 @@ const TreinosAdmin = () => {
     try {
       const novaCronInicio = gerarCron(formEdicao.inicio, formEdicao.diaSemana);
       const novaCronFim = gerarCron(formEdicao.fim, formEdicao.diaSemana);
-      
+
       const modalidade = modalidades[editandoTreino.ModalityId];
       if (!modalidade) throw new Error("Modalidade não encontrada");
 
-      const updatedTrainings = modalidade.ScheduledTrainings.map(t => 
-        t.Start === editandoTreino.cronInicio ? 
-        { ...t, Start: novaCronInicio, End: novaCronFim } : t
+      const updatedTrainings = modalidade.ScheduledTrainings.map(t =>
+        t.Start === editandoTreino.cronInicio ?
+          { ...t, Start: novaCronInicio, End: novaCronFim } : t
       );
 
       await axios.patch('/api/modality', {
@@ -212,16 +222,16 @@ const TreinosAdmin = () => {
         }
       });
 
-      const updatedAgendamentos = agendamentosOriginais.map(a => 
-        a.id === editandoTreino.id ? 
-        { 
-          ...a, 
-          inicio: formEdicao.inicio,
-          fim: formEdicao.fim,
-          diaSemana: parseInt(formEdicao.diaSemana),
-          cronInicio: novaCronInicio,
-          cronFim: novaCronFim
-        } : a
+      const updatedAgendamentos = agendamentosOriginais.map(a =>
+        a.id === editandoTreino.id ?
+          {
+            ...a,
+            inicio: formEdicao.inicio,
+            fim: formEdicao.fim,
+            diaSemana: parseInt(formEdicao.diaSemana),
+            cronInicio: novaCronInicio,
+            cronFim: novaCronFim
+          } : a
       );
 
       setAgendamentosOriginais(updatedAgendamentos);
@@ -297,8 +307,8 @@ const TreinosAdmin = () => {
                   ${isSelecionado
                     ? "bg-azul-claro text-white"
                     : isHoje
-                    ? "border-2 border-azul-claro text-white"
-                    : "hover:bg-fundo/70 text-white"
+                      ? "border-2 border-azul-claro text-white"
+                      : "hover:bg-fundo/70 text-white"
                   }`}
               >
                 {dia}
@@ -335,7 +345,7 @@ const TreinosAdmin = () => {
               : "Todos os treinos"}
             {modalidadeSelecionada && ` - ${modalidades[modalidadeSelecionada]?.Name}`}
           </h3>
-          
+
           <div className="text-azul-claro font-bold text-lg sm:text-xl">
             {contadores.total} {contadores.total === 1 ? 'treino' : 'treinos'}
           </div>
@@ -365,9 +375,8 @@ const TreinosAdmin = () => {
             <label className="text-white text-sm sm:text-base mr-2">Filtrar por dia:</label>
             <button
               onClick={() => setFiltroDataAtivo(!filtroDataAtivo)}
-              className={`px-3 py-1 rounded ${
-                filtroDataAtivo 
-                  ? "bg-azul-claro text-white" 
+              className={`px-3 py-1 rounded ${filtroDataAtivo
+                  ? "bg-azul-claro text-white"
                   : "bg-fundo text-white border border-borda"
                 }`}
             >
@@ -419,7 +428,7 @@ const TreinosAdmin = () => {
                             className="p-1 sm:p-2 rounded bg-fundo text-white w-full sm:w-32"
                           />
                         </div>
-                        
+
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Fim</label>
                           <input
@@ -430,7 +439,7 @@ const TreinosAdmin = () => {
                             className="p-1 sm:p-2 rounded bg-fundo text-white w-full sm:w-32"
                           />
                         </div>
-                        
+
                         <div className="flex flex-col">
                           <label className="text-cinza-claro text-sm mb-1">Dia</label>
                           <select
@@ -444,10 +453,10 @@ const TreinosAdmin = () => {
                             ))}
                           </select>
                         </div>
-                        
+
                         <span className="text-white ml-4">{agendamento.NomeModalidade}</span>
                       </div>
-                      
+
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={salvarEdicao}
