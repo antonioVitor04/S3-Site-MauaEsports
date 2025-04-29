@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import PageBanner from "../components/PageBanner";
 
-// Importe as imagens corretamente (ajuste os caminhos conforme sua estrutura de pastas)
+// Importe as imagens corretamente
 import rank1 from "../assets/images/rank1.png";
 import rank2 from "../assets/images/rank2.png";
 import rank3 from "../assets/images/rank3.png";
@@ -24,27 +25,120 @@ function HorasPaePage() {
     { id: 8, name: "Rank 8", image: rank8 }
   ];
 
-  const players = [
-    { name: "player 1", hours: 5 },    // Branco (1º polígono)
-    { name: "player 2", hours: 12 },      // Bronze (2º polígono)
-    { name: "player 3", hours: 20 }, // Prata (3º polígono)
-    { name: "player 4", hours: 30 },    // Ouro (4º polígono)
-    { name: "player 5", hours: 45 },  // Azul (5º polígono)
-    { name: "coach", hours: 55 },    // Esmeralda (6º polígono   
-  ];
+  const [modalidades, setModalidades] = useState({});
+  const [times, setTimes] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [playersData, setPlayersData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const times = [
-    "Valorant Blue",
-    "Valorant Purple",
-    "Valorant White",
-    "Counter Strike 2",
-    "Rainbow Six Siege",
-  ];
+  // Carrega os dados da API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Busca as modalidades/times
+        const modResponse = await axios.get('/api/modality/all', {
+          headers: { "Authorization": "Bearer frontendmauaesports" }
+        });
+        
+        const mods = modResponse.data;
+        setModalidades(mods);
+        
+        // Cria lista de times para o dropdown
+        const teamList = Object.values(mods).map(mod => mod.Name);
+        setTimes(teamList);
+        setSelectedTeam(teamList[0] || "");
+        
+        // Busca os treinos
+        const trainsResponse = await axios.get('/api/trains/all', {
+          headers: { "Authorization": "Bearer frontendmauaesports" }
+        });
+        
+        // Processa os dados para calcular as horas
+        processPlayerHours(trainsResponse.data, mods);
+        
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const [selectedTeam, setSelectedTeam] = useState("Valorant Blue");
-  const [playersData, setPlayers] = useState(players);
+    fetchData();
+  }, []);
+  const getCurrentSemester = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // Janeiro é 0
+    
+    // Primeiro semestre: Janeiro a Junho (1-6)
+    // Segundo semestre: Julho a Dezembro (7-12)
+    return month <= 6 ? `${year}.1` : `${year}.2`;
+  };
 
-  // Funções modificadas para funcionar corretamente
+  // Atualiza os dados quando o time selecionado muda
+  useEffect(() => {
+    if (selectedTeam && Object.keys(modalidades).length > 0) {
+      const fetchTeamData = async () => {
+        try {
+          // Busca os treinos apenas para o time selecionado
+          const modId = Object.keys(modalidades).find(
+            key => modalidades[key].Name === selectedTeam
+          );
+          
+          if (modId) {
+            const trainsResponse = await axios.get('/api/trains/all', {
+              headers: { "Authorization": "Bearer frontendmauaesports" },
+              params: { "ModalityId": modId }
+            });
+            
+            processPlayerHours(trainsResponse.data, modalidades);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados do time:", error);
+        }
+      };
+      
+      fetchTeamData();
+    }
+  }, [selectedTeam, modalidades]);
+
+  // Processa os dados dos treinos para calcular as horas dos jogadores
+  const processPlayerHours = (trainsData, modalities) => {
+    const playerHours = {};
+    
+    trainsData.forEach(train => {
+      if (train.Status !== "ENDED" || !train.AttendedPlayers) return;
+      
+      const modality = modalities[train.ModalityId];
+      if (!modality) return;
+      
+      train.AttendedPlayers.forEach(player => {
+        if (!player.PlayerId || !player.EntranceTimestamp || !player.ExitTimestamp) return;
+        
+        // Calcula a duração em horas
+        const durationHours = (player.ExitTimestamp - player.EntranceTimestamp) / (1000 * 60 * 60);
+        
+        if (playerHours[player.PlayerId]) {
+          playerHours[player.PlayerId].hours += durationHours;
+        } else {
+          playerHours[player.PlayerId] = {
+            name: `Jogador ${player.PlayerId.slice(-4)}`, // Nome genérico com ID
+            hours: durationHours,
+            team: modality.Name
+          };
+        }
+      });
+    });
+    
+    // Converte o objeto em array e ordena por horas
+    const playersArray = Object.values(playerHours)
+      .filter(player => player.team === selectedTeam)
+      .sort((a, b) => b.hours - a.hours);
+    
+    setPlayersData(playersArray);
+  };
+
+  // Função para determinar o rank atual com base nas horas
   const getCurrentRank = (hours) => {
     if (hours >= 80) return 8;    // Diamante (80h)
     if (hours >= 70) return 7;    // Vermelho (70-79h)
@@ -58,12 +152,13 @@ function HorasPaePage() {
     return -1;                    // Vazio (0h)
   };
 
+  // Calcula a porcentagem de preenchimento do rank atual
   const getFillPercentage = (hours) => {
     const rank = getCurrentRank(hours);
 
     switch (rank) {
-      case 0: return (hours / 10) * 100;       // Branco (1-9h) - preenche o primeiro polígono
-      case 1: return ((hours - 10) / 5) * 100; // Bronze (10-14h) - preenche o segundo polígono
+      case 0: return (hours / 10) * 100;       // Branco (1-9h)
+      case 1: return ((hours - 10) / 5) * 100; // Bronze (10-14h)
       case 2: return ((hours - 15) / 10) * 100;// Prata (15-24h)
       case 3: return ((hours - 25) / 10) * 100;// Ouro (25-34h)
       case 4: return ((hours - 35) / 15) * 100;// Azul (35-49h)
@@ -75,6 +170,7 @@ function HorasPaePage() {
     }
   };
 
+  // Retorna a cor correspondente ao rank
   const getColor = (rank) => {
     switch (rank) {
       case 0: return "bg-white";         // Branco
@@ -90,6 +186,14 @@ function HorasPaePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
+        <div className="text-xl">Carregando dados...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0D1117] text-white ">
       <div className="bg-[#010409] h-[104px]"></div>
@@ -103,10 +207,11 @@ function HorasPaePage() {
             {times.map((time, idx) => (
               <li
                 key={idx}
-                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${selectedTeam === time
-                  ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
-                  : "bg-gray-800"
-                  }`}
+                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
+                  selectedTeam === time
+                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
+                    : "bg-gray-800"
+                }`}
                 onClick={() => setSelectedTeam(time)}
               >
                 {time}
@@ -137,75 +242,80 @@ function HorasPaePage() {
             </div>
 
             {/* Lista de jogadores com barras */}
-            {playersData.map((player, playerIndex) => {
-              const currentRank = getCurrentRank(player.hours);
-              const fillPercentage = getFillPercentage(player.hours);
-              const barColor = getColor(player.hours);
-              const emptyColor = "bg-gray-700";
+            {playersData.length > 0 ? (
+              playersData.map((player, playerIndex) => {
+                const currentRank = getCurrentRank(player.hours);
+                const fillPercentage = getFillPercentage(player.hours);
+                const roundedHours = Math.round(player.hours * 10) / 10; // Arredonda para 1 casa decimal
 
-              return (
-                <div key={playerIndex} className="flex items-center mb-4">
-                  <div className="w-24 md:w-32 font-semibold">{player.name}</div>
+                return (
+                  <div key={playerIndex} className="flex items-center mb-4">
+                    <div className="w-24 md:w-32 font-semibold truncate">{player.name}</div>
 
-                  {/* Barra de progresso com segmentos para cada rank */}
-                  <div className="flex-1 grid grid-cols-8 gap-1">
-                    {ranks.map((_, rankIndex) => {
-                      const rankNumber = rankIndex + 1;
-                      const isActiveRank = rankNumber === currentRank + 1; // Ajuste aqui (+1 para começar do Rank 1)
-                      const isCompletedRank = rankNumber <= currentRank;
-                      const isEmpty = currentRank === -1;
+                    {/* Barra de progresso com segmentos para cada rank */}
+                    <div className="flex-1 grid grid-cols-8 gap-1">
+                      {ranks.map((_, rankIndex) => {
+                        const rankNumber = rankIndex + 1;
+                        const isActiveRank = rankNumber === currentRank + 1;
+                        const isCompletedRank = rankNumber <= currentRank;
+                        const isEmpty = currentRank === -1;
 
-                      let color;
-                      if (isEmpty) {
-                        color = "bg-gray-700";
-                      } else if (isCompletedRank) {
-                        color = getColor(currentRank);
-                      } else if (isActiveRank) {
-                        color = getColor(currentRank);
-                      } else {
-                        color = "bg-gray-700";
-                      }
+                        let color;
+                        if (isEmpty) {
+                          color = "bg-gray-700";
+                        } else if (isCompletedRank) {
+                          color = getColor(currentRank);
+                        } else if (isActiveRank) {
+                          color = getColor(currentRank);
+                        } else {
+                          color = "bg-gray-700";
+                        }
 
-                      const fillPercentage = isActiveRank ? getFillPercentage(player.hours) :
-                        isCompletedRank ? 100 : 0;
+                        const segmentFill = isActiveRank ? fillPercentage :
+                          isCompletedRank ? 100 : 0;
 
-                      return (
-                        <div key={rankIndex} className="relative h-10">
-                          <div
-                            className="absolute inset-0 bg-gray-700"
-                            style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0% 100%)" }}
-                          >
+                        return (
+                          <div key={rankIndex} className="relative h-10">
                             <div
-                              className={`absolute inset-0 ${color}`}
-                              style={{ width: `${fillPercentage}%` }}
-                            ></div>
-                          </div>
-
-                          {rankNumber === 8 && (
-                            <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
-                              {player.hours}h
+                              className="absolute inset-0 bg-gray-700"
+                              style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0% 100%)" }}
+                            >
+                              <div
+                                className={`absolute inset-0 ${color}`}
+                                style={{ width: `${segmentFill}%` }}
+                              ></div>
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
 
-            {/* Legenda atualizada */}
+                            {rankNumber === 8 && (
+                              <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                                {roundedHours}h
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                Nenhum dado de jogadores encontrado para este time.
+              </div>
+            )}
+
+            {/* Legenda */}
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {[
                 { range: "1-9h", color: "bg-white", name: "Iniciante" },
                 { range: "10-14h", color: "bg-[#5D0F01]", name: "Novato" },
-                { range: "15-24h", color: "bg-[#7A807D]", name: "intermediário" },
+                { range: "15-24h", color: "bg-[#7A807D]", name: "Intermediário" },
                 { range: "25-34h", color: "bg-[#FCA610]", name: "Avançado" },
                 { range: "35-49h", color: "bg-[#39A0B1]", name: "Experiente" },
                 { range: "50-59h", color: "bg-[#047C21]", name: "Veterano" },
                 { range: "60-69h", color: "bg-[#60409E]", name: "Elite" },
                 { range: "70-79h", color: "bg-[#C10146]", name: "Mestre" },
-                { range: "80h", color: "bg-[#FFC87F]", name: "lenda" },
+                { range: "80h+", color: "bg-[#FFC87F]", name: "Lenda" },
               ].map((item, index) => (
                 <div key={index} className="flex items-center">
                   <div
