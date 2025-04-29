@@ -65,7 +65,7 @@ function HorasPaePage() {
     if (hours >= 31) return 4;
     if (hours >= 21) return 3;
     if (hours >= 11) return 2;
-    if (hours >= 1) return 0;
+    if (hours >= 1) return 1;
     return 0;
   };
 
