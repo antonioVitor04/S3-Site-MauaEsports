@@ -221,10 +221,10 @@ const NavBar = () => {
                 </div>
               </div>
 
-              <div className="flex-grow">
+              <div className="flex-grow pb-10 items-left">
                 <Link to="/treinos-admin" className="w-full">
                   <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
                     onMouseEnter={() => setSwordHovered(true)}
                     onMouseLeave={() => setSwordHovered(false)}
                   >
@@ -248,7 +248,7 @@ const NavBar = () => {
                 </Link>
                 <Link to="/horas-pae" className="w-full">
                   <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
                     onMouseEnter={() => setClockIsHovered(true)}
                     onMouseLeave={() => setClockIsHovered(false)}
                   >
@@ -271,14 +271,15 @@ const NavBar = () => {
                   </div>
                 </Link>
               </div>
-
-              <button
-                className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover"
-                onClick={fazerLogout}
-              >
-                <CgLogOut className="text-2xl" />
-                <span>Sair da conta</span>
-              </button>
+              <div className="flex flex-col">
+                <button
+                  className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover pl-4"
+                  onClick={fazerLogout}
+                >
+                  <CgLogOut className="text-2xl" />
+                  <span>Sair da conta</span>
+                </button>
+              </div>          
             </div>
           </ul>
         </li>
