@@ -210,7 +210,7 @@ const NavBar = () => {
                 : "absolute left-1/2 transform -translate-x-1/2 mt-12"
             }`}
           >
-            <div className="bg-fundo w-full border-2 border-borda shadow-azul-claro shadow-sm rounded-lg flex flex-col">
+            <div className="bg-fundo w-full border-2 border-borda shadow-azul-escuro shadow-sm rounded-lg flex flex-col">
               <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
                 <AtualizacaoPerfil />
                 <div className="flex flex-col flex-grow items-start overflow-hidden">
@@ -221,10 +221,10 @@ const NavBar = () => {
                 </div>
               </div>
 
-              <div className="flex-grow">
+              <div className="flex-grow pb-10 items-left">
                 <Link to="/treinos-admin" className="w-full">
                   <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
                     onMouseEnter={() => setSwordHovered(true)}
                     onMouseLeave={() => setSwordHovered(false)}
                   >
@@ -248,7 +248,7 @@ const NavBar = () => {
                 </Link>
                 <Link to="/horas-pae" className="w-full">
                   <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group"
+                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
                     onMouseEnter={() => setClockIsHovered(true)}
                     onMouseLeave={() => setClockIsHovered(false)}
                   >
@@ -271,14 +271,15 @@ const NavBar = () => {
                   </div>
                 </Link>
               </div>
-
-              <button
-                className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover"
-                onClick={fazerLogout}
-              >
-                <CgLogOut className="text-2xl" />
-                <span>Sair da conta</span>
-              </button>
+              <div className="flex flex-col">
+                <button
+                  className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover pl-4"
+                  onClick={fazerLogout}
+                >
+                  <CgLogOut className="text-2xl" />
+                  <span>Sair da conta</span>
+                </button>
+              </div>          
             </div>
           </ul>
         </li>
@@ -287,7 +288,7 @@ const NavBar = () => {
           {!isLoggedIn && (
             <button
               onClick={fazerLogin}
-              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
+              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />

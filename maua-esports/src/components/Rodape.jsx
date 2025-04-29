@@ -20,14 +20,14 @@ const Rodape = () => {
                     </div>
 
                     <div className="flex items-center space-x-4 text-fonte-escura">
-                        <a href="https://www.instagram.com/esportsmaua" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsInstagram size={20} /> </a>
-                        <a href="https://www.twitch.tv/mauaesports" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsTwitch size={20} /> </a>
-                        <a href="https://discord.com/invite/Av5EA6QfdR" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsDiscord size={20} /> </a>
-                        <a href="https://www.youtube.com/mauaesports" className="hover:text-branco transition-colors" target="_blank" rel="noopener noreferrer"> <BsYoutube size={20} /> </a>
-                        <a href="mailto:esports@maua.br" className="hover:text-branco transition-colors"> <Mail size={20} /> </a>
+                        <a href="https://www.instagram.com/esportsmaua" className="hover:text-azul-escuro transition-colors" target="_blank" rel="noopener noreferrer"> <BsInstagram size={20} /> </a>
+                        <a href="https://www.twitch.tv/mauaesports" className="hover:text-azul-escuro transition-colors" target="_blank" rel="noopener noreferrer"> <BsTwitch size={20} /> </a>
+                        <a href="https://discord.com/invite/Av5EA6QfdR" className="hover:text-azul-escuro transition-colors" target="_blank" rel="noopener noreferrer"> <BsDiscord size={20} /> </a>
+                        <a href="https://www.youtube.com/mauaesports" className="hover:text-azul-escuro transition-colors" target="_blank" rel="noopener noreferrer"> <BsYoutube size={20} /> </a>
+                        <a href="mailto:esports@maua.br" className="hover:text-azul-escuro transition-colors"> <Mail size={20} /> </a>
                         <button
                             onClick={scrollToTop}
-                            className="hover:text-branco transition-colors ml-2 cursor-pointer"
+                            className="hover:text-azul-escuro transition-colors ml-2 cursor-pointer"
                             aria-label="Voltar ao topo"
                         >
                             <ArrowUp size={24} />
