@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 
+// Importe as imagens corretamente (ajuste os caminhos conforme sua estrutura de pastas)
+import rank1 from "../assets/images/rank1.png";
+import rank2 from "../assets/images/rank2.png";
+import rank3 from "../assets/images/rank3.png";
+import rank4 from "../assets/images/rank4.png";
+import rank5 from "../assets/images/rank5.png";
+import rank6 from "../assets/images/rank6.png";
+import rank7 from "../assets/images/rank7.png";
+import rank8 from "../assets/images/rank8.png";
+
 function HorasPaePage() {
-  // Dados dos ranks com imagens (substitua pelos seus caminhos de imagem reais)
+  // Dados dos ranks com imagens importadas
   const ranks = [
-    { id: 1, name: "Rank 1", image: "/images/rank1.png" },
-    { id: 2, name: "Rank 2", image: "/images/rank2.png" },
-    { id: 3, name: "Rank 3", image: "/images/rank3.png" },
-    { id: 4, name: "Rank 4", image: "/images/rank4.png" },
-    { id: 5, name: "Rank 5", image: "/images/rank5.png" },
-    { id: 6, name: "Rank 6", image: "/images/rank6.png" },
-    { id: 7, name: "Rank 7", image: "/images/rank7.png" },
-    { id: 8, name: "Rank 8", image: "/images/rank8.png" }
+    { id: 1, name: "Rank 1", image: rank1 },
+    { id: 2, name: "Rank 2", image: rank2 },
+    { id: 3, name: "Rank 3", image: rank3 },
+    { id: 4, name: "Rank 4", image: rank4 },
+    { id: 5, name: "Rank 5", image: rank5 },
+    { id: 6, name: "Rank 6", image: rank6 },
+    { id: 7, name: "Rank 7", image: rank7 },
+    { id: 8, name: "Rank 8", image: rank8 }
   ];
 
   const players = [
@@ -18,7 +28,7 @@ function HorasPaePage() {
     { name: "Player 2", hours: 9 },
     { name: "Player 3", hours: 25 },
     { name: "Player 4", hours: 35 },
-    { name: "Player 5", hours: 55 },
+    { name: "Player 5", hours: 61 },
     { name: "Coach", hours: 75 },
   ];
 
@@ -35,14 +45,14 @@ function HorasPaePage() {
 
   // Cores baseadas nas horas totais
   const getColor = (hours) => {
-    if (hours >= 71) return "bg-amber-200"; // Bege
-    if (hours >= 61) return "bg-red-500";   // Vermelho
-    if (hours >= 51) return "bg-green-500"; // Verde
-    if (hours >= 41) return "bg-purple-500";// Roxo
-    if (hours >= 31) return "bg-blue-200";  // Azul bebê
-    if (hours >= 21) return "bg-yellow-400";// Amarelo dourado
-    if (hours >= 11) return "bg-gray-300";  // Prata
-    if (hours >= 0) return "bg-amber-800";  // Marrom/Bronze
+    if (hours >= 71) return "bg-[#FFC87F]"; // Bege
+    if (hours >= 61) return "bg-[#C10146]";   // Rosa
+    if (hours >= 51) return "bg-[#60409E]"; // Roxo
+    if (hours >= 41) return "bg-[#047C21]";// verde
+    if (hours >= 31) return "bg-[#39A0B1]";  // Azul bebê
+    if (hours >= 21) return "bg-[#FCA610]";// Amarelo dourado
+    if (hours >= 11) return "bg-[#7A807D]";  // Prata
+    if (hours >= 1) return "bg-[#5D0F01]";  // Marrom/Bronze
     return "bg-gray-700";                  // Cinza escuro
   };
 
@@ -55,7 +65,7 @@ function HorasPaePage() {
     if (hours >= 31) return 4;
     if (hours >= 21) return 3;
     if (hours >= 11) return 2;
-    if (hours >= 1) return 1;
+    if (hours >= 1) return 0;
     return 0;
   };
 
@@ -65,14 +75,14 @@ function HorasPaePage() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar - Times */}
         <aside className="w-full md:w-72 bg-gray-800 border-2 border-gray-700 rounded-[30px] p-6 h-fit">
-          <h2 className="text-2xl font-bold mb-6 text-yellow-400">Times</h2>
+          <h2 className="text-2xl font-bold mb-6 text-white">Times</h2>
           <ul className="space-y-4">
             {times.map((time, idx) => (
               <li
                 key={idx}
                 className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
                   selectedTeam === time 
-                    ? "bg-gray-700 border-l-4 border-yellow-400 font-bold" 
+                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold" 
                     : "bg-gray-800"
                 }`}
                 onClick={() => setSelectedTeam(time)}
@@ -85,7 +95,7 @@ function HorasPaePage() {
 
         {/* Main content */}
         <main className="flex-1">
-          <h1 className="text-3xl font-bold mb-6 text-center text-yellow-400">
+          <h1 className="text-3xl font-bold mb-6 text-center text-white">
             Horas PAEs - {selectedTeam}
           </h1>
 
@@ -150,7 +160,7 @@ function HorasPaePage() {
             {/* Legenda */}
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {[
-                { range: "0-10h", color: "bg-amber-800", name: "Marrom/Bronze" },
+                { range: "1-10h", color: "bg-amber-800", name: "Marrom/Bronze" },
                 { range: "11-20h", color: "bg-gray-300", name: "Prata" },
                 { range: "21-30h", color: "bg-yellow-400", name: "Amarelo Dourado" },
                 { range: "31-40h", color: "bg-blue-200", name: "Azul Bebê" },
