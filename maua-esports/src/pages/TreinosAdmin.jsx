@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MdChevronRight, MdChevronLeft, MdClear, MdEdit, MdSave, MdClose } from "react-icons/md";
 import Rodape from "../components/Rodape";
+import PageBanner from "../components/PageBanner";
+import { useNavigate } from "react-router-dom";
 
-// Componente Agendamento atualizado
 const Agendamento = ({ 
   inicio, 
   fim,
@@ -26,13 +27,8 @@ const Agendamento = ({
           <span className="text-branco">{diasDaSemana[diaSemana]}</span>
         </div>
         
-        <div className="ml-3 text-sm w-48 text-left">
+        <div className="ml-3 text-sm w-full sm:w-48 text-center sm:text-left">
           <p className="font-semibold text-white font-blinker">{time}</p>
-          <p className={`font-blinker ${
-            status === 'agendado' ? 'text-azul-claro' : 'text-verde-claro'
-          }`}>
-            {status === 'agendado' ? 'Agendado' : 'Realizado'}
-          </p>
         </div>
       </div>
 
@@ -46,7 +42,6 @@ const Agendamento = ({
   );
 };
 
-// Função auxiliar para calcular duração (mantida igual)
 function calcularDuracao(inicio, fim) {
   const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
   const [horaFim, minutoFim] = fim.split(':').map(Number);
@@ -63,7 +58,6 @@ function calcularDuracao(inicio, fim) {
 }
 
 const TreinosAdmin = () => {
-  // Estados principais (mantidos iguais)
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [modalidades, setModalidades] = useState({});
   const [modalidadeSelecionada, setModalidadeSelecionada] = useState("");
@@ -78,7 +72,6 @@ const TreinosAdmin = () => {
     diaSemana: 0
   });
 
-  // Dias da semana para o select (mantido igual)
   const diasDaSemana = [
     { value: 0, label: "Domingo" },
     { value: 1, label: "Segunda" },
@@ -89,7 +82,6 @@ const TreinosAdmin = () => {
     { value: 6, label: "Sábado" }
   ];
 
-  // Converter CRON para horário legível e dia da semana (mantido igual)
   const parseCron = (cron) => {
     const parts = cron.split(' ');
     const [minuto, hora] = parts.slice(1, 3);
@@ -102,7 +94,6 @@ const TreinosAdmin = () => {
     };
   };
 
-  // Buscar modalidades e seus treinos agendados (mantido igual)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -148,7 +139,6 @@ const TreinosAdmin = () => {
     fetchData();
   }, []);
 
-  // Aplicar filtros (mantido igual)
   useEffect(() => {
     let treinosFiltrados = [...agendamentosOriginais];
 
@@ -167,14 +157,12 @@ const TreinosAdmin = () => {
     setAgendamentosFiltrados(treinosFiltrados);
   }, [modalidadeSelecionada, dataSelecionada, filtroDataAtivo, agendamentosOriginais]);
 
-  // Limpar filtros (mantido igual)
   const limparFiltros = () => {
     setModalidadeSelecionada("");
     setFiltroDataAtivo(false);
     setDataSelecionada(new Date());
   };
 
-  // Iniciar edição de treino (mantido igual)
   const iniciarEdicao = (treino) => {
     setEditandoTreino(treino);
     setFormEdicao({
@@ -184,25 +172,21 @@ const TreinosAdmin = () => {
     });
   };
 
-  // Cancelar edição (mantido igual)
   const cancelarEdicao = () => {
     setEditandoTreino(null);
     setFormEdicao({ inicio: "", fim: "", diaSemana: 0 });
   };
 
-  // Atualizar formulário de edição (mantido igual)
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormEdicao(prev => ({ ...prev, [name]: value }));
   };
 
-  // Gerar expressão CRON (mantido igual)
   const gerarCron = (horaMinuto, diaSemana) => {
     const [hora, minuto] = horaMinuto.split(':');
     return `0 ${minuto} ${hora} * * ${diaSemana}`;
   };
 
-  // Salvar edição do treino (mantido igual)
   const salvarEdicao = async () => {
     if (!editandoTreino || !formEdicao.inicio || !formEdicao.fim) return;
 
@@ -210,11 +194,9 @@ const TreinosAdmin = () => {
       const novaCronInicio = gerarCron(formEdicao.inicio, formEdicao.diaSemana);
       const novaCronFim = gerarCron(formEdicao.fim, formEdicao.diaSemana);
       
-      // Buscar a modalidade atual
       const modalidade = modalidades[editandoTreino.ModalityId];
       if (!modalidade) throw new Error("Modalidade não encontrada");
 
-      // Atualizar o treino específico
       const updatedTrainings = modalidade.ScheduledTrainings.map(t => 
         t.Start === editandoTreino.cronInicio ? 
         { ...t, Start: novaCronInicio, End: novaCronFim } : t
@@ -230,7 +212,6 @@ const TreinosAdmin = () => {
         }
       });
 
-      // Atualizar estado local
       const updatedAgendamentos = agendamentosOriginais.map(a => 
         a.id === editandoTreino.id ? 
         { 
@@ -254,7 +235,6 @@ const TreinosAdmin = () => {
     }
   };
 
-  // Componente Calendario responsivo
   const Calendario = () => {
     const [mesAtual, setMesAtual] = useState(new Date());
 
@@ -330,7 +310,6 @@ const TreinosAdmin = () => {
     );
   };
 
-  // Contadores (mantido igual)
   const contadores = {
     total: agendamentosFiltrados.length
   };
@@ -340,13 +319,15 @@ const TreinosAdmin = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-fundo pt-[90px] px-4 sm:px-6 md:px-8 lg:px-10 overflow-x-hidden">
-      <div className="w-full h-[80px] justify-center px-0 text-center flex mb-4 sm:mb-8 bg-fundo">
-        <h1 className="font-blinker text-branco font-bold text-2xl sm:text-3xl text-center">Treinos</h1>
+    <div className="w-full min-h-screen bg-fundo flex flex-col items-center">
+      {/* Container unificado para NavBar e PageBanner */}
+      <div className="w-full bg-navbar mb-10">
+        <div className="h-[104px]"> {/* Espaço para a NavBar */} </div>
+        <PageBanner pageName="Treinos Administrativos" className="bg-navbar" />
       </div>
 
-      {/* Resumo responsivo */}
-      <div className="bg-navbar p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 w-full">
+      {/* Resumo centralizado */}
+      <div className="bg-navbar p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 w-[95%] sm:w-4/5 lg:w-3/4 text-center mx-auto">
         <div className="flex flex-col items-center gap-1 sm:gap-2">
           <h3 className="text-white font-bold text-sm sm:text-base text-center">
             {filtroDataAtivo
@@ -360,9 +341,9 @@ const TreinosAdmin = () => {
           </div>
         </div>
       </div>
-      {/* Barra de Controles responsiva */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
-        {/* Seletor de Modalidade - agora menor em mobile */}
+
+      {/* Barra de Controles centralizada */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4 w-[95%] sm:w-4/5 lg:w-3/4">
         <div className="w-full sm:flex-1">
           <label className="text-white font-bold text-sm sm:text-lg mr-2">Time:</label>
           <select
@@ -379,7 +360,6 @@ const TreinosAdmin = () => {
           </select>
         </div>
 
-        {/* Controles de Filtro */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center w-full sm:w-auto">
             <label className="text-white text-sm sm:text-base mr-2">Filtrar por dia:</label>
@@ -406,9 +386,9 @@ const TreinosAdmin = () => {
         </div>
       </div>
 
-
-      <div className="flex flex-col lg:flex-row w-full h-auto lg:h-[calc(100vh-180px)] gap-4 sm:gap-6 md:gap-8">
-        {/* Lista de Treinos responsiva */}
+      {/* Container principal centralizado */}
+      <div className="flex flex-col lg:flex-row w-[95%] sm:w-4/5 lg:w-3/4 h-auto lg:h-[calc(100vh-180px)] gap-4 sm:gap-6 md:gap-8 mb-10">
+        {/* Lista de Treinos */}
         <div className="w-full lg:w-[65%] h-auto lg:h-full bg-navbar border border-borda rounded-xl overflow-y-auto order-2 lg:order-1">
           <div className="border-b border-borda p-3 sm:p-4 sticky top-0 bg-navbar z-10">
             <div className="font-blinker text-sm sm:text-base md:text-lg lg:text-xl text-branco hidden sm:flex justify-between">
@@ -503,7 +483,7 @@ const TreinosAdmin = () => {
           </div>
         </div>
 
-        {/* Calendário responsivo */}
+        {/* Calendário */}
         <div className="w-full lg:w-[30%] h-auto sm:h-[400px] lg:h-[90%] bg-navbar border border-borda rounded-xl p-4 sm:p-6 order-1 lg:order-2">
           <Calendario />
         </div>
