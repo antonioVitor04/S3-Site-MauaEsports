@@ -13,7 +13,7 @@ const Apresentacao = () => {
                         {/* <h2 className="text-4xl font-bold mb-5">Bem Vindo</h2> */}
                         <h4 className="text-3xl md:text-4xl font-bold mt-2">
                             <span className="text-white">Entidade</span>{' '}
-                            <span className="text-azul-claro">Mauá Esports</span>
+                            <span className="text-[#2b4586]">Mauá Esports</span>
                         </h4>
 
                         <p className="text-fonte-escura mb-3">
