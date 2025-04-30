@@ -18,6 +18,16 @@ const styles = {
   `
 };
 
+// Cores exatas conforme solicitado
+const colors = {
+  fundo: 'oklch(17.63% 0.014 258.36)',
+  navbar: 'oklch(10.39% 0.0194 248.34)',
+  hover: 'oklch(29.16% 0.0202 260.62)',
+  borda: 'oklch(38.37% 0.0179 254.74)',
+  texto: 'oklch(90% 0.01 258.36)',
+  titulo: 'oklch(95% 0.01 258.36)'
+};
+
 const Home = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLive, setIsLive] = useState(false);
@@ -71,24 +81,78 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen" style={{ backgroundColor: colors.fundo }}>
       {/* Adiciona os keyframes globalmente */}
       <style>{styles.cascadeKeyframes}</style>
       
       {/* Degradê em cascata com a animação personalizada */}
       <div className="fixed inset-0 overflow-hidden z-[-1]">
         <div 
-          className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-blue-800/70 to-teal-700/60"
-          style={styles.cascadeAnimation}
+          className="absolute inset-0"
+          style={{
+            ...styles.cascadeAnimation,
+            background: `linear-gradient(to bottom right, ${colors.fundo}, ${colors.hover})`
+          }}
         ></div>
         <div 
-          className="absolute inset-0 bg-gradient-to-tr from-pink-900/60 via-indigo-800/50 to-cyan-700/40"
-          style={{...styles.cascadeAnimation, animationDelay: '3000ms'}}
+          className="absolute inset-0"
+          style={{
+            ...styles.cascadeAnimation,
+            animationDelay: '3000ms',
+            background: `linear-gradient(to top left, ${colors.navbar}, ${colors.borda})`
+          }}
         ></div>
       </div>
 
-      {/* Seção do Twitch */}
+      {/* Hero Section Atualizada com espaço para imagem */}
+      <section className="py-20" style={{ background: `linear-gradient(to right, ${colors.navbar}, ${colors.hover})` }}>
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Texto da imagem - lado esquerdo */}
+            <div className="md:w-2/3">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: colors.titulo }}>Bem Vindo</h1>
+              <h2 className="text-2xl md:text-3xl font-semibold mb-8" style={{ color: colors.titulo }}>Entidade Mauá Esports</h2>
+              
+              <div className="text-left space-y-6 mb-8">
+                <p className="text-lg" style={{ color: colors.texto }}>
+                  MALUA OU DEUS A HOULEGONTE E UMA PEDIDA E SEGUNDA LONGAS DÚVIDAS. MALUÁ SE TOLERARIA QUALQUER PROBLEMA E ADMINISTRARIA OS AUTORES DA EXPERIÊNCIA DE MALUA EM MANTENIR.
+                </p>
+                
+                <p className="text-lg" style={{ color: colors.texto }}>
+                  MALUA trabalha bem o momento em que não é aquele que se pode ser muito importante de desenvolver seu processo e profundizar algumas respostas já na medida do mesmo tempo, quando seja assim a economia.
+                </p>
+                
+                <p className="text-lg" style={{ color: colors.texto }}>
+                  Compre-se com sujeitos em diversos jogos e pertencimentos ocorridos aqui nos estudantes ainda menos tarde em questões.
+                </p>
+              </div>
+              
+              <div className="text-sm mt-8" style={{ 
+                borderTop: `1px solid ${colors.borda}`, 
+                paddingTop: '1rem',
+                color: colors.texto 
+              }}>
+                <p><strong>Fonte:</strong></p>
+                <p>• São disponíveis?</p>
+              </div>
+            </div>
+
+            {/* Espaço reservado para imagem - lado direito */}
+            <div className="md:w-1/3 flex justify-center">
+              <div 
+                className="w-full h-64 md:h-96 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: colors.navbar }}
+              >
+                <span style={{ color: colors.texto }}>Espaço para imagem</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção do Twitch - Movida para depois da seção Hero */}
       <section className="py-12 container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-8" style={{ color: colors.titulo }}>Nosso Canal na Twitch</h2>
         {isLive ? (
           <div className="aspect-w-16 aspect-h-9 w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl">
             <iframe
@@ -98,59 +162,41 @@ const Home = () => {
             ></iframe>
           </div>
         ) : (
-          <div className="text-center py-20 bg-gray-800/50 rounded-lg max-w-4xl mx-auto">
-            <p className="text-xl">O canal não está ao vivo no momento.</p>
+          <div 
+            className="text-center py-20 rounded-lg max-w-4xl mx-auto"
+            style={{ backgroundColor: colors.navbar }}
+          >
+            <p className="text-xl" style={{ color: colors.texto }}>O canal não está ao vivo no momento.</p>
+            <div className="mt-4">
+              <a 
+                href={`https://twitch.tv/${channelName}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition"
+                style={{ 
+                  backgroundColor: colors.hover,
+                  color: colors.titulo
+                }}
+              >
+                <FaTwitch /> Visitar canal
+              </a>
+            </div>
           </div>
         )}
       </section>
 
-      {/* Hero Section Atualizada com espaço para imagem */}
-      <section className="py-20 bg-gradient-to-r from-indigo-900/40 to-purple-900/40">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* Texto da imagem - lado esquerdo */}
-            <div className="md:w-2/3">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Bem Vindo</h1>
-              <h2 className="text-2xl md:text-3xl font-semibold mb-8">Entidade Mauá Esports</h2>
-              
-              <div className="text-left space-y-6 mb-8">
-                <p className="text-lg">
-                  MALUA OU DEUS A HOULEGONTE E UMA PEDIDA E SEGUNDA LONGAS DÚVIDAS. MALUÁ SE TOLERARIA QUALQUER PROBLEMA E ADMINISTRARIA OS AUTORES DA EXPERIÊNCIA DE MALUA EM MANTENIR.
-                </p>
-                
-                <p className="text-lg">
-                  MALUA trabalha bem o momento em que não é aquele que se pode ser muito importante de desenvolver seu processo e profundizar algumas respostas já na medida do mesmo tempo, quando seja assim a economia.
-                </p>
-                
-                <p className="text-lg">
-                  Compre-se com sujeitos em diversos jogos e pertencimentos ocorridos aqui nos estudantes ainda menos tarde em questões.
-                </p>
-              </div>
-              
-              <div className="text-sm text-gray-300 mt-8 border-t border-gray-700 pt-4">
-                <p><strong>Fonte:</strong></p>
-                <p>• São disponíveis?</p>
-              </div>
-            </div>
-
-            {/* Espaço reservado para imagem - lado direito */}
-            <div className="md:w-1/3 flex justify-center">
-              <div className="w-full h-64 md:h-96 bg-gray-700/50 rounded-lg flex items-center justify-center">
-                <span className="text-gray-400">Espaço para imagem</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Games Carousel */}
       <section className="py-16 container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Nossos Jogos</h2>
+        <h2 className="text-3xl font-bold text-center mb-12" style={{ color: colors.titulo }}>Nossos Jogos</h2>
         
         <div className="relative max-w-5xl mx-auto">
           <button 
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 hover:bg-gray-700/80 p-3 rounded-full ml-2"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full ml-2"
+            style={{ 
+              backgroundColor: colors.navbar,
+              color: colors.texto
+            }}
           >
             <FaChevronLeft className="text-xl" />
           </button>
@@ -173,8 +219,14 @@ const Home = () => {
                     rel="noopener noreferrer"
                     className="block group"
                   >
-                    <div className="aspect-video bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-lg overflow-hidden flex items-center justify-center text-center p-4 hover:from-indigo-800/60 hover:to-purple-800/60 transition">
-                      <h3 className="text-lg font-medium group-hover:text-indigo-300 transition">{game.name}</h3>
+                    <div 
+                      className="aspect-video rounded-lg overflow-hidden flex items-center justify-center text-center p-4 transition"
+                      style={{ 
+                        background: `linear-gradient(to bottom right, ${colors.navbar}, ${colors.borda})`,
+                        border: `1px solid ${colors.borda}`
+                      }}
+                    >
+                      <h3 className="text-lg font-medium transition" style={{ color: colors.titulo }}>{game.name}</h3>
                     </div>
                   </a>
                 </div>
@@ -184,7 +236,11 @@ const Home = () => {
           
           <button 
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 hover:bg-gray-700/80 p-3 rounded-full mr-2"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full mr-2"
+            style={{ 
+              backgroundColor: colors.navbar,
+              color: colors.texto
+            }}
           >
             <FaChevronRight className="text-xl" />
           </button>
