@@ -288,7 +288,7 @@ const NavBar = () => {
           {!isLoggedIn && (
             <button
               onClick={fazerLogin}
-              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
+              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />
