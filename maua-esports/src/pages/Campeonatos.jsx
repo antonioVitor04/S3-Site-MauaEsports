@@ -3,6 +3,8 @@ import Board from '../components/campeonatos/Board';
 import CardModal from '../components/campeonatos/CardModal';
 import PageBanner from '../components/PageBanner';
 
+const API_BASE_URL = "http://localhost:3000";
+
 const Campeonatos = () => {
     const columns = ['campeonatos', 'inscricoes', 'passados'];
     const [currentColumn, setCurrentColumn] = useState(null);
@@ -14,37 +16,48 @@ const Campeonatos = () => {
         inscricoes: [],
         passados: []
     });
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        loadBoardFromLocalStorage();
-    }, []);
+    const fetchTournaments = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
 
-    const loadBoardFromLocalStorage = () => {
-        const savedBoard = localStorage.getItem('tournamentBoard');
-
-        if (savedBoard) {
-            const loadedData = JSON.parse(savedBoard);
-
-            // If there's data in the 'andamento' column, move it to another column or handle as needed
-            if (loadedData.andamento && loadedData.andamento.length > 0) {
-                // You might want to move these items to 'passados' or another appropriate column
-                loadedData.passados = [...loadedData.passados, ...loadedData.andamento];
+            const response = await fetch(`${API_BASE_URL}/campeonatos`);
+            
+            if (!response.ok) {
+                throw new Error('Erro ao carregar campeonatos');
             }
 
-            // Create new board data with only the columns we want
-            const newBoardData = {
-                campeonatos: loadedData.campeonatos || [],
-                inscricoes: loadedData.inscricoes || [],
-                passados: loadedData.passados || []
+            const data = await response.json();
+
+            // Adiciona URLs completas para as imagens
+            const processTournaments = (tournaments) => {
+                return tournaments.map(t => ({
+                    ...t,
+                    imageUrl: `${API_BASE_URL}/campeonatos/${t._id}/image?${Date.now()}`,
+                    gameIconUrl: `${API_BASE_URL}/campeonatos/${t._id}/gameIcon?${Date.now()}`,
+                    organizerImageUrl: `${API_BASE_URL}/campeonatos/${t._id}/organizerImage?${Date.now()}`
+                }));
             };
 
-            setBoardData(newBoardData);
+            setBoardData({
+                campeonatos: processTournaments(data.campeonatos || []),
+                inscricoes: processTournaments(data.inscricoes || []),
+                passados: processTournaments(data.passados || [])
+            });
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const saveToLocalStorage = (data) => {
-        localStorage.setItem('tournamentBoard', JSON.stringify(data));
-    };
+    useEffect(() => {
+        fetchTournaments();
+    }, []);
 
     const openModal = (columnId, card = null) => {
         if (!isAdminMode) return;
@@ -58,68 +71,120 @@ const Campeonatos = () => {
         setEditingCard(null);
     };
 
-    const handleCardCreate = (cardData) => {
-        const newBoardData = { ...boardData };
-
-        if (editingCard) {
-            // Update existing card
-            const columnCards = newBoardData[currentColumn];
-            const cardIndex = columnCards.findIndex(
-                card => card.name === editingCard.name &&
-                    card.description === editingCard.description &&
-                    card.price === editingCard.price &&
-                    card.trophies === editingCard.trophies
-            );
-
-            if (cardIndex !== -1) {
-                columnCards[cardIndex] = cardData;
+    const handleCardCreate = async (formData) => {
+        try {
+            let url = `${API_BASE_URL}/campeonatos`;
+            let method = 'POST';
+    
+            if (editingCard && editingCard._id) {
+                url = `${API_BASE_URL}/campeonatos/${editingCard._id}`;
+                method = 'PUT';
             }
-        } else {
-            // Create new card
-            newBoardData[currentColumn] = [...newBoardData[currentColumn], cardData];
+    
+            const response = await fetch(url, {
+                method: method,
+                body: formData
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erro ao salvar campeonato');
+            }
+    
+            fetchTournaments();
+            closeModal();
+        } catch (err) {
+            console.error("Erro ao salvar campeonato:", err);
+            alert(`Erro ao salvar campeonato: ${err.message}`);
         }
-
-        setBoardData(newBoardData);
-        saveToLocalStorage(newBoardData);
-        closeModal();
     };
 
-    const handleCardDelete = (columnId, cardIndex) => {
+    const handleCardDelete = async (columnId, cardIndex) => {
         if (!isAdminMode) return;
-        const newBoardData = { ...boardData };
-        newBoardData[columnId] = newBoardData[columnId].filter((_, index) => index !== cardIndex);
+        
+        const cardId = boardData[columnId][cardIndex]._id;
+        if (!cardId) return;
 
-        setBoardData(newBoardData);
-        saveToLocalStorage(newBoardData);
+        try {
+            if (window.confirm('Tem certeza que deseja excluir este campeonato?')) {
+                const response = await fetch(`${API_BASE_URL}/campeonatos/${cardId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}`);
+                }
+
+                fetchTournaments();
+            }
+        } catch (err) {
+            console.error("Erro ao excluir campeonato:", err);
+            alert(`Erro ao excluir campeonato: ${err.message}`);
+        }
     };
 
-    const handleCardMove = (cardData, sourceColumn, targetColumn) => {
+    const handleCardMove = async (cardData, sourceColumn, targetColumn) => {
         if (!isAdminMode) return;
-        const newBoardData = { ...boardData };
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/campeonatos/${cardData._id}/move`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: targetColumn
+                })
+            });
 
-        // Remove from source column
-        newBoardData[sourceColumn] = newBoardData[sourceColumn].filter(
-            card => !(card.name === cardData.name &&
-                card.description === cardData.description &&
-                card.price === cardData.price &&
-                card.trophies === cardData.trophies)
-        );
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}`);
+            }
 
-        // Add to target column
-        newBoardData[targetColumn] = [...newBoardData[targetColumn], cardData];
-
-        setBoardData(newBoardData);
-        saveToLocalStorage(newBoardData);
+            fetchTournaments();
+        } catch (err) {
+            console.error("Erro ao mover campeonato:", err);
+            alert(`Erro ao mover campeonato: ${err.message}`);
+        }
     };
 
     const toggleAdminMode = () => {
         setIsAdminMode(!isAdminMode);
     };
 
+    if (isLoading) {
+        return (
+            <div className="bg-[#0D1117] min-h-screen flex flex-col">
+                <div className="bg-[#010409] h-[104px]"></div>
+                <PageBanner pageName="Campeonatos" />
+                <div className="p-5 flex justify-center items-center flex-grow">
+                    <div className="text-white">Carregando campeonatos...</div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-[#0D1117] min-h-screen flex flex-col">
+                <div className="bg-[#010409] h-[104px]"></div>
+                <PageBanner pageName="Campeonatos" />
+                <div className="p-5 flex flex-col items-center justify-center flex-grow">
+                    <div className="text-red-500 mb-4">Erro ao carregar campeonatos: {error}</div>
+                    <button
+                        onClick={fetchTournaments}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-[#0D1117] min-h-screen flex flex-col">
-
-            <div className="bg-[#010409] h-[104px]">.</div>
+            <div className="bg-[#010409] h-[104px]"></div>
             
             <PageBanner pageName="Campeonatos" />
 
@@ -128,10 +193,11 @@ const Campeonatos = () => {
                 <div className="w-full max-w-7xl mb-4 flex justify-end">
                     <button
                         onClick={toggleAdminMode}
-                        className={`px-4 py-2 rounded-md font-medium transition-colors ${isAdminMode
-                            ? 'bg-red-600 hover:bg-red-700 text-white'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            }`}
+                        className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                            isAdminMode
+                                ? 'bg-red-600 hover:bg-red-700 text-white'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
                     >
                         {isAdminMode ? 'Desativar Modo Admin' : 'Modo Admin'}
                     </button>

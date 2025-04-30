@@ -28,7 +28,7 @@ const CardModal = ({ isOpen, onClose, onSave, editingCard }) => {
       setGameIconUrl(editingCard.gameIconUrl || '');
       setGameName(editingCard.gameName || '');
       setImageUrl(editingCard.imageUrl || '');
-      setStartDate(editingCard.startDate || '');
+      setStartDate(editingCard.startDate ? new Date(editingCard.startDate).toISOString().split('T')[0] : '');
       setFirstPrize(editingCard.firstPrize || '');
       setSecondPrize(editingCard.secondPrize || '');
       setThirdPrize(editingCard.thirdPrize || '');
@@ -93,27 +93,25 @@ const CardModal = ({ isOpen, onClose, onSave, editingCard }) => {
       return;
     }
 
-    // Aqui você implementaria o upload das imagens para seu servidor
-    // e obteria as URLs permanentes antes de salvar o card
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('gameName', gameName);
+    formData.append('startDate', startDate);
+    formData.append('firstPrize', firstPrize);
+    formData.append('secondPrize', secondPrize);
+    formData.append('thirdPrize', thirdPrize);
+    formData.append('registrationLink', registrationLink);
+    formData.append('teamPosition', teamPosition);
+    formData.append('performanceDescription', performanceDescription);
 
-    onSave({
-      name,
-      description,
-      price,
-      gameIconUrl,
-      gameName,
-      imageUrl,
-      startDate,
-      firstPrize,
-      secondPrize,
-      thirdPrize,
-      organizerImageUrl,
-      registrationLink,
-      teamPosition,
-      performanceDescription
-    });
+    // Adiciona apenas os arquivos novos (não as URLs)
+    if (imageFile) formData.append('image', imageFile);
+    if (gameIconFile) formData.append('gameIcon', gameIconFile);
+    if (organizerImageFile) formData.append('organizerImage', organizerImageFile);
 
-    resetForm();
+    onSave(formData);
   };
 
   if (!isOpen) return null;
@@ -137,14 +135,14 @@ const CardModal = ({ isOpen, onClose, onSave, editingCard }) => {
               )}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg, image/jpg, image/png, image/svg+xml" // Aceita JPG, JPEG, PNG, SVG
                 onChange={handleImageChange}
                 className="w-full text-sm border border-gray-600 bg-gray-700 rounded p-2"
               />
             </div>
           </div>
 
-          {/* Informações do jogo - Reordenado conforme solicitado */}
+          {/* Informações do jogo */}
           <div>
             <div className="mb-3">
               <label className="block text-sm font-medium mb-1">Ícone do jogo (Recomendado: 64x64px)</label>
@@ -255,7 +253,7 @@ const CardModal = ({ isOpen, onClose, onSave, editingCard }) => {
             </div>
           </div>
 
-          {/* Desempenho do time - NOVO */}
+          {/* Desempenho do time */}
           <div>
             <label className="block text-sm font-medium mb-1">Posição do time</label>
             <input
@@ -266,7 +264,7 @@ const CardModal = ({ isOpen, onClose, onSave, editingCard }) => {
               onChange={(e) => setTeamPosition(e.target.value)}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-1">Descrição do desempenho</label>
             <textarea
@@ -337,6 +335,7 @@ CardModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   editingCard: PropTypes.shape({
+    _id: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
     price: PropTypes.string,

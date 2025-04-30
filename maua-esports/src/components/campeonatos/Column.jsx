@@ -53,10 +53,9 @@ const Column = ({ id, title, cards, onOpenModal, onCardDelete, onCardMove, isAdm
                     <div key={`row-${rowIndex}`} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {row.map((card, cardIndex) => (
                             <Card
-                                key={`${id}-${rowIndex}-${cardIndex}`}
+                                key={`${id}-${card._id || cardIndex}`}
                                 data={card}
                                 columnId={id}
-                                index={rowIndex * 3 + cardIndex}
                                 onEdit={() => onOpenModal(id, card)}
                                 onDelete={() => onCardDelete(id, rowIndex * 3 + cardIndex)}
                                 isAdminMode={isAdminMode}
@@ -77,7 +76,6 @@ Column.propTypes = {
     onOpenModal: PropTypes.func.isRequired,
     onCardDelete: PropTypes.func.isRequired,
     onCardMove: PropTypes.func.isRequired,
-    columns: PropTypes.array.isRequired,
     isAdminMode: PropTypes.bool.isRequired
 };
 

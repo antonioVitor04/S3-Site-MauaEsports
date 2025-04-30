@@ -102,8 +102,8 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? `border-borda ${isActive("/") ? "text-azul-claro" : ""}`
-              : `border-b-transparent hover:text-azul-claro ${isActive("/") ? "text-azul-claro" : ""}`
+              ? `border-borda ${isActive("/") ? "text-azul-claro font-bold" : ""}`
+              : `border-b-transparent hover:text-azul-claro hover:font-bold ${isActive("/") ? "text-azul-claro font-bold" : ""}`
           }`}
         >
           <Link to="/">Home</Link>
@@ -112,7 +112,7 @@ const NavBar = () => {
         <li className="relative px-4 py-2 transition-transform duration-300 hover:translate-y-[-4px] border-b-3 border-b-transparent">
           <button
             onClick={toggleDropdown}
-            className="focus:outline-none flex items-center gap-1 cursor-pointer hover:text-azul-claro"
+            className="focus:outline-none flex items-center gap-1 cursor-pointer hover:text-azul-claro hover:font-bold"
           >
             Times{" "}
             <IoMdArrowDropdown
@@ -137,7 +137,7 @@ const NavBar = () => {
               <Link
                 to="/times"
                 className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
-                  isActive("/times") ? "text-azul-claro font-bold" : "hover:text-azul-claro"
+                  isActive("/times") ? "text-azul-claro font-bold" : "hover:text-azul-claro  hover:font-bold"
                 }`}
               >
                 <RiTeamFill />
@@ -149,7 +149,7 @@ const NavBar = () => {
               <Link
                 to="/admins"
                 className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
-                  isActive("/admins") ? "text-azul-claro font-bold" : "hover:text-azul-claro"
+                  isActive("/admins") ? "text-azul-claro font-bold" : "hover:text-azul-claro  hover:font-bold"
                 }`}
               >
                 <FaUserTie />
@@ -162,8 +162,8 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? `border-borda ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
-              : `border-b-transparent hover:text-azul-claro ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
+              ? `border-borda ${isActive("/campeonatos") ? "text-azul-claro font-bold" : ""}`
+              : `border-b-transparent hover:text-azul-claro  hover:font-bold ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
           }`}
         >
           <Link to="/campeonatos">Campeonatos</Link>
@@ -172,8 +172,8 @@ const NavBar = () => {
         <li
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
-              ? `border-borda ${isActive("/novidades") ? "text-azul-claro" : ""}`
-              : `border-b-transparent hover:text-azul-claro ${isActive("/novidades") ? "text-azul-claro" : ""}`
+              ? `border-borda ${isActive("/novidades") ? "text-azul-claro font-bold" : ""}`
+              : `border-b-transparent hover:text-azul-claro  hover:font-bold ${isActive("/novidades") ? "text-azul-claro" : ""}`
           }`}
         >
           <Link to="/novidades">Novidades</Link>
@@ -288,7 +288,7 @@ const NavBar = () => {
           {!isLoggedIn && (
             <button
               onClick={fazerLogin}
-              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
+              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />
