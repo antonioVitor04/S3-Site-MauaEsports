@@ -1,4 +1,7 @@
 import Margin from "../padrao/Margin";
+import Logo from "../../assets/images/Logo.svg";
+
+
 
 const Apresentacao = () => {
     return (
@@ -8,28 +11,29 @@ const Apresentacao = () => {
 
                     {/* Conteúdo textual - lado esquerdo */}
                     <div className="space-y-6 lg:w-1/2 text-left">
-                        <h1 className="text-5xl font-bold mb-6">Bem Vindo</h1>
-                        <h2 className="text-3xl font-semibold mb-6">Entidade Mauá Esports</h2>
+                        <h2 className="text-4xl font-bold mb-5">Bem Vindo</h2>
+                        <h4 className="text-3xl md:text-4xl font-bold mt-2">
+                            <span className="text-white">Entidade</span>{' '}
+                            <span className="text-[#2b4586]">Mauá Esports</span>
+                        </h4>
+
                         <p className="text-gray-300 mb-4">
-                            Compre-se com sujeitos em diversos jogos e pertencimentos ocorridos aqui nos
-                            estudantes ainda menos tarde em questões.
+                            Fundada em 2018, a Mauá Esports é uma entidade universitária oficial do Instituto Mauá de Tecnologia dedicada a fomentar a cultura gamer e os esportes eletrônicos dentro do ambiente acadêmico.
                         </p>
                         <p className="text-gray-300 mb-6">
-                            MALUA trabalha bem o momento em que não é aquele que se pode ser muito importante
-                            de desenvolver seu processo e profundizar algumas respostas já na medida do mesmo
-                            tempo, quando seja assim a economia.
+                            Nossa missão é unir estudantes através dos jogos eletrônicos, proporcionando desenvolvimento pessoal e profissional, além de representar a instituição em competições regionais e nacionais.
                         </p>
                         <p className="text-gray-300 mb-6">
-                            Compre-se com sujeitos em diversos jogos e pertencimentos ocorridos aqui nos
-                            estudantes ainda menos tarde em questões.
+                            Contamos com equipes em diversos jogos e promovemos eventos regulares abertos a toda comunidade acadêmica.
                         </p>
                         <div className="border-t border-gray-700"></div>
                     </div>
 
                     {/* Área da imagem - lado direito */}
-                    <div className="bg-gray-800 rounded-lg flex items-center justify-center h-85 lg:w-1/2">
-                        <p className="text-gray-400">Espaço para imagem</p>
+                    <div className=" rounded-lg flex items-center justify-center h-85 lg:w-1/2 ">
+                        <img src={Logo} alt="Logo Mauá Esports" className="max-w-full h-100" />
                     </div>
+
 
                 </div>
             </Margin>
