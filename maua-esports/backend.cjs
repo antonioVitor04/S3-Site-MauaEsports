@@ -1228,6 +1228,53 @@ app.get("/twitch/live/:channel", async (req, res) => {
   }
 });
 
+///////////////////////////////////////////////////////////////////////////////AREA DE USUÁRIOS (MICROSOFT AUTH) ////////////////////////////////////////////////////////////////////
+
+const usuarioSchema = new mongoose.Schema({
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    validate: {
+      validator: function(v) {
+        // Valida se é um email válido e opcionalmente se termina com @maua.br
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(v) && (v.endsWith('@maua.br'));
+      },
+      message: props => `${props.value} não é um email válido!`
+    }
+  },
+  discordID: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        // Valida se é exatamente 4 dígitos numéricos
+        return /^\d{4}$/.test(v);
+      },
+      message: props => `${props.value} não é um Discord ID válido! Deve ser exatamente 4 dígitos.`
+    }
+  },
+  fotoPerfil: {
+    data: Buffer,
+    contentType: String,
+    nomeOriginal: String
+  },
+  tipoUsuario: {
+    type: String,
+    required: true,
+    enum: ['Administrador Geral', 'Administrador', 'Capitão de time', 'Jogador'],
+    default: 'Jogador'
+  },
+  microsoftId: { type: String, unique: true, sparse: true }, // ID único da Microsoft
+});
+
+usuarioSchema.plugin(uniqueValidator, { message: 'O {PATH} {VALUE} já está em uso.' });
+const Usuario = mongoose.model('Usuario', usuarioSchema);
+
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////  PORTA  //////////////////////////////////////////////////////////////////////////////////////////////////
 app.listen(3000, () => {
@@ -1239,7 +1286,7 @@ app.listen(3000, () => {
   }
 });
 
-/* Políticas e Termos */
+
 
 
 
