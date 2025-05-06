@@ -235,7 +235,7 @@ function HorasPaePage() {
                       alt={rank.name}
                       className="w-20 h-20 object-contain mb-1"
                     />
-                    <span className="text-md text-center">{rank.name}</span>
+                    {/* <span className="text-md text-center">{rank.name}</span> */}
                   </div>
                 ))}
               </div>
