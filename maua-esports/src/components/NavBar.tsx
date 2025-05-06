@@ -36,6 +36,40 @@ const NavBar = () => {
     setIsAuthenticated(!!account);
   }, [instance]);
 
+  useEffect(() => {
+    try {
+      const accounts = instance.getAllAccounts?.();
+      if (accounts && accounts.length > 0) {
+        instance.setActiveAccount(accounts[0]);
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (e) {
+      console.error("MSAL ainda não está inicializado:", e);
+      setIsAuthenticated(false);
+    }
+  }, [instance]);
+
+  useEffect(() => {
+    const callbackId = instance.addEventCallback((event) => {
+      if (event.eventType === "msal:loginSuccess") {
+        const account = event.payload.account;
+        instance.setActiveAccount(account);
+        setIsAuthenticated(true);
+      }
+    });
+  
+    return () => {
+      if (callbackId) {
+        instance.removeEventCallback(callbackId);
+      }
+    };
+  }, [instance]);
+  
+  
+    
+
   const handleLogin = () => {
     instance.loginPopup(loginRequest).catch(e => {
       console.error("Erro no login:", e);

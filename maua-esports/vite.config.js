@@ -13,6 +13,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
       },
+      headers: {
+        'Permissions-Policy': 'accelerometer=(), gyroscope=(), magnetometer=()'
+      }
     }
   }
 })
