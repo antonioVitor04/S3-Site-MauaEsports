@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Adicione PATCH aqui
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     preflightContinue: false,
@@ -84,6 +84,45 @@ const jogadorSchema = mongoose.Schema({
 });
 
 const Jogador = mongoose.model("Jogador", jogadorSchema);
+
+const tournamentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: String,
+  price: String,
+  gameName: String,
+  startDate: Date,
+  firstPrize: String,
+  secondPrize: String,
+  thirdPrize: String,
+  registrationLink: String,
+  teamPosition: String,
+  performanceDescription: String,
+  status: { 
+    type: String, 
+    enum: ['campeonatos', 'inscricoes', 'passados'], 
+    default: 'campeonatos' 
+  },
+  // Imagens como buffers
+  image: {
+    data: Buffer,
+    contentType: String,
+    nomeOriginal: String,
+  },
+  gameIcon: {
+    data: Buffer,
+    contentType: String,
+    nomeOriginal: String,
+  },
+  organizerImage: {
+    data: Buffer,
+    contentType: String,
+    nomeOriginal: String,
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const Tournament = mongoose.model('Tournament', tournamentSchema);
 
 app.post("/jogadores", upload.single("foto"), async (req, res) => {
   try {
@@ -597,6 +636,297 @@ app.delete("/times/:id", async (req, res) => {
     res.status(500).json({ message: "Erro ao remover time", error });
   }
 });
+
+///////////////////////////////////////////////////////////////CAMPEONATOS///////////////////////////////////////////////////////////////////////////////////////
+
+const campUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|svg/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Apenas imagens são permitidas (jpeg, jpg, png, svg)'));
+  }
+}).fields([
+  { name: 'image', maxCount: 1 },       // Imagem principal
+  { name: 'gameIcon', maxCount: 1 },    // Ícone do jogo
+  { name: 'organizerImage', maxCount: 1 } // Logo do organizador
+]);
+
+// Criar campeonato com upload de imagens
+app.post('/campeonatos', (req, res) => {
+  campUpload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
+      const {
+        name,
+        description,
+        price,
+        gameName,
+        startDate,
+        firstPrize,
+        secondPrize,
+        thirdPrize,
+        registrationLink,
+        teamPosition,
+        performanceDescription,
+        status
+      } = req.body;
+
+      if (!name) {
+        return res.status(400).json({ error: 'Nome do campeonato é obrigatório' });
+      }
+
+      const tournamentData = {
+        name,
+        description,
+        price,
+        gameName,
+        startDate: startDate ? new Date(startDate) : null,
+        firstPrize,
+        secondPrize,
+        thirdPrize,
+        registrationLink,
+        teamPosition,
+        performanceDescription,
+        status: status || 'campeonatos'
+      };
+
+      // Processar imagens
+      if (req.files) {
+        if (req.files['image']) {
+          tournamentData.image = {
+            data: req.files['image'][0].buffer,
+            contentType: req.files['image'][0].mimetype,
+            nomeOriginal: req.files['image'][0].originalname
+          };
+        }
+        if (req.files['gameIcon']) {
+          tournamentData.gameIcon = {
+            data: req.files['gameIcon'][0].buffer,
+            contentType: req.files['gameIcon'][0].mimetype,
+            nomeOriginal: req.files['gameIcon'][0].originalname
+          };
+        }
+        if (req.files['organizerImage']) {
+          tournamentData.organizerImage = {
+            data: req.files['organizerImage'][0].buffer,
+            contentType: req.files['organizerImage'][0].mimetype,
+            nomeOriginal: req.files['organizerImage'][0].originalname
+          };
+        }
+      }
+
+      const newTournament = new Tournament(tournamentData);
+      await newTournament.save();
+
+      res.status(201).json({
+        ...newTournament.toObject(),
+        image: undefined,
+        gameIcon: undefined,
+        organizerImage: undefined
+      });
+
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+});
+
+// Atualizar campeonato com imagens
+app.put('/campeonatos/:id', (req, res) => {
+  campUpload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
+      const updateData = { ...req.body };
+      
+      // Processar imagens
+      if (req.files) {
+        if (req.files['image']) {
+          updateData.image = {
+            data: req.files['image'][0].buffer,
+            contentType: req.files['image'][0].mimetype,
+            nomeOriginal: req.files['image'][0].originalname
+          };
+        }
+        if (req.files['gameIcon']) {
+          updateData.gameIcon = {
+            data: req.files['gameIcon'][0].buffer,
+            contentType: req.files['gameIcon'][0].mimetype,
+            nomeOriginal: req.files['gameIcon'][0].originalname
+          };
+        }
+        if (req.files['organizerImage']) {
+          updateData.organizerImage = {
+            data: req.files['organizerImage'][0].buffer,
+            contentType: req.files['organizerImage'][0].mimetype,
+            nomeOriginal: req.files['organizerImage'][0].originalname
+          };
+        }
+      }
+
+      const tournament = await Tournament.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+      ).select('-image.data -gameIcon.data -organizerImage.data');
+
+      if (!tournament) {
+        return res.status(404).json({ error: 'Campeonato não encontrado' });
+      }
+
+      res.json(tournament);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+});
+
+// Rotas para servir imagens
+app.get('/campeonatos/:id/image', async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament || !tournament.image || !tournament.image.data) {
+      return res.status(404).send('Imagem não encontrada');
+    }
+    res.set('Content-Type', tournament.image.contentType);
+    res.send(tournament.image.data);
+  } catch (error) {
+    res.status(500).send('Erro ao carregar imagem');
+  }
+});
+
+app.get('/campeonatos/:id/gameIcon', async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament || !tournament.gameIcon || !tournament.gameIcon.data) {
+      return res.status(404).send('Ícone do jogo não encontrado');
+    }
+    res.set('Content-Type', tournament.gameIcon.contentType);
+    res.send(tournament.gameIcon.data);
+  } catch (error) {
+    res.status(500).send('Erro ao carregar ícone do jogo');
+  }
+});
+
+app.get('/campeonatos/:id/organizerImage', async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament || !tournament.organizerImage || !tournament.organizerImage.data) {
+      return res.status(404).send('Imagem do organizador não encontrada');
+    }
+    res.set('Content-Type', tournament.organizerImage.contentType);
+    res.send(tournament.organizerImage.data);
+  } catch (error) {
+    res.status(500).send('Erro ao carregar imagem do organizador');
+  }
+});
+
+// Obter campeonato sem dados binários das imagens
+app.get('/campeonatos/:id', async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id)
+      .select('-image.data -gameIcon.data -organizerImage.data');
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'Campeonato não encontrado' });
+    }
+
+    // Adiciona URLs para as imagens
+    const result = tournament.toObject();
+    result.imageUrl = `/campeonatos/${tournament._id}/image`;
+    result.gameIconUrl = `/campeonatos/${tournament._id}/gameIcon`;
+    result.organizerImageUrl = `/campeonatos/${tournament._id}/organizerImage`;
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obter todos os campeonatos (sem dados binários)
+app.get('/campeonatos', async (req, res) => {
+  try {
+    const tournaments = await Tournament.find()
+      .select('-image.data -gameIcon.data -organizerImage.data')
+      .sort({ createdAt: -1 });
+
+    // Adiciona URLs para as imagens
+    const tournamentsWithUrls = tournaments.map(tournament => {
+      const result = tournament.toObject();
+      result.imageUrl = `/campeonatos/${tournament._id}/image`;
+      result.gameIconUrl = `/campeonatos/${tournament._id}/gameIcon`;
+      result.organizerImageUrl = `/campeonatos/${tournament._id}/organizerImage`;
+      return result;
+    });
+
+    // Organiza por status
+    const boardData = {
+      campeonatos: tournamentsWithUrls.filter(t => t.status === 'campeonatos'),
+      inscricoes: tournamentsWithUrls.filter(t => t.status === 'inscricoes'),
+      passados: tournamentsWithUrls.filter(t => t.status === 'passados')
+    };
+
+    res.json(boardData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mover campeonato entre colunas (atualizar status)
+app.patch('/campeonatos/:id/move', async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    if (!['campeonatos', 'inscricoes', 'passados'].includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+    
+    const tournament = await Tournament.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    
+    if (!tournament) {
+      return res.status(404).json({ error: 'Campeonato não encontrado' });
+    }
+    
+    res.json(tournament);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Deletar campeonato
+app.delete('/campeonatos/:id', async (req, res) => {
+  try {
+    const tournament = await Tournament.findByIdAndDelete(req.params.id);
+    
+    if (!tournament) {
+      return res.status(404).json({ error: 'Campeonato não encontrado' });
+    }
+    
+    // Aqui você pode adicionar lógica para remover imagens associadas se estiver armazenando localmente
+    
+    res.json({ message: 'Campeonato removido com sucesso' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 ////////////////////////////////////////////////////////////////////////////////AREA DE ADMINISTRADORES ////////////////////////////////////////////////////////////////////
 const adminSchema = new mongoose.Schema({
   nome: { type: String, required: true },
@@ -898,9 +1228,54 @@ app.get("/twitch/live/:channel", async (req, res) => {
   }
 });
 
-app.listen(3002, () => {
-  console.log("Servidor rodando na porta 3002");
+///////////////////////////////////////////////////////////////////////////////AREA DE USUÁRIOS (MICROSOFT AUTH) ////////////////////////////////////////////////////////////////////
+
+const usuarioSchema = new mongoose.Schema({
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    validate: {
+      validator: function(v) {
+        // Valida se é um email válido e opcionalmente se termina com @maua.br
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(v) && (v.endsWith('@maua.br'));
+      },
+      message: props => `${props.value} não é um email válido!`
+    }
+  },
+  discordID: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        // Valida se é exatamente 4 dígitos numéricos
+        return /^\d{4}$/.test(v);
+      },
+      message: props => `${props.value} não é um Discord ID válido! Deve ser exatamente 4 dígitos.`
+    }
+  },
+  fotoPerfil: {
+    data: Buffer,
+    contentType: String,
+    nomeOriginal: String
+  },
+  tipoUsuario: {
+    type: String,
+    required: true,
+    enum: ['Administrador Geral', 'Administrador', 'Capitão de time', 'Jogador'],
+    default: 'Jogador'
+  },
+  microsoftId: { type: String, unique: true, sparse: true }, // ID único da Microsoft
 });
+
+usuarioSchema.plugin(uniqueValidator, { message: 'O {PATH} {VALUE} já está em uso.' });
+const Usuario = mongoose.model('Usuario', usuarioSchema);
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////  PORTA  //////////////////////////////////////////////////////////////////////////////////////////////////
 app.listen(3000, () => {
   try {
@@ -911,7 +1286,7 @@ app.listen(3000, () => {
   }
 });
 
-/* Políticas e Termos */
+
 
 
 

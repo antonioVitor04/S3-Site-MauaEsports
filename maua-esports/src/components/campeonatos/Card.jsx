@@ -4,21 +4,23 @@ import DeletarBtn from '../DeletarBtn';
 
 const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) => {
     const {
+        _id,
         name,
         description,
         price,
-        gameIconUrl,
         gameName,
-        imageUrl,
         startDate,
         firstPrize,
         secondPrize,
         thirdPrize,
-        organizerImageUrl,
         registrationLink,
         teamPosition,
-        performanceDescription
+        performanceDescription,
+        imageUrl,
+        gameIconUrl,
+        organizerImageUrl,
     } = data;
+
 
     const handleDragStart = (e) => {
         if (!isDraggable) {
@@ -35,6 +37,7 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleDateString('pt-BR');
     };
@@ -54,11 +57,16 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
             onDragEnd={handleDragEnd}
         >
             {/* Header com imagem do campeonato */}
+            {/* Header com imagem do campeonato */}
             <div className="relative border-b border-gray-600">
                 <img
-                    src={imageUrl || "/api/placeholder/400/150"}
+                    src={imageUrl}
                     alt={name}
                     className="w-full h-40 object-cover"
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder-tournament.jpg";
+                    }}
                 />
             </div>
 
@@ -67,15 +75,18 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
                 <h3 className="font-bold text-xl mb-2">{name}</h3>
 
                 {/* Game info logo e nome abaixo do título */}
-                {gameIconUrl && (
+                {gameName && (
                     <div className="flex items-center mb-3">
                         <img
                             src={gameIconUrl}
                             alt="Game Icon"
                             className="w-8 h-8 object-contain mr-2 rounded-md"
-                            style={{ borderRadius: '5px' }}
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/placeholder-game-icon.png";
+                            }}
                         />
-                        {gameName && <span className="font-medium">{gameName}</span>}
+                        <span className="font-medium">{gameName}</span>
                     </div>
                 )}
 
@@ -83,8 +94,8 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
                     {/* Data do campeonato - condicional */}
                     {startDate && (
                         <div className="flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z"></path>
+                            <svg className="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
                             </svg>
                             <span>Início em {formatDate(startDate)}</span>
                         </div>
@@ -103,8 +114,9 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
                     {/* Descrição do campeonato - condicional */}
                     {description && (
                         <div className="flex items-start">
-                            <svg className="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
+
+                            <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z"></path>
                             </svg>
                             <span className="flex-grow">{description}</span>
                         </div>
@@ -173,15 +185,17 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
             {/* Footer */}
             <div className="p-3 bg-[#0D1117] flex items-center justify-between">
                 {/* Organizador */}
-                {organizerImageUrl && (
-                    <div className="flex items-center">
-                        <img
-                            src={organizerImageUrl}
-                            alt="Organizador"
-                            className="max-w-[100px] max-h-[100px] rounded-full mr-2 object-cover"
-                        />
-                    </div>
-                )}
+                <div className="flex items-center">
+                    <img
+                        src={organizerImageUrl}
+                        alt="Organizador"
+                        className="max-w-[100px] max-h-[100px] rounded-full mr-2 object-cover"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/placeholder-organizer.png";
+                        }}
+                    />
+                </div>
 
                 {/* Botões */}
                 <div className="flex gap-2">
@@ -212,23 +226,20 @@ const Card = ({ data, columnId, onEdit, onDelete, isAdminMode, isDraggable }) =>
 
 Card.propTypes = {
     data: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         description: PropTypes.string,
         price: PropTypes.string,
-        gameIconUrl: PropTypes.string,
         gameName: PropTypes.string,
-        imageUrl: PropTypes.string,
         startDate: PropTypes.string,
         firstPrize: PropTypes.string,
         secondPrize: PropTypes.string,
         thirdPrize: PropTypes.string,
-        organizerImageUrl: PropTypes.string,
         registrationLink: PropTypes.string,
         teamPosition: PropTypes.string,
         performanceDescription: PropTypes.string
     }).isRequired,
     columnId: PropTypes.string.isRequired,
-    index: PropTypes.number.isRequired,
     onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     isAdminMode: PropTypes.bool.isRequired,
