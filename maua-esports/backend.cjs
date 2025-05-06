@@ -1265,7 +1265,6 @@ const usuarioSchema = new mongoose.Schema({
     enum: ['Administrador Geral', 'Administrador', 'Capitão de time', 'Jogador'],
     default: 'Jogador'
   },
-  microsoftId: { type: String, unique: true, sparse: true }, // ID único da Microsoft
 });
 
 usuarioSchema.plugin(uniqueValidator, { message: 'O {PATH} {VALUE} já está em uso.' });

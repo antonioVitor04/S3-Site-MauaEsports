@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { IoMdArrowDropdown, IoMdClose } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { useAuth } from "../contexts/AuthContexts";
 import { CgLogIn, CgLogOut } from "react-icons/cg";
 import { RiTeamFill } from "react-icons/ri";
 import { FaUserTie, FaRegClock } from "react-icons/fa";
@@ -10,6 +9,8 @@ import { HiUserCircle } from "react-icons/hi2";
 import logo from "../assets/images/Logo.svg";
 import { GiSwordsEmblem } from "react-icons/gi";
 import AtualizacaoPerfil from "../pages/AtualizacaoPerfil";
+import { useMsal } from '@azure/msal-react';
+import { loginRequest } from '../authConfig';
 
 const NavBar = () => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
@@ -19,7 +20,8 @@ const NavBar = () => {
   const [isClockHovered, setClockIsHovered] = useState(false);
   const [isSwordHovered, setSwordHovered] = useState(false);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const { isLoggedIn, fazerLogin, fazerLogout } = useAuth();
+  const { instance } = useMsal();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,6 +30,23 @@ const NavBar = () => {
       setCroppedImage(savedImage);
     }
   }, []);
+
+  useEffect(() => {
+    const account = instance.getActiveAccount();
+    setIsAuthenticated(!!account);
+  }, [instance]);
+
+  const handleLogin = () => {
+    instance.loginPopup(loginRequest).catch(e => {
+      console.error("Erro no login:", e);
+    });
+  };
+
+  const handleLogout = () => {
+    instance.logoutRedirect().catch(e => {
+      console.error("Erro no logout:", e);
+    });
+  };
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -55,6 +74,8 @@ const NavBar = () => {
   const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const activeAccount = instance.getActiveAccount();
 
   return (
     <nav
@@ -179,122 +200,121 @@ const NavBar = () => {
           <Link to="/novidades">Novidades</Link>
         </li>
 
-        <li
-          className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] ${
-            !isLoggedIn ? "hidden" : "block"
-          } relative`}
-        >
-          <button
-            onClick={toggleProfileDropdown}
-            className="flex justify-center items-center border-2 rounded-full border-borda w-10 h-10 cursor-pointer"
-          >
-            {croppedImage ? (
-              <img
-                src={croppedImage}
-                alt="Foto de Perfil"
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <HiUserCircle className="w-full h-full" />
-            )}
-          </button>
+        {/* Ícone do usuário - só aparece quando autenticado */}
+        {isAuthenticated && (
+          <li className="px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] relative">
+            <button
+              onClick={toggleProfileDropdown}
+              className="flex justify-center items-center border-2 rounded-full border-borda w-10 h-10 cursor-pointer"
+            >
+              {croppedImage ? (
+                <img
+                  src={croppedImage}
+                  alt="Foto de Perfil"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ) : (
+                <HiUserCircle className="w-full h-full" />
+              )}
+            </button>
 
-          <ul
-            className={`transition-all duration-300 ease-out text-center ${
-              isProfileDropdownOpen
-                ? "opacity-100 translate-y-0 visible"
-                : "opacity-0 translate-y-[-20px] invisible"
-            } ${
-              isHamburgerOpen
-                ? "fixed left-1/2 transform -translate-x-1/2 w-[90%] max-w-[300px] mt-4"
-                : "absolute left-1/2 transform -translate-x-1/2 mt-12"
-            }`}
-          >
-            <div className="bg-fundo w-full border-2 border-borda shadow-azul-escuro shadow-sm rounded-lg flex flex-col">
-              <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
-                <AtualizacaoPerfil />
-                <div className="flex flex-col flex-grow items-start overflow-hidden">
-                  <h1 className="font-bold">Usuário</h1>
-                  <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                    24.01402-8@maua.br
-                  </p>
+            <ul
+              className={`transition-all duration-300 ease-out text-center ${
+                isProfileDropdownOpen
+                  ? "opacity-100 translate-y-0 visible"
+                  : "opacity-0 translate-y-[-20px] invisible"
+              } ${
+                isHamburgerOpen
+                  ? "fixed left-1/2 transform -translate-x-1/2 w-[90%] max-w-[300px] mt-4"
+                  : "absolute left-1/2 transform -translate-x-1/2 mt-12"
+              }`}
+            >
+              <div className="bg-fundo w-full border-2 border-borda shadow-azul-escuro shadow-sm rounded-lg flex flex-col">
+                <div className="w-full h-20 flex border-b-2 border-borda items-center p-4 gap-3">
+                  <AtualizacaoPerfil />
+                  <div className="flex flex-col flex-grow items-start overflow-hidden">
+                    <h1 className="font-bold">{activeAccount?.name || 'Usuário'}</h1>
+                    <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                      {activeAccount?.username || 'Email não disponível'}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex-grow pb-10 items-left">
-                <Link to="/treinos-admin" className="w-full">
-                  <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
-                    onMouseEnter={() => setSwordHovered(true)}
-                    onMouseLeave={() => setSwordHovered(false)}
+                <div className="flex-grow pb-10 items-left">
+                  <Link to="/treinos-admin" className="w-full">
+                    <div
+                      className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
+                      onMouseEnter={() => setSwordHovered(true)}
+                      onMouseLeave={() => setSwordHovered(false)}
+                    >
+                      <div className="w-10 h-10 flex items-center justify-center">
+                        <GiSwordsEmblem
+                          className="text-2xl text-azul-claro"
+                          style={{
+                            animation: isSwordHovered
+                              ? "shake 0.7s ease-in-out "
+                              : "none",
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col flex-grow items-start overflow-hidden">
+                        <h1 className="font-bold">Treinos</h1>
+                        <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                          Consulte seus treinos
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link to="/horas-pae" className="w-full">
+                    <div
+                      className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
+                      onMouseEnter={() => setClockIsHovered(true)}
+                      onMouseLeave={() => setClockIsHovered(false)}
+                    >
+                      <div className="w-10 h-10 flex items-center justify-center">
+                        <FaRegClock
+                          className="text-2xl text-azul-claro"
+                          style={{
+                            animation: isClockHovered
+                              ? "rodar 0.7s ease-in-out "
+                              : "none",
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col flex-grow items-start overflow-hidden">
+                        <h1 className="font-bold">Horas PAEs</h1>
+                        <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                          Consulte suas horas PAEs
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+                <div className="flex flex-col">
+                  <button
+                    className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover pl-4"
+                    onClick={handleLogout}
                   >
-                    <div className="w-10 h-10 flex items-center justify-center">
-                      <GiSwordsEmblem
-                        className="text-2xl text-azul-claro"
-                        style={{
-                          animation: isSwordHovered
-                            ? "shake 0.7s ease-in-out "
-                            : "none",
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col flex-grow items-start overflow-hidden">
-                      <h1 className="font-bold">Treinos</h1>
-                      <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                        Consulte seus treinos
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/horas-pae" className="w-full">
-                  <div
-                    className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
-                    onMouseEnter={() => setClockIsHovered(true)}
-                    onMouseLeave={() => setClockIsHovered(false)}
-                  >
-                    <div className="w-10 h-10 flex items-center justify-center">
-                      <FaRegClock
-                        className="text-2xl text-azul-claro"
-                        style={{
-                          animation: isClockHovered
-                            ? "rodar 0.7s ease-in-out "
-                            : "none",
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col flex-grow items-start overflow-hidden">
-                      <h1 className="font-bold">Horas PAEs</h1>
-                      <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                        Consulte suas horas PAEs
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                    <CgLogOut className="text-2xl" />
+                    <span>Sair da conta</span>
+                  </button>
+                </div>          
               </div>
-              <div className="flex flex-col">
-                <button
-                  className="w-full border-t-2 border-borda p-2 mt-auto text-vermelho-claro flex items-center gap-2 cursor-pointer hover:bg-hover pl-4"
-                  onClick={fazerLogout}
-                >
-                  <CgLogOut className="text-2xl" />
-                  <span>Sair da conta</span>
-                </button>
-              </div>          
-            </div>
-          </ul>
-        </li>
+            </ul>
+          </li>
+        )}
 
         <li className="px-4 py-2 cursor-pointer">
-          {!isLoggedIn && (
+          {!isAuthenticated ? (
             <button
-              onClick={fazerLogin}
+              onClick={handleLogin}
               className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />
               </span>
             </button>
-          )}
+          ) : null}
         </li>
       </ul>
     </nav>

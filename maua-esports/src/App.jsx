@@ -7,14 +7,15 @@ import NotFound from "./pages/NotFound"; // Página de erro 404
 import Times from "./pages/Times";
 import Admins from "./pages/Admins";
 import HorasPaePage from "./pages/HorasPae";
-import { AuthProvider } from "./contexts/AuthContexts"; // Importando o AuthProvider
+import { MsalProvider } from "@azure/msal-react";
+import { msalInstance } from "./authConfig";
 import TreinosAdmin from "./pages/TreinosAdmin";
 import Politicas from "./pages/Politicas";
 import Campeonatos from "./pages/Campeonatos";
 
 function App() {
   return (
-    <AuthProvider>
+    <MsalProvider instance={msalInstance}>
       <Router>
         <NavBar />
         <Routes>
@@ -30,7 +31,7 @@ function App() {
         </Routes>
         <Rodape />
       </Router>
-    </AuthProvider>
+    </MsalProvider>
   );
 }
 
