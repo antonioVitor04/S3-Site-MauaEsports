@@ -8,7 +8,7 @@ import { FaUserTie, FaRegClock, FaUserCog } from "react-icons/fa";
 import { HiUserCircle } from "react-icons/hi2";
 import logo from "../assets/images/Logo.svg";
 import { GiSwordsEmblem } from "react-icons/gi";
-import AtualizacaoPerfil from "../pages/AtualizacaoPerfil";
+import AtualizacaoPerfil from "./AtualizacaoPerfil";
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../authConfig';
 import AlertaOk from './AlertaOk';  // Importe os componentes de alerta
@@ -27,6 +27,7 @@ const NavBar = () => {
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState("");  // Estado para sucesso
   const [errorMessage, setErrorMessage] = useState("");  // Estado para erro
+
 
   useEffect(() => {
     const savedImage = localStorage.getItem("croppedImage");

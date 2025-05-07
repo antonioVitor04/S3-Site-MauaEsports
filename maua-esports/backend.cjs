@@ -263,6 +263,42 @@ app.get('/usuarios/verificar-email', async (req, res) => {
   }
 });
 
+// GET - Buscar usuário por email
+app.get('/usuarios/por-email', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Email é obrigatório' 
+      });
+    }
+
+    const usuario = await Usuario.findOne({ email })
+      .select('-fotoPerfil.data -__v');
+
+    if (!usuario) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      usuario
+    });
+  } catch (error) {
+    console.error('Erro ao buscar usuário por email:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao buscar usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // GET - Listar todos os usuários
 app.get('/usuarios', async (req, res) => {
   try {
