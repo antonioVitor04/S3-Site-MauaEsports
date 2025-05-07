@@ -2,6 +2,8 @@ import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 import SalvarBtn from './SalvarBtn';
 import CancelarBtn from './CancelarBtn';
+import { FaDiscord } from "react-icons/fa";
+import { IoMdClose } from 'react-icons/io';
 
 const ModalUsuario = ({
   usuario,
@@ -67,7 +69,7 @@ const ModalUsuario = ({
             onClick={onClose}
             className="text-fonte-escura hover:text-vermelho-claro hover:cursor-pointer"
           >
-            <FaTimes size={24} />
+            <IoMdClose size={24} />
           </button>
         </div>
 
@@ -98,17 +100,22 @@ const ModalUsuario = ({
             <label className="block text-sm text-fonte-escura font-semibold mb-1">
               Discord ID
             </label>
-            <input
-              type="text"
-              name="discordID"
-              value={formData.discordID}
-              onChange={handleChange}
-              className="w-full border border-borda rounded p-2 text-branco bg-preto focus:border-azul-claro focus:outline-none"
-              placeholder="123456789012345678"
-              pattern="\d{18}|^$"
-            />
+            <div className='flex items-center'>
+              <div className="bg-fonte-escura rounded-l-md px-2 py-2 flex items-center justify-center">
+                <FaDiscord className="text-2xl" />
+              </div>
+              <input
+                type="text"
+                name="discordID"
+                value={formData.discordID}
+                onChange={handleChange}
+                className="w-full border border-borda border-l-0 rounded-r-md p-2 focus:border-azul-claro text-branco bg-preto focus:outline-none"
+                placeholder="123456789012345678"
+                pattern="\d{18}|^$"
+              />
+            </div>
             <p className="text-xs text-fonte-escura/50 mt-1">
-              Deve conter exatamente 18 dígitos
+              Deixe vazio para remover o Discord ID(deve ter um número 18 dígitos)
             </p>
           </div>
 

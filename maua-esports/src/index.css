@@ -69,3 +69,8 @@
     transform: rotate(360deg); /* Uma volta completa */
   }
 }
+
+/* Adicione ao seu arquivo de estilos */
+.absolute.top-0.right-0 {
+  transform: translate(50%, -50%);
+}

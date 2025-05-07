@@ -323,25 +323,25 @@ app.get('/usuarios', async (req, res) => {
 });
 
 
-
-// PUT - Atualizar usuário (atualizado para campos opcionais)
+// PUT - Atualizar usuário (com suporte para remoção de foto)
 app.put('/usuarios/:id', upload.single('fotoPerfil'), async (req, res) => {
   try {
-    const updateData = {
-      ...req.body,
-      ...(req.file && {
-        fotoPerfil: {
-          data: req.file.buffer,
-          contentType: req.file.mimetype,
-          nomeOriginal: req.file.originalname
-        }
-      })
-    };
+    const { removeFoto } = req.body;
+    const updateData = { ...req.body };
 
-    // Remove o campo fotoPerfil se não foi enviada nova imagem
-    if (!req.file) {
-      delete updateData.fotoPerfil;
+    // Se foi solicitado para remover a foto
+    if (removeFoto === 'true') {
+      updateData.fotoPerfil = null;
+    } 
+    // Se foi enviada uma nova foto
+    else if (req.file) {
+      updateData.fotoPerfil = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        nomeOriginal: req.file.originalname
+      };
     }
+    // Se não foi enviada nova foto nem solicitado remoção, mantém a foto existente
 
     const usuario = await Usuario.findByIdAndUpdate(
       req.params.id,
@@ -382,6 +382,8 @@ app.put('/usuarios/:id', upload.single('fotoPerfil'), async (req, res) => {
     });
   }
 });
+
+
 
 // DELETE - Remover usuário
 app.delete('/usuarios/:id', async (req, res) => {
@@ -462,7 +464,7 @@ app.get('/usuarios/:id', async (req, res) => {
 });
 
 
-
+/////////////////////////////////////////////////////////////////////////// AREA DE JOGADORES ////////////////////////////////////////////////////////////////////////////////////
 
 
 app.post("/jogadores", upload.single("foto"), async (req, res) => {
