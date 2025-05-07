@@ -228,6 +228,40 @@ app.post('/usuarios', upload.single('fotoPerfil'), async (req, res) => {
     });
   }
 });
+app.get('/usuarios/verificar-email', async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email é obrigatório na query'
+      });
+    }
+
+    const usuarioExiste = await Usuario.exists({ email });
+
+    if (!usuarioExiste) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Usuário encontrado',
+      data: { _id: usuarioExiste._id }
+    });
+  } catch (error) {
+    console.error('Erro ao verificar email:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao verificar email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 
 // GET - Listar todos os usuários
 app.get('/usuarios', async (req, res) => {
@@ -252,32 +286,7 @@ app.get('/usuarios', async (req, res) => {
   }
 });
 
-// GET - Buscar usuário por ID
-app.get('/usuarios/:id', async (req, res) => {
-  try {
-    const usuario = await Usuario.findById(req.params.id)
-      .select('-fotoPerfil.data -__v');
 
-    if (!usuario) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Usuário não encontrado' 
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: usuario
-    });
-  } catch (error) {
-    console.error('Erro ao buscar usuário:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Erro ao buscar usuário',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
 
 // PUT - Atualizar usuário (atualizado para campos opcionais)
 app.put('/usuarios/:id', upload.single('fotoPerfil'), async (req, res) => {
@@ -389,42 +398,36 @@ app.get('/usuarios/:id/foto', async (req, res) => {
   }
 });
 
-// GET - Verificar se email existe e retornar dados do usuário
-app.get('/usuarios/verificar-email', async (req, res) => {
+// GET - Buscar usuário por ID
+app.get('/usuarios/:id', async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Email é obrigatório' 
-      });
-    }
+    const usuario = await Usuario.findById(req.params.id)
+      .select('-fotoPerfil.data -__v');
 
-    const usuario = await Usuario.findOne({ email });
-    
     if (!usuario) {
-      return res.status(200).json({
-        success: true,
-        existe: false
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
       });
     }
 
-    // Retorna os dados básicos do usuário
     res.status(200).json({
       success: true,
-      existe: true,
-      email: usuario.email,
-      role: usuario.role || 'jogador', // Garante um valor padrão
-      name: usuario.name || email.split('@')[0] // Valor padrão se não existir
+      data: usuario
     });
   } catch (error) {
-    console.error('Erro ao verificar email:', error);
+    console.error('Erro ao buscar usuário:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Erro ao verificar email'
+      message: 'Erro ao buscar usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
+
+
+
+
 
 app.post("/jogadores", upload.single("foto"), async (req, res) => {
   try {
