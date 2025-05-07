@@ -196,7 +196,7 @@ const Campeonatos = () => {
                         className={`px-4 py-2 rounded-md font-medium transition-colors ${
                             isAdminMode
                                 ? 'bg-red-600 hover:bg-red-700 text-white'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                : 'bg-azul-claro hover:bg-blue-700 text-white'
                         }`}
                     >
                         {isAdminMode ? 'Desativar Modo Admin' : 'Modo Admin'}
