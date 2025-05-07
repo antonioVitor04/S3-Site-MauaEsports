@@ -5,11 +5,15 @@ import EditarBtn from '../components/EditarBtn';
 import DeletarBtn from '../components/DeletarBtn';
 import ModalUsuario from '../components/ModalUsuario';
 import PageBanner from '../components/PageBanner';
+import AlertaErro from '../components/AlertaErro';
+import AlertaOk from '../components/AlertaOk';
 
 const API_BASE_URL = "http://localhost:3000";
 
 const AdminUsuarios = () => {
   const { instance } = useMsal();
+  const [success, setSuccess] = useState(null);
+
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,6 +57,7 @@ const AdminUsuarios = () => {
     } catch (err) {
       console.error("Erro ao carregar usuários:", err);
       setError(err.message);
+      setSuccess(null);
     } finally {
       setLoading(false);
     }
@@ -133,7 +138,11 @@ const podeGerenciarUsuario = (usuarioAlvo) => {
       const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
         method: 'DELETE'
       });
+      if(response.ok){
+        setSuccess(`Usuário ${usuario.email} excluído com sucesso!`);
+setError(null);
 
+      }
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao excluir usuário');
@@ -200,6 +209,9 @@ const podeGerenciarUsuario = (usuarioAlvo) => {
       if (result.success) {
         fetchUsuarios();
         fecharModal();
+        setSuccess(modoEdicao ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
+        setError(null);
+
       } else {
         throw new Error(result.message || 'Operação falhou');
       }
@@ -265,6 +277,9 @@ const podeGerenciarUsuario = (usuarioAlvo) => {
       <div className="w-full bg-navbar mb-10">
         <div className="h-[104px]"> {/* Espaço para a NavBar */} </div>
         <PageBanner pageName="Gerenciamento de Usuários" className="bg-navbar" />
+        <AlertaErro mensagem={error} />
+        <AlertaOk mensagem={success} />
+
       </div>
 
       {/* Conteúdo principal */}
@@ -331,7 +346,7 @@ const podeGerenciarUsuario = (usuarioAlvo) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap flex gap-2">
                         {!podeGerenciar ? (
-                          <span className="text-cinza-escuro">Sem ações</span>
+                          <span className="text-branco">Sem permissão</span>
                         ) : (
                           <>
                             <EditarBtn 
