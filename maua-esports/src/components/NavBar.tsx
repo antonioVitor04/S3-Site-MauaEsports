@@ -8,7 +8,7 @@ import { FaUserTie, FaRegClock, FaUserCog } from "react-icons/fa";
 import { HiUserCircle } from "react-icons/hi2";
 import logo from "../assets/images/Logo.svg";
 import { GiSwordsEmblem } from "react-icons/gi";
-import AtualizacaoPerfil from "../pages/AtualizacaoPerfil";
+import AtualizacaoPerfil from "./AtualizacaoPerfil";
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../authConfig';
 
@@ -23,6 +23,7 @@ const NavBar = () => {
   const { instance } = useMsal();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  
 
   useEffect(() => {
     const savedImage = localStorage.getItem("croppedImage");
