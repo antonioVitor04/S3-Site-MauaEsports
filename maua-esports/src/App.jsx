@@ -14,6 +14,7 @@ import HorasPaePage from "./pages/HorasPae";
 import TreinosAdmin from "./pages/TreinosAdmin";
 import Politicas from "./pages/Politicas";
 import Campeonatos from "./pages/Campeonatos";
+import AdminUsuarios from './pages/AdminUsuarios'; 
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/admins" element={<Admins />} />
           <Route path="/politicas" element={<Politicas />} />
           <Route path="/campeonatos" element={<Campeonatos />} />
+          <Route path="/admin-usuarios" element={<AdminUsuarios />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Rodape />

@@ -31,6 +31,16 @@ function HorasPaePage() {
   const [playersData, setPlayersData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Função para obter o início do semestre atual
+  const getCurrentSemesterStart = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    // Semestre 1: Fevereiro (mês 1) até Julho (mês 6)
+    // Semestre 2: Agosto (mês 7) até Janeiro (mês 0 do próximo ano)
+    const semesterStartMonth = now.getMonth() < 7 ? 1 : 7; // Fevereiro ou Agosto
+    return new Date(year, semesterStartMonth, 1).getTime();
+  };
+
   // Carrega os dados da API
   useEffect(() => {
     const fetchData = async () => {
@@ -39,23 +49,23 @@ function HorasPaePage() {
         const modResponse = await axios.get('/api/modality/all', {
           headers: { "Authorization": "Bearer frontendmauaesports" }
         });
-        
+
         const mods = modResponse.data;
         setModalidades(mods);
-        
+
         // Cria lista de times para o dropdown
         const teamList = Object.values(mods).map(mod => mod.Name);
         setTimes(teamList);
         setSelectedTeam(teamList[0] || "");
-        
+
         // Busca os treinos
         const trainsResponse = await axios.get('/api/trains/all', {
           headers: { "Authorization": "Bearer frontendmauaesports" }
         });
-        
+
         // Processa os dados para calcular as horas
         processPlayerHours(trainsResponse.data, mods);
-        
+
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       } finally {
@@ -65,15 +75,6 @@ function HorasPaePage() {
 
     fetchData();
   }, []);
-  const getCurrentSemester = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // Janeiro é 0
-    
-    // Primeiro semestre: Janeiro a Junho (1-6)
-    // Segundo semestre: Julho a Dezembro (7-12)
-    return month <= 6 ? `${year}.1` : `${year}.2`;
-  };
 
   // Atualiza os dados quando o time selecionado muda
   useEffect(() => {
@@ -84,59 +85,81 @@ function HorasPaePage() {
           const modId = Object.keys(modalidades).find(
             key => modalidades[key].Name === selectedTeam
           );
-          
+
           if (modId) {
             const trainsResponse = await axios.get('/api/trains/all', {
               headers: { "Authorization": "Bearer frontendmauaesports" },
               params: { "ModalityId": modId }
             });
-            
+
             processPlayerHours(trainsResponse.data, modalidades);
           }
         } catch (error) {
           console.error("Erro ao buscar dados do time:", error);
         }
       };
-      
+
       fetchTeamData();
     }
   }, [selectedTeam, modalidades]);
 
-  // Processa os dados dos treinos para calcular as horas dos jogadores
+  // Adicione esta função para determinar a posição da linha de 40h
+  const get40hPosition = () => {
+    // Calcula em qual segmento da barra fica a marca de 40h
+    // Baseado nos limites dos ranks:
+    // Rank 4: 35-49h (Azul)
+    // 40h está no rank 4, que é o 5º segmento (índice 4)
+    // Dentro deste segmento, 40h está em (40-35)/15 = 33.33% do segmento
+
+    const rankIndex = 4; // Rank 4 (Azul) é o 5º segmento
+    const segmentProgress = (40 - 35) / 15; // 5/15 = 0.333...
+
+    // Calcula a posição percentual total
+    const totalProgress = (rankIndex / 8) + (segmentProgress / 8);
+
+    return `${totalProgress * 100}%`;
+  };
+
+  // Processa os dados dos treinos para calcular as horas dos jogadores (apenas do semestre atual)
   const processPlayerHours = (trainsData, modalities) => {
     const playerHours = {};
-    
+    const semesterStart = getCurrentSemesterStart();
+
     trainsData.forEach(train => {
-      if (train.Status !== "ENDED" || !train.AttendedPlayers) return;
-      
+      // Filtra apenas treinos finalizados do semestre atual
+      if (train.Status !== "ENDED" || !train.AttendedPlayers || train.StartTimestamp < semesterStart) return;
+
       const modality = modalities[train.ModalityId];
       if (!modality) return;
-      
+
       train.AttendedPlayers.forEach(player => {
         if (!player.PlayerId || !player.EntranceTimestamp || !player.ExitTimestamp) return;
-        
-        // Calcula a duração em horas
+
+        // Calcula a duração em horas (apenas se o treino for do semestre atual)
         const durationHours = (player.ExitTimestamp - player.EntranceTimestamp) / (1000 * 60 * 60);
-        
+
         if (playerHours[player.PlayerId]) {
           playerHours[player.PlayerId].hours += durationHours;
         } else {
           playerHours[player.PlayerId] = {
-            name: `Jogador ${player.PlayerId.slice(-4)}`, // Nome genérico com ID
+            name: `${player.PlayerId}`, // Nome genérico com ID
             hours: durationHours,
             team: modality.Name
           };
         }
       });
     });
-    
+
     // Converte o objeto em array e ordena por horas
     const playersArray = Object.values(playerHours)
       .filter(player => player.team === selectedTeam)
       .sort((a, b) => b.hours - a.hours);
-    
+
     setPlayersData(playersArray);
   };
+
+  // Restante do seu código permanece igual...
+  // (Funções getCurrentRank, getFillPercentage, getColor, e o JSX de renderização)
 
   // Função para determinar o rank atual com base nas horas
   const getCurrentRank = (hours) => {
@@ -200,25 +223,26 @@ function HorasPaePage() {
       <PageBanner pageName={`Horas PAEs - ${selectedTeam}`} />
 
       <div className="flex flex-col md:flex-row gap-6 md:px-14 md:py-15">
-        {/* Sidebar - Times */}
-        <aside className="w-full md:w-72 bg-gray-800 border-2 border-gray-700 rounded-[30px] p-6 h-fit">
-          <h2 className="text-2xl font-bold mb-6 text-white">Times</h2>
-          <ul className="space-y-4">
-            {times.map((time, idx) => (
-              <li
-                key={idx}
-                className={`p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors ${
-                  selectedTeam === time
-                    ? "bg-gray-700 border-l-4 border-gray-800 font-bold"
-                    : "bg-gray-800"
-                }`}
-                onClick={() => setSelectedTeam(time)}
-              >
-                {time}
-              </li>
-            ))}
-          </ul>
-        </aside>
+        {/* Dropdown de seleção de times */}
+        <div className="px-6 md:px-0">
+          <div className="relative w-full md:w-64 mb-6">
+            <label htmlFor="team-select" className="block text-sm font-medium text-gray-300 mb-2">
+              Selecione um Time:
+            </label>
+            <select
+              id="team-select"
+              className="block w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={selectedTeam}
+              onChange={(e) => setSelectedTeam(e.target.value)}
+            >
+              {times.map((time, idx) => (
+                <option key={idx} value={time} className="bg-gray-800">
+                  {time}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {/* Main content */}
         <main className="flex-1">
@@ -235,7 +259,6 @@ function HorasPaePage() {
                       alt={rank.name}
                       className="w-20 h-20 object-contain mb-1"
                     />
-                    {/* <span className="text-md text-center">{rank.name}</span> */}
                   </div>
                 ))}
               </div>
@@ -253,7 +276,26 @@ function HorasPaePage() {
                     <div className="w-24 md:w-32 font-semibold truncate">{player.name}</div>
 
                     {/* Barra de progresso com segmentos para cada rank */}
-                    <div className="flex-1 grid grid-cols-8 gap-1">
+                    <div className="flex-1 grid grid-cols-8 gap-1 relative"> {/* Adicione relative aqui */}
+                      {/* Linha vertical de 40h */}
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-yellow-300 z-10"
+                        style={{
+                          left: `calc(${get40hPosition()} + 4px)`, // Ajuste fino de posicionamento
+                          boxShadow: '0 0 5px 1px rgba(255, 255, 0, 0.7)'
+                        }}
+                      ></div>
+
+                      {/* Tooltip para a linha */}
+                      <div
+                        className="absolute -top-6 text-yellow-300 text-xs font-bold whitespace-nowrap"
+                        style={{
+                          left: `calc(${get40hPosition()} - 20px)`,
+                        }}
+                      >
+                        40h
+                      </div>
+
                       {ranks.map((_, rankIndex) => {
                         const rankNumber = rankIndex + 1;
                         const isActiveRank = rankNumber === currentRank + 1;
@@ -300,7 +342,7 @@ function HorasPaePage() {
               })
             ) : (
               <div className="text-center py-8 text-gray-400">
-                Nenhum dado de jogadores encontrado para este time.
+                Nenhum dado de jogadores encontrado para este time no semestre atual.
               </div>
             )}
 

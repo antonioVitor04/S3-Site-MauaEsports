@@ -26,9 +26,9 @@ app.use(
 
 // Middleware para headers manuais (como fallback)
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Headers", "*");
   res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
@@ -123,6 +123,308 @@ const tournamentSchema = new mongoose.Schema({
 });
 
 const Tournament = mongoose.model('Tournament', tournamentSchema);
+
+
+///////////////////////////////////////////////////////////////////////////////AREA DE USUÁRIOS ////////////////////////////////////////////////////////////////////
+const usuarioSchema = new mongoose.Schema({
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    validate: {
+      validator: function(v) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(v) && (v.endsWith('@maua.br'));
+      },
+      message: props => `${props.value} não é um email válido!`
+    }
+  },
+  discordID: {
+    type: String,
+    required: false, // Tornando opcional
+    validate: {
+      validator: function(v) {
+        // Só valida se o campo foi fornecido
+        if (!v) return true;
+        return /^\d{18}$/.test(v);
+      },
+      message: props => `${props.value} não é um Discord ID válido! Deve ser exatamente 18 dígitos ou vazio.`
+    }
+  },
+  fotoPerfil: {
+    data: { type: Buffer, required: false }, // Tornando opcional
+    contentType: { type: String, required: false },
+    nomeOriginal: { type: String, required: false }
+  },
+  tipoUsuario: {
+    type: String,
+    required: true,
+    enum: ['Administrador Geral', 'Administrador', 'Capitão de time', 'Jogador'],
+    default: 'Jogador'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+usuarioSchema.plugin(uniqueValidator, { message: 'O {PATH} {VALUE} já está em uso.' });
+const Usuario = mongoose.model('Usuario', usuarioSchema);
+
+
+app.post('/usuarios', upload.single('fotoPerfil'), async (req, res) => {
+  try {
+    const { email, discordID, tipoUsuario } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email é obrigatório' 
+      });
+    }
+
+    const usuarioData = {
+      email,
+      ...(discordID && { discordID }),
+      tipoUsuario: tipoUsuario?.trim() || 'Jogador', // Adicione trim() aqui
+      ...(req.file && {
+        fotoPerfil: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+          nomeOriginal: req.file.originalname
+        }
+      })
+    };
+
+    const novoUsuario = new Usuario(usuarioData);
+    await novoUsuario.save();
+    
+    res.status(201).json({
+      success: true,
+      usuario: {
+        _id: novoUsuario._id,
+        email: novoUsuario.email,
+        ...(novoUsuario.discordID && { discordID: novoUsuario.discordID }), // Só retorna se existir
+        tipoUsuario: novoUsuario.tipoUsuario,
+        createdAt: novoUsuario.createdAt
+      },
+      message: 'Usuário criado com sucesso'
+    });
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email já está em uso',
+        field: 'email'
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao criar usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET - Listar todos os usuários
+app.get('/usuarios', async (req, res) => {
+  try {
+    const usuarios = await Usuario.find()
+      .select('-fotoPerfil.data -__v')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: usuarios.length,
+      data: usuarios
+    });
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao buscar usuários',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET - Buscar usuário por ID
+app.get('/usuarios/:id', async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.params.id)
+      .select('-fotoPerfil.data -__v');
+
+    if (!usuario) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: usuario
+    });
+  } catch (error) {
+    console.error('Erro ao buscar usuário:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao buscar usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// PUT - Atualizar usuário (atualizado para campos opcionais)
+app.put('/usuarios/:id', upload.single('fotoPerfil'), async (req, res) => {
+  try {
+    const updateData = {
+      ...req.body,
+      ...(req.file && {
+        fotoPerfil: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+          nomeOriginal: req.file.originalname
+        }
+      })
+    };
+
+    // Remove o campo fotoPerfil se não foi enviada nova imagem
+    if (!req.file) {
+      delete updateData.fotoPerfil;
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { 
+        new: true,
+        runValidators: true 
+      }
+    ).select('-fotoPerfil.data -__v');
+
+    if (!usuario) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: usuario,
+      message: 'Usuário atualizado com sucesso'
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Erro de validação',
+        errors: Object.values(error.errors).map(e => e.message)
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao atualizar usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// DELETE - Remover usuário
+app.delete('/usuarios/:id', async (req, res) => {
+  try {
+    const usuario = await Usuario.findByIdAndDelete(req.params.id);
+
+    if (!usuario) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { _id: usuario._id },
+      message: 'Usuário removido com sucesso'
+    });
+  } catch (error) {
+    console.error('Erro ao remover usuário:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao remover usuário',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET - Obter foto de perfil
+app.get('/usuarios/:id/foto', async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.params.id);
+
+    if (!usuario || !usuario.fotoPerfil || !usuario.fotoPerfil.data) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Imagem não encontrada' 
+      });
+    }
+
+    res.set('Content-Type', usuario.fotoPerfil.contentType);
+    res.send(usuario.fotoPerfil.data);
+  } catch (error) {
+    console.error('Erro ao buscar foto de perfil:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao carregar imagem',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET - Verificar se email existe e retornar dados do usuário
+app.get('/usuarios/verificar-email', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Email é obrigatório' 
+      });
+    }
+
+    const usuario = await Usuario.findOne({ email });
+    
+    if (!usuario) {
+      return res.status(200).json({
+        success: true,
+        existe: false
+      });
+    }
+
+    // Retorna os dados básicos do usuário
+    res.status(200).json({
+      success: true,
+      existe: true,
+      email: usuario.email,
+      role: usuario.role || 'jogador', // Garante um valor padrão
+      name: usuario.name || email.split('@')[0] // Valor padrão se não existir
+    });
+  } catch (error) {
+    console.error('Erro ao verificar email:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao verificar email'
+    });
+  }
+});
 
 app.post("/jogadores", upload.single("foto"), async (req, res) => {
   try {
@@ -1227,48 +1529,6 @@ app.get("/twitch/live/:channel", async (req, res) => {
     res.status(500).json({ error: "Erro ao verificar o status do canal." });
   }
 });
-
-///////////////////////////////////////////////////////////////////////////////AREA DE USUÁRIOS (MICROSOFT AUTH) ////////////////////////////////////////////////////////////////////
-
-const usuarioSchema = new mongoose.Schema({
-  email: { 
-    type: String, 
-    required: true, 
-    unique: true,
-    validate: {
-      validator: function(v) {
-        // Valida se é um email válido e opcionalmente se termina com @maua.br
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(v) && (v.endsWith('@maua.br'));
-      },
-      message: props => `${props.value} não é um email válido!`
-    }
-  },
-  discordID: {
-    type: String,
-    validate: {
-      validator: function(v) {
-        // Valida se é exatamente 4 dígitos numéricos
-        return /^\d{4}$/.test(v);
-      },
-      message: props => `${props.value} não é um Discord ID válido! Deve ser exatamente 4 dígitos.`
-    }
-  },
-  fotoPerfil: {
-    data: Buffer,
-    contentType: String,
-    nomeOriginal: String
-  },
-  tipoUsuario: {
-    type: String,
-    required: true,
-    enum: ['Administrador Geral', 'Administrador', 'Capitão de time', 'Jogador'],
-    default: 'Jogador'
-  },
-});
-
-usuarioSchema.plugin(uniqueValidator, { message: 'O {PATH} {VALUE} já está em uso.' });
-const Usuario = mongoose.model('Usuario', usuarioSchema);
 
 
 
