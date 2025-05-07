@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PageBannner from "../components/PageBanner"
-import Menu from '../components/politicas&termos/Menu';
-import ContentSection from '../components/politicas&termos/ContentSection';
+import Menu from '../components/politicas/Menu';
+import ContentSection from '../components/politicas/ContentSection';
 
 const Politicas = () => {
   const [activeSection, setActiveSection] = useState('');

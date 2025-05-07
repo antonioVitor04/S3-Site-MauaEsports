@@ -1,7 +1,8 @@
 import Espaco from '../components/padrao/Espaco';
 import Apresentacao from '../components/home/Apresentacao';
-import Twitch from '../components/home/twitch';
-import Parcerias from '../components/home/Parcerias';
+import Twitch from '../components/home/Twitch';
+import InfoLayout from '../components/home/InfoLayout';
+
 
 const Home = () => {
     return (
@@ -12,7 +13,7 @@ const Home = () => {
             <Espaco tamanho="70px" />
             <Twitch />
             <Espaco tamanho="70px" />
-            
+            <InfoLayout />
             <Espaco tamanho="70px" />
         </div>
     );
