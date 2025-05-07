@@ -70,22 +70,41 @@ const NavBar = () => {
 
   const handleLogin = async () => {
     try {
+      // 1. Realiza o login com Azure AD
       const authResult = await instance.loginPopup(loginRequest);
       const account = authResult.account;
       instance.setActiveAccount(account);
+  
+      // 2. Verifica se o email existe no seu sistema
+      const response = await fetch(`http://localhost:3000/usuarios/verificar-email?email=${encodeURIComponent(account.username)}`);
       
-      const response = await fetch(`/usuarios/verificar-email?email=${account.username}`);
+      if (!response.ok) {
+        throw new Error('Erro ao verificar email');
+      }
+  
       const data = await response.json();
-      
-      if (!data.existe) {
-        await instance.logout();
-        alert('Seu email não está cadastrado no sistema. Contate um administrador.');
+  
+      // 3. Trata os possíveis cenários de resposta
+      if (!data.success) {
+        if (data.message === 'Usuário não encontrado') {
+          await instance.logoutPopup();
+          alert('Seu email não está cadastrado no sistema. Contate um administrador.');
+        } else {
+          alert(`Erro: ${data.message}`);
+        }
+        setIsAuthenticated(false); // Garante que o botão de login volte
         return;
       }
-      
+  
+      // 4. Se tudo estiver ok, autentica o usuário
       setIsAuthenticated(true);
+      
     } catch (error) {
       console.error("Erro no login:", error);
+      // Garante que o usuário seja deslogado em caso de erro
+      await instance.logoutPopup().catch(e => console.error("Erro ao deslogar:", e));
+      setIsAuthenticated(false); // Garante que o botão de login volte
+      alert('Ocorreu um erro durante o login. Por favor, tente novamente.');
     }
   };
 
