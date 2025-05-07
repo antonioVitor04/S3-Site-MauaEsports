@@ -7,7 +7,7 @@ export const msalConfig = {
     redirectUri: 'http://localhost:5173/',
 },
   cache: {
-    cacheLocation: 'sessionStorage', // ou 'localStorage'
+    cacheLocation: 'localStorage', // IMPORTANTE: mantém o login após reload
     storeAuthStateInCookie: false,
     
   }
@@ -21,3 +21,4 @@ if (!import.meta.env.VITE_CLIENT_ID || !import.meta.env.VITE_TENANT_ID) {
     console.error('Variáveis de ambiente necessárias não estão definidas!');
   }
 export const msalInstance = new PublicClientApplication(msalConfig);
+await msalInstance.initialize?.();

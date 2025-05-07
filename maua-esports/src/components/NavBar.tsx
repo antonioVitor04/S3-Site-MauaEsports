@@ -4,7 +4,7 @@ import { IoMdArrowDropdown, IoMdClose } from "react-icons/io";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { CgLogIn, CgLogOut } from "react-icons/cg";
 import { RiTeamFill } from "react-icons/ri";
-import { FaUserTie, FaRegClock } from "react-icons/fa";
+import { FaUserTie, FaRegClock, FaUserCog } from "react-icons/fa";
 import { HiUserCircle } from "react-icons/hi2";
 import logo from "../assets/images/Logo.svg";
 import { GiSwordsEmblem } from "react-icons/gi";
@@ -36,10 +36,57 @@ const NavBar = () => {
     setIsAuthenticated(!!account);
   }, [instance]);
 
-  const handleLogin = () => {
-    instance.loginPopup(loginRequest).catch(e => {
-      console.error("Erro no login:", e);
+  useEffect(() => {
+    try {
+      const accounts = instance.getAllAccounts();
+      if (accounts && accounts.length > 0) {
+        instance.setActiveAccount(accounts[0]);
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (e) {
+      console.error("MSAL ainda não está inicializado:", e);
+      setIsAuthenticated(false);
+    }
+  }, [instance]);
+
+  useEffect(() => {
+    const callbackId = instance.addEventCallback((event) => {
+      if (event.eventType === "msal:loginSuccess") {
+        const account = event.payload.account;
+        instance.setActiveAccount(account);
+        setIsAuthenticated(true);
+      }
     });
+
+    return () => {
+      if (callbackId) {
+        instance.removeEventCallback(callbackId);
+      }
+    };
+  }, [instance]);
+  
+
+  const handleLogin = async () => {
+    try {
+      const authResult = await instance.loginPopup(loginRequest);
+      const account = authResult.account;
+      instance.setActiveAccount(account);
+      
+      const response = await fetch(`/usuarios/verificar-email?email=${account.username}`);
+      const data = await response.json();
+      
+      if (!data.existe) {
+        await instance.logout();
+        alert('Seu email não está cadastrado no sistema. Contate um administrador.');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Erro no login:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -73,7 +120,7 @@ const NavBar = () => {
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
   const toggleHamburgerMenu = () => setIsHamburgerOpen(!isHamburgerOpen);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path) => location.pathname === path;
 
   const activeAccount = instance.getActiveAccount();
 
@@ -124,7 +171,9 @@ const NavBar = () => {
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
               ? `border-borda ${isActive("/") ? "text-azul-claro font-bold" : ""}`
-              : `border-b-transparent hover:text-azul-claro hover:font-bold ${isActive("/") ? "text-azul-claro font-bold" : ""}`
+              : `border-b-transparent hover:text-azul-claro hover:font-bold ${
+                  isActive("/") ? "text-azul-claro font-bold" : ""
+                }`
           }`}
         >
           <Link to="/">Home</Link>
@@ -158,7 +207,7 @@ const NavBar = () => {
               <Link
                 to="/times"
                 className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
-                  isActive("/times") ? "text-azul-claro font-bold" : "hover:text-azul-claro  hover:font-bold"
+                  isActive("/times") ? "text-azul-claro font-bold" : "hover:text-azul-claro hover:font-bold"
                 }`}
               >
                 <RiTeamFill />
@@ -170,7 +219,7 @@ const NavBar = () => {
               <Link
                 to="/admins"
                 className={`px-4 border-transparent inline-flex items-center gap-2 transform hover:scale-110 transition-transform duration-300 cursor-pointer ${
-                  isActive("/admins") ? "text-azul-claro font-bold" : "hover:text-azul-claro  hover:font-bold"
+                  isActive("/admins") ? "text-azul-claro font-bold" : "hover:text-azul-claro hover:font-bold"
                 }`}
               >
                 <FaUserTie />
@@ -184,7 +233,9 @@ const NavBar = () => {
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
               ? `border-borda ${isActive("/campeonatos") ? "text-azul-claro font-bold" : ""}`
-              : `border-b-transparent hover:text-azul-claro  hover:font-bold ${isActive("/campeonatos") ? "text-azul-claro" : ""}`
+              : `border-b-transparent hover:text-azul-claro hover:font-bold ${
+                  isActive("/campeonatos") ? "text-azul-claro" : ""
+                }`
           }`}
         >
           <Link to="/campeonatos">Campeonatos</Link>
@@ -194,13 +245,14 @@ const NavBar = () => {
           className={`px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] border-b-3 ${
             isHamburgerOpen
               ? `border-borda ${isActive("/novidades") ? "text-azul-claro font-bold" : ""}`
-              : `border-b-transparent hover:text-azul-claro  hover:font-bold ${isActive("/novidades") ? "text-azul-claro" : ""}`
+              : `border-b-transparent hover:text-azul-claro hover:font-bold ${
+                  isActive("/novidades") ? "text-azul-claro" : ""
+                }`
           }`}
         >
           <Link to="/novidades">Novidades</Link>
         </li>
 
-        {/* Ícone do usuário - só aparece quando autenticado */}
         {isAuthenticated && (
           <li className="px-4 py-2 cursor-pointer transition-transform duration-300 hover:translate-y-[-4px] relative">
             <button
@@ -289,6 +341,19 @@ const NavBar = () => {
                       </div>
                     </div>
                   </Link>
+                  <Link to="/admin-usuarios" className="w-full">
+                    <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10">
+                      <div className="w-10 h-10 flex items-center justify-center">
+                        <FaUserCog className="text-2xl text-azul-claro" />
+                      </div>
+                      <div className="flex flex-col flex-grow items-start overflow-hidden">
+                        <h1 className="font-bold">Área Administrativa</h1>
+                        <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                          Gerenciar usuários
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
                 <div className="flex flex-col">
                   <button
@@ -298,7 +363,7 @@ const NavBar = () => {
                     <CgLogOut className="text-2xl" />
                     <span>Sair da conta</span>
                   </button>
-                </div>          
+                </div>
               </div>
             </ul>
           </li>
@@ -308,7 +373,7 @@ const NavBar = () => {
           {!isAuthenticated ? (
             <button
               onClick={handleLogin}
-              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-escuro before:transition-all before:duration-500 hover:before:w-full"
+              className="relative flex items-center justify-center px-4 py-2 gap-2 border-2 border-borda text-white rounded-md overflow-hidden transition-all duration-300 cursor-pointer before:absolute before:top-0 before:left-0 before:w-0 before:h-full before:bg-azul-claro before:transition-all before:duration-500 hover:before:w-full"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Login <CgLogIn />
