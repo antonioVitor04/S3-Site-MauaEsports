@@ -11,6 +11,8 @@ import { GiSwordsEmblem } from "react-icons/gi";
 import AtualizacaoPerfil from "./AtualizacaoPerfil";
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../authConfig';
+import AlertaOk from './AlertaOk';  // Importe os componentes de alerta
+import AlertaErro from './AlertaErro';
 
 const NavBar = () => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
@@ -23,7 +25,9 @@ const NavBar = () => {
   const { instance } = useMsal();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
-  
+  const [successMessage, setSuccessMessage] = useState("");  // Estado para sucesso
+  const [errorMessage, setErrorMessage] = useState("");  // Estado para erro
+
 
   useEffect(() => {
     const savedImage = localStorage.getItem("croppedImage");
@@ -99,13 +103,14 @@ const NavBar = () => {
   
       // 4. Se tudo estiver ok, autentica o usuário
       setIsAuthenticated(true);
+      setSuccessMessage(`Bem vindo à Mauá Esports!`);
       
     } catch (error) {
       console.error("Erro no login:", error);
       // Garante que o usuário seja deslogado em caso de erro
       await instance.logoutPopup().catch(e => console.error("Erro ao deslogar:", e));
       setIsAuthenticated(false); // Garante que o botão de login volte
-      alert('Ocorreu um erro durante o login. Por favor, tente novamente.');
+      setErrorMessage('Ocorreu um erro durante o login. Por favor, tente novamente.');
     }
   };
 
@@ -166,7 +171,8 @@ const NavBar = () => {
       <div className="mx-14">
         <img className="w-16 h-16" src={logo} alt="Logo" />
       </div>
-
+      {successMessage && <AlertaOk mensagem={successMessage} />}
+      {errorMessage && <AlertaErro mensagem={errorMessage} />}
       <button
         className={`lg:hidden text-white fixed right-5 cursor-pointer transform transition-all duration-300 ${
           isHamburgerOpen ? "rotate-90" : "rotate-0"
