@@ -50,6 +50,7 @@ const NavBar = () => {
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   const [editError, setEditError] = useState('');
   const [userDataLoaded, setUserDataLoaded] = useState(false);
+  const [userType, setUserType] = useState<string>('');
 
   // Estados para o cropper de imagem
   const [image, setImage] = useState<string | null>(null);
@@ -106,7 +107,6 @@ const NavBar = () => {
     };
   }, [instance]);
 
-  // Carrega dados do usuário
   const loadUserData = async (email: string) => {
     setIsLoadingUserData(true);
     try {
@@ -124,6 +124,8 @@ const NavBar = () => {
             : null,
           userId: userData.usuario._id
         });
+
+        setUserType(userData.usuario.tipoUsuario);
 
         if (userData.usuario.fotoPerfil) {
           const imageResponse = await fetch(`http://localhost:3000/usuarios/${userData.usuario._id}/foto`);
@@ -282,34 +284,34 @@ const NavBar = () => {
   const handleSaveProfile = async () => {
     try {
       setEditError('');
-      
+
       if (!editFormData.userId) {
         throw new Error('ID do usuário não encontrado');
       }
-  
+
       const formData = new FormData();
       formData.append('discordID', editFormData.discordID || '');
-  
+
       // Se há uma nova imagem temporária
       if (tempCroppedImage) {
         const blob = await fetch(tempCroppedImage).then(res => res.blob());
         formData.append('fotoPerfil', blob, 'profile.jpg');
-      } 
+      }
       // Se a imagem foi removida (não há imagem temporária E não há imagem atual)
       else if (!tempCroppedImage && !croppedImage) {
         formData.append('removeFoto', 'true');
       }
-  
+
       const response = await fetch(`http://localhost:3000/usuarios/${editFormData.userId}`, {
         method: "PUT",
         body: formData
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao atualizar perfil');
       }
-  
+
       await loadUserData(editFormData.email);
       setShowEditModal(false);
       setTempCroppedImage(null);
@@ -319,7 +321,7 @@ const NavBar = () => {
       setEditError(error.message || 'Erro ao salvar alterações');
     }
   };
-  
+
   const handleRemoveProfilePicture = () => {
     setTempCroppedImage(null); // Limpa a pré-visualização
     setCroppedImage(null);     // Limpa a imagem exibida
@@ -505,30 +507,33 @@ const NavBar = () => {
                   </div>
 
                   <div className="flex-grow pb-10 items-left">
-                    <Link to="/treinos-admin" className="w-full">
-                      <div
-                        className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
-                        onMouseEnter={() => setSwordHovered(true)}
-                        onMouseLeave={() => setSwordHovered(false)}
-                      >
-                        <div className="w-10 h-10 flex items-center justify-center">
-                          <GiSwordsEmblem
-                            className="text-2xl text-azul-claro"
-                            style={{
-                              animation: isSwordHovered
-                                ? "shake 0.7s ease-in-out "
-                                : "none",
-                            }}
-                          />
+                    {(userType !== 'Jogador') && (
+                      <Link to="/treinos-admin" className="w-full">
+                        <div
+                          className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
+                          onMouseEnter={() => setSwordHovered(true)}
+                          onMouseLeave={() => setSwordHovered(false)}
+                        >
+                          <div className="w-10 h-10 flex items-center justify-center">
+                            <GiSwordsEmblem
+                              className="text-2xl text-azul-claro"
+                              style={{
+                                animation: isSwordHovered
+                                  ? "shake 0.7s ease-in-out "
+                                  : "none",
+                              }}
+                            />
+                          </div>
+                          <div className="flex flex-col flex-grow items-start overflow-hidden">
+                            <h1 className="font-bold">Treinos</h1>
+                            <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                              Consulte seus treinos
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-col flex-grow items-start overflow-hidden">
-                          <h1 className="font-bold">Treinos</h1>
-                          <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                            Consulte seus treinos
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    )}
+
                     <Link to="/horas-pae" className="w-full">
                       <div
                         className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
@@ -553,19 +558,22 @@ const NavBar = () => {
                         </div>
                       </div>
                     </Link>
-                    <Link to="/admin-usuarios" className="w-full">
-                      <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10">
-                        <div className="w-10 h-10 flex items-center justify-center">
-                          <FaUserCog className="text-2xl text-azul-claro" />
+
+                    {(userType !== 'Jogador') && (
+                      <Link to="/admin-usuarios" className="w-full">
+                        <div className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10">
+                          <div className="w-10 h-10 flex items-center justify-center">
+                            <FaUserCog className="text-2xl text-azul-claro" />
+                          </div>
+                          <div className="flex flex-col flex-grow items-start overflow-hidden">
+                            <h1 className="font-bold">Área Administrativa</h1>
+                            <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                              Gerenciar usuários
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-col flex-grow items-start overflow-hidden">
-                          <h1 className="font-bold">Área Administrativa</h1>
-                          <p className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                            Gerenciar usuários
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    )}
                     <div
                       className="w-full p-2 cursor-pointer flex items-center gap-3 hover:bg-hover group pr-10"
                       onClick={toggleEditModal}

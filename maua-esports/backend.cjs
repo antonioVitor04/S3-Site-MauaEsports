@@ -287,7 +287,11 @@ app.get('/usuarios/por-email', async (req, res) => {
 
     res.status(200).json({
       success: true,
-      usuario
+      usuario: {
+        ...usuario._doc,
+        // Garante que discordID está incluso
+        discordID: usuario.discordID || null
+      }
     });
   } catch (error) {
     console.error('Erro ao buscar usuário por email:', error);
