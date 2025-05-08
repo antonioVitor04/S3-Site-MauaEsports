@@ -1,19 +1,33 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import PageBanner from "../components/PageBanner";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useMsal } from '@azure/msal-react';
+import { Link, useNavigate } from 'react-router-dom';
+import PageBanner from '../components/PageBanner';
 
-// Importe as imagens corretamente
-import rank1 from "../assets/images/rank1.png";
-import rank2 from "../assets/images/rank2.png";
-import rank3 from "../assets/images/rank3.png";
-import rank4 from "../assets/images/rank4.png";
-import rank5 from "../assets/images/rank5.png";
-import rank6 from "../assets/images/rank6.png";
-import rank7 from "../assets/images/rank7.png";
-import rank8 from "../assets/images/rank8.png";
+// Importe as imagens dos ranks
+import rank1 from '../assets/images/rank1.png';
+import rank2 from '../assets/images/rank2.png';
+import rank3 from '../assets/images/rank3.png';
+import rank4 from '../assets/images/rank4.png';
+import rank5 from '../assets/images/rank5.png';
+import rank6 from '../assets/images/rank6.png';
+import rank7 from '../assets/images/rank7.png';
+import rank8 from '../assets/images/rank8.png';
 
 function HorasPaePage() {
-  // Dados dos ranks com imagens importadas
+  const { instance } = useMsal();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [userRole, setUserRole] = useState('');
+  const [discordId, setDiscordId] = useState('');
+  const [isCaptain, setIsCaptain] = useState(false);
+  const [modalidades, setModalidades] = useState({});
+  const [selectedModalityId, setSelectedModalityId] = useState('');
+  const [modalityPlayers, setModalityPlayers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Dados dos ranks com imagens
   const ranks = [
     { id: 1, name: "Rank 1", image: rank1 },
     { id: 2, name: "Rank 2", image: rank2 },
@@ -25,143 +39,180 @@ function HorasPaePage() {
     { id: 8, name: "Rank 8", image: rank8 }
   ];
 
-  const [modalidades, setModalidades] = useState({});
-  const [times, setTimes] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState("");
-  const [playersData, setPlayersData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   // Função para obter o início do semestre atual
   const getCurrentSemesterStart = () => {
     const now = new Date();
     const year = now.getFullYear();
-    // Semestre 1: Fevereiro (mês 1) até Julho (mês 6)
-    // Semestre 2: Agosto (mês 7) até Janeiro (mês 0 do próximo ano)
-    const semesterStartMonth = now.getMonth() < 7 ? 1 : 7; // Fevereiro ou Agosto
+    const semesterStartMonth = now.getMonth() < 7 ? 1 : 7;
     return new Date(year, semesterStartMonth, 1).getTime();
   };
 
-  // Carrega os dados da API
+  // Verifica autenticação e carrega dados do usuário
   useEffect(() => {
-    const fetchData = async () => {
+    const loadUserData = async () => {
       try {
-        // Busca as modalidades/times
-        const modResponse = await axios.get('/api/modality/all', {
-          headers: { "Authorization": "Bearer frontendmauaesports" }
-        });
+        const account = instance.getActiveAccount();
+        if (!account) {
+          navigate('/');
+          return;
+        }
 
-        const mods = modResponse.data;
-        setModalidades(mods);
+        const response = await axios.get(`http://localhost:3000/usuarios/por-email?email=${encodeURIComponent(account.username)}`);
+        const userData = response.data.usuario;
 
-        // Cria lista de times para o dropdown
-        const teamList = Object.values(mods).map(mod => mod.Name);
-        setTimes(teamList);
-        setSelectedTeam(teamList[0] || "");
-
-        // Busca os treinos
-        const trainsResponse = await axios.get('/api/trains/all', {
-          headers: { "Authorization": "Bearer frontendmauaesports" }
-        });
-
-        // Processa os dados para calcular as horas
-        processPlayerHours(trainsResponse.data, mods);
+        setUserData(userData);
+        setUserRole(userData.tipoUsuario);
+        setDiscordId(userData.discordID || '');
+        setAuthChecked(true);
 
       } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      } finally {
-        setLoading(false);
+        console.error("Erro ao carregar dados do usuário:", error);
+        navigate('/nao-autorizado');
       }
     };
 
-    fetchData();
-  }, []);
+    loadUserData();
+  }, [instance, navigate]);
 
-  // Atualiza os dados quando o time selecionado muda
-  useEffect(() => {
-    if (selectedTeam && Object.keys(modalidades).length > 0) {
-      const fetchTeamData = async () => {
-        try {
-          // Busca os treinos apenas para o time selecionado
-          const modId = Object.keys(modalidades).find(
-            key => modalidades[key].Name === selectedTeam
-          );
-
-          if (modId) {
-            const trainsResponse = await axios.get('/api/trains/all', {
-              headers: { "Authorization": "Bearer frontendmauaesports" },
-              params: { "ModalityId": modId }
-            });
-
-            processPlayerHours(trainsResponse.data, modalidades);
-          }
-        } catch (error) {
-          console.error("Erro ao buscar dados do time:", error);
-        }
-      };
-
-      fetchTeamData();
-    }
-  }, [selectedTeam, modalidades]);
-
-  // Adicione esta função para determinar a posição da linha de 40h
-  const get40hPosition = () => {
-    // Calcula em qual segmento da barra fica a marca de 40h
-    // Baseado nos limites dos ranks:
-    // Rank 4: 35-49h (Azul)
-    // 40h está no rank 4, que é o 5º segmento (índice 4)
-    // Dentro deste segmento, 40h está em (40-35)/15 = 33.33% do segmento
-
-    const rankIndex = 4; // Rank 4 (Azul) é o 5º segmento
-    const segmentProgress = (40 - 35) / 15; // 5/15 = 0.333...
-
-    // Calcula a posição percentual total
-    const totalProgress = (rankIndex / 8) + (segmentProgress / 8);
-
-    return `${totalProgress * 100}%`;
-  };
-
-  // Processa os dados dos treinos para calcular as horas dos jogadores (apenas do semestre atual)
+  // Função para processar os dados dos jogadores
   const processPlayerHours = (trainsData, modalities) => {
     const playerHours = {};
     const semesterStart = getCurrentSemesterStart();
 
+    // Primeiro passamos por todos os treinos para calcular os totais
     trainsData.forEach(train => {
-      // Filtra apenas treinos finalizados do semestre atual
       if (train.Status !== "ENDED" || !train.AttendedPlayers || train.StartTimestamp < semesterStart) return;
-
+      
       const modality = modalities[train.ModalityId];
       if (!modality) return;
 
       train.AttendedPlayers.forEach(player => {
         if (!player.PlayerId || !player.EntranceTimestamp || !player.ExitTimestamp) return;
+        if (userRole === 'Jogador' && player.PlayerId !== discordId) return;
 
-        // Calcula a duração em horas (apenas se o treino for do semestre atual)
         const durationHours = (player.ExitTimestamp - player.EntranceTimestamp) / (1000 * 60 * 60);
 
-        if (playerHours[player.PlayerId]) {
-          playerHours[player.PlayerId].hours += durationHours;
-        } else {
+        if (!playerHours[player.PlayerId]) {
           playerHours[player.PlayerId] = {
-            name: `${player.PlayerId}`, // Nome genérico com ID
-            hours: durationHours,
-            team: modality.Name
+            name: player.PlayerId,
+            totalHours: 0,
+            teams: {}
           };
         }
+
+        // Acumula horas por modalidade
+        if (!playerHours[player.PlayerId].teams[train.ModalityId]) {
+          playerHours[player.PlayerId].teams[train.ModalityId] = {
+            hours: 0,
+            teamName: modality.Name
+          };
+        }
+
+        playerHours[player.PlayerId].teams[train.ModalityId].hours += durationHours;
+        playerHours[player.PlayerId].totalHours += durationHours;
       });
     });
 
-    // Converte o objeto em array e ordena por horas
-    const playersArray = Object.values(playerHours)
-      .filter(player => player.team === selectedTeam)
-      .sort((a, b) => b.hours - a.hours);
+    // Agora processamos para cada modalidade separadamente
+    const modalityPlayers = {};
+    
+    Object.keys(modalities).forEach(modalityId => {
+      modalityPlayers[modalityId] = [];
+    });
 
-    setPlayersData(playersArray);
+    Object.values(playerHours).forEach(player => {
+      // Encontra a modalidade principal (onde tem mais horas)
+      let mainModalityId = null;
+      let maxHours = 0;
+      
+      Object.entries(player.teams).forEach(([modalityId, teamData]) => {
+        if (teamData.hours > maxHours) {
+          maxHours = teamData.hours;
+          mainModalityId = modalityId;
+        }
+      });
+
+      // Se o jogador tem horas em alguma modalidade, adiciona à modalidade principal
+      if (mainModalityId) {
+        modalityPlayers[mainModalityId].push({
+          ...player,
+          mainTeam: {
+            modalityId: mainModalityId,
+            name: modalities[mainModalityId].Name
+          }
+        });
+      }
+    });
+
+    // Ordena os jogadores em cada modalidade por horas totais
+    Object.keys(modalityPlayers).forEach(modalityId => {
+      modalityPlayers[modalityId].sort((a, b) => b.totalHours - a.totalHours);
+    });
+
+    return modalityPlayers;
   };
 
-  // Restante do seu código permanece igual...
-  // (Funções getCurrentRank, getFillPercentage, getColor, e o JSX de renderização)
+  // Busca modalidades e dados dos jogadores
+  useEffect(() => {
+    if (!authChecked) return;
 
-  // Função para determinar o rank atual com base nas horas
+    const fetchData = async () => {
+      try {
+        const [trainsResponse, modResponse] = await Promise.all([
+          axios.get('/api/trains/all', {
+            headers: { "Authorization": "Bearer frontendmauaesports" }
+          }),
+          axios.get('/api/modality/all', {
+            headers: { "Authorization": "Bearer frontendmauaesports" }
+          })
+        ]);
+
+        const mods = modResponse.data;
+        const processedPlayers = processPlayerHours(trainsResponse.data, mods);
+
+        setModalidades(mods);
+        setModalityPlayers(processedPlayers);
+
+        // Define a modalidade inicial
+        if (userRole === 'Administrador' || userRole === 'Administrador Geral') {
+          setSelectedModalityId(Object.keys(mods)[0]);
+        } else {
+          // Para jogadores normais, encontra a modalidade padrão
+          let userModalityId = null;
+          let captainModalityId = null;
+
+          Object.keys(mods).forEach(modId => {
+            // Verifica se é capitão
+            if (userData?.nome && mods[modId].Name.includes(userData.nome)) {
+              captainModalityId = modId;
+            }
+
+            // Verifica se tem jogadores nesta modalidade
+            if (processedPlayers[modId]?.some(p => p.name === discordId)) {
+              userModalityId = modId;
+            }
+          });
+
+          setIsCaptain(!!captainModalityId);
+          const defaultModalityId = captainModalityId || userModalityId;
+
+          if (defaultModalityId) {
+            setSelectedModalityId(defaultModalityId);
+          }
+        }
+
+        setLoading(false);
+
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [authChecked, discordId, userData, userRole]);
+
+  // FUNÇÕES PARA CÁLCULO DOS RANKS
   const getCurrentRank = (hours) => {
     if (hours >= 80) return 8;    // Diamante (80h)
     if (hours >= 70) return 7;    // Vermelho (70-79h)
@@ -175,146 +226,193 @@ function HorasPaePage() {
     return -1;                    // Vazio (0h)
   };
 
-  // Calcula a porcentagem de preenchimento do rank atual
   const getFillPercentage = (hours) => {
     const rank = getCurrentRank(hours);
-
     switch (rank) {
-      case 0: return (hours / 10) * 100;       // Branco (1-9h)
-      case 1: return ((hours - 10) / 5) * 100; // Bronze (10-14h)
-      case 2: return ((hours - 15) / 10) * 100;// Prata (15-24h)
-      case 3: return ((hours - 25) / 10) * 100;// Ouro (25-34h)
-      case 4: return ((hours - 35) / 15) * 100;// Azul (35-49h)
-      case 5: return ((hours - 50) / 10) * 100;// Esmeralda (50-59h)
-      case 6: return ((hours - 60) / 10) * 100;// Roxo (60-69h)
-      case 7: return ((hours - 70) / 10) * 100;// Vermelho (70-79h)
-      case 8: return 100;                      // Diamante (80h)
+      case 0: return (hours / 10) * 100;
+      case 1: return ((hours - 10) / 5) * 100;
+      case 2: return ((hours - 15) / 10) * 100;
+      case 3: return ((hours - 25) / 10) * 100;
+      case 4: return ((hours - 35) / 15) * 100;
+      case 5: return ((hours - 50) / 10) * 100;
+      case 6: return ((hours - 60) / 10) * 100;
+      case 7: return ((hours - 70) / 10) * 100;
+      case 8: return 100;
       default: return 0;
     }
   };
 
-  // Retorna a cor correspondente ao rank
   const getColor = (rank) => {
     switch (rank) {
-      case 0: return "bg-white";         // Branco
-      case 1: return "bg-[#5D0F01]";     // Bronze
-      case 2: return "bg-[#7A807D]";     // Prata
-      case 3: return "bg-[#FCA610]";     // Ouro
-      case 4: return "bg-[#39A0B1]";     // Azul
-      case 5: return "bg-[#047C21]";     // Esmeralda
-      case 6: return "bg-[#60409E]";     // Roxo
-      case 7: return "bg-[#C10146]";     // Vermelho
-      case 8: return "bg-[#FFC87F]";     // Diamante
-      default: return "bg-gray-700";     // Vazio
+      case 0: return "bg-white";
+      case 1: return "bg-[#5D0F01]";
+      case 2: return "bg-[#7A807D]";
+      case 3: return "bg-[#FCA610]";
+      case 4: return "bg-[#39A0B1]";
+      case 5: return "bg-[#047C21]";
+      case 6: return "bg-[#60409E]";
+      case 7: return "bg-[#C10146]";
+      case 8: return "bg-[#FFC87F]";
+      default: return "bg-gray-700";
     }
   };
 
+  const get40hPosition = () => {
+    const rankIndex = 4;
+    const segmentProgress = (40 - 35) / 15;
+    const totalProgress = (rankIndex / 8) + (segmentProgress / 8);
+    return `${totalProgress * 100}%`;
+  };
+
+  // Renderização condicional
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
-        <div className="text-xl">Carregando dados...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azul-claro"></div>
       </div>
     );
   }
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azul-claro"></div>
+      </div>
+    );
+  }
+
+  // Mensagens de feedback
+  if (userRole === 'Jogador' && !discordId) {
+    return (
+      <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
+        <div className="text-center p-6 max-w-md bg-gray-800 rounded-lg border border-gray-700">
+          <h2 className="text-2xl font-bold mb-4">Ação necessária</h2>
+          <p className="mb-6">Você precisa cadastrar seu Discord ID para visualizar as horas PAE.</p>
+          <Link
+            to="/perfil"
+            className="px-6 py-3 bg-azul-claro rounded-lg hover:bg-azul-escuro transition-colors inline-block"
+          >
+            Editar Perfil
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (Object.keys(modalidades).length === 0 && userRole !== 'Administrador' && userRole !== 'Administrador Geral') {
+    return (
+      <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
+        <div className="text-center p-6 max-w-md bg-gray-800 rounded-lg border border-gray-700">
+          <h2 className="text-2xl font-bold mb-4">Nenhuma modalidade encontrada</h2>
+          <p className="mb-6">Você não está registrado em nenhuma modalidade ou não participou de treinos neste semestre.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-azul-claro rounded-lg hover:bg-azul-escuro transition-colors"
+          >
+            Recarregar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentModality = modalidades[selectedModalityId] || {};
+
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white ">
+    <div className="min-h-screen bg-[#0D1117] text-white">
       <div className="bg-[#010409] h-[104px]"></div>
-      <PageBanner pageName={`Horas PAEs - ${selectedTeam}`} />
+      <PageBanner pageName={`Horas PAEs - ${currentModality.Name || ''}`} />
 
       <div className="flex flex-col md:flex-row gap-6 md:px-14 md:py-15">
-        {/* Dropdown de seleção de times */}
+        {/* Seletor de modalidade */}
         <div className="px-6 md:px-0">
           <div className="relative w-full md:w-64 mb-6">
-            <label htmlFor="team-select" className="block text-sm font-medium text-gray-300 mb-2">
-              Selecione um Time:
+            <label htmlFor="modality-select" className="block text-sm font-medium text-gray-300 mb-2">
+              Modalidade:
             </label>
-            <select
-              id="team-select"
-              className="block w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={selectedTeam}
-              onChange={(e) => setSelectedTeam(e.target.value)}
-            >
-              {times.map((time, idx) => (
-                <option key={idx} value={time} className="bg-gray-800">
-                  {time}
-                </option>
-              ))}
-            </select>
+            {(userRole === 'Administrador' || userRole === 'Administrador Geral') ? (
+              <select
+                id="modality-select"
+                className="block w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={selectedModalityId}
+                onChange={(e) => setSelectedModalityId(e.target.value)}
+              >
+                {Object.keys(modalidades).map((modId) => (
+                  <option key={modId} value={modId}>
+                    {modalidades[modId].Name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                className="block w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white cursor-not-allowed"
+                value={currentModality.Name || ''}
+                readOnly
+              />
+            )}
           </div>
         </div>
 
-        {/* Main content */}
+        {/* Conteúdo principal */}
         <main className="flex-1">
-          {/* Container das barras */}
           <div className="bg-gray-800 border-2 border-gray-700 rounded-[30px] shadow-lg p-6">
-            {/* Cabeçalho com imagens dos ranks */}
+            {/* Cabeçalho com ranks */}
             <div className="flex mb-4">
-              <div className="w-24 md:w-32"></div> {/* Espaço para os nomes dos jogadores */}
+              <div className="w-24 md:w-32"></div>
               <div className="flex-1 grid grid-cols-8 gap-1">
-                {ranks.map((rank, index) => (
-                  <div key={index} className="flex flex-col items-center">
-                    <img
-                      src={rank.image}
-                      alt={rank.name}
-                      className="w-20 h-20 object-contain mb-1"
-                    />
+                {ranks.map((rank) => (
+                  <div key={rank.id} className="flex flex-col items-center">
+                    <img src={rank.image} alt={rank.name} className="w-20 h-20 object-contain mb-1" />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Lista de jogadores com barras */}
-            {playersData.length > 0 ? (
-              playersData.map((player, playerIndex) => {
-                const currentRank = getCurrentRank(player.hours);
-                const fillPercentage = getFillPercentage(player.hours);
-                const roundedHours = Math.round(player.hours * 10) / 10; // Arredonda para 1 casa decimal
+            {/* Lista de jogadores */}
+            {modalityPlayers[selectedModalityId]?.length > 0 ? (
+              modalityPlayers[selectedModalityId].map((player, index) => {
+                const currentRank = getCurrentRank(player.totalHours);
+                const fillPercentage = getFillPercentage(player.totalHours);
+                const roundedHours = Math.round(player.totalHours * 10) / 10;
 
                 return (
-                  <div key={playerIndex} className="flex items-center mb-4">
-                    <div className="w-24 md:w-32 font-semibold truncate">{player.name}</div>
+                  <div key={index} className="flex items-center mb-4">
+                    <div className="w-24 md:w-32 font-semibold truncate">
+                      {player.name}
+                      <div className="text-xs text-gray-400 mt-1">
+                        {player.mainTeam?.name || 'Sem time principal'}
+                      </div>
+                    </div>
 
-                    {/* Barra de progresso com segmentos para cada rank */}
-                    <div className="flex-1 grid grid-cols-8 gap-1 relative"> {/* Adicione relative aqui */}
-                      {/* Linha vertical de 40h */}
+                    <div className="flex-1 grid grid-cols-8 gap-1 relative">
+                      {/* Linha de 40h */}
                       <div
                         className="absolute top-0 bottom-0 w-0.5 bg-yellow-300 z-10"
                         style={{
-                          left: `calc(${get40hPosition()} + 4px)`, // Ajuste fino de posicionamento
+                          left: `calc(${get40hPosition()} + 4px)`,
                           boxShadow: '0 0 5px 1px rgba(255, 255, 0, 0.7)'
                         }}
                       ></div>
-
-                      {/* Tooltip para a linha */}
                       <div
                         className="absolute -top-6 text-yellow-300 text-xs font-bold whitespace-nowrap"
-                        style={{
-                          left: `calc(${get40hPosition()} - 20px)`,
-                        }}
+                        style={{ left: `calc(${get40hPosition()} - 20px)` }}
                       >
                         40h
                       </div>
 
+                      {/* Barras de progresso */}
                       {ranks.map((_, rankIndex) => {
-                        const rankNumber = rankIndex + 1;
-                        const isActiveRank = rankNumber === currentRank + 1;
-                        const isCompletedRank = rankNumber <= currentRank;
+                        const rankNum = rankIndex + 1;
+                        const isActive = rankNum === currentRank + 1;
+                        const isCompleted = rankNum <= currentRank;
                         const isEmpty = currentRank === -1;
 
-                        let color;
-                        if (isEmpty) {
-                          color = "bg-gray-700";
-                        } else if (isCompletedRank) {
-                          color = getColor(currentRank);
-                        } else if (isActiveRank) {
-                          color = getColor(currentRank);
-                        } else {
-                          color = "bg-gray-700";
-                        }
+                        let color = isEmpty ? "bg-gray-700" :
+                          isCompleted ? getColor(currentRank) :
+                            isActive ? getColor(currentRank) : "bg-gray-700";
 
-                        const segmentFill = isActiveRank ? fillPercentage :
-                          isCompletedRank ? 100 : 0;
+                        const fill = isActive ? fillPercentage : isCompleted ? 100 : 0;
 
                         return (
                           <div key={rankIndex} className="relative h-10">
@@ -324,11 +422,10 @@ function HorasPaePage() {
                             >
                               <div
                                 className={`absolute inset-0 ${color}`}
-                                style={{ width: `${segmentFill}%` }}
+                                style={{ width: `${fill}%` }}
                               ></div>
                             </div>
-
-                            {rankNumber === 8 && (
+                            {rankNum === 8 && (
                               <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
                                 {roundedHours}h
                               </div>
@@ -342,7 +439,9 @@ function HorasPaePage() {
               })
             ) : (
               <div className="text-center py-8 text-gray-400">
-                Nenhum dado de jogadores encontrado para este time no semestre atual.
+                {userRole === 'Jogador'
+                  ? "Você não possui horas registradas neste semestre."
+                  : "Nenhum dado de jogadores encontrado para esta modalidade."}
               </div>
             )}
 
@@ -358,8 +457,8 @@ function HorasPaePage() {
                 { range: "60-69h", color: "bg-[#60409E]", name: "Elite" },
                 { range: "70-79h", color: "bg-[#C10146]", name: "Mestre" },
                 { range: "80h+", color: "bg-[#FFC87F]", name: "Lenda" },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center">
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center">
                   <div
                     className={`w-5 h-5 mr-2 ${item.color}`}
                     style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0% 100%)" }}
